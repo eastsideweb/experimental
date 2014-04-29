@@ -1,0 +1,1 @@
+/* psdb library typescript definitions */
