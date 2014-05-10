@@ -1,0 +1,21 @@
+{
+  "//": [ 
+  "package.json", 
+  "Copyright (c) 2014 Eastside Web (http://eastsideweb.github.io/)",
+  "FILE: package.json",
+  "DESCRIPTION: The packages to be installed for Puzzle Orchestration",
+  "HISTORY: ",
+  "Date            By  Comment",
+  "2014 May 10th    NSA  Created"
+  ],
+  "name": "application-name",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "dependencies": {
+    "express": "~4.0.0",
+    "debug": "~0.7.4"
+  }
+}
