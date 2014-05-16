@@ -6,3 +6,8 @@
 *.ts~
 *.js~
 *.html~
+node_modules/
+debug/
+ps0/src/bin/*
+*.map
+*.suo
