@@ -18,8 +18,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="lib\config.ts" />
-    <Content Include="lib\fakedb\fakedb.js" />
-    <Content Include="lib\psdb\psdb.js" />
+    <Content Include="lib\fakedb\fakedb.ts" />
+    <Content Include="lib\psdb\psdb.ts" />
     <Content Include="public\index.html" />
     <Content Include="test\test-psdb.js" />
     <Content Include="test\test.html" />
@@ -40,6 +40,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="package.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="config.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="lib\fakedb\fakeDatabase.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="web.Debug.config">
@@ -93,6 +99,8 @@
   <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets')" />
   <PropertyGroup>
     <PostBuildEvent>xcopy "$(TargetDir)www" "$(SolutionDir)$(Configuration)\bin\" /F /I /Y
-xcopy "$(TargetDir)package.json" "$(SolutionDir)$(Configuration)\" /F /I /Y</PostBuildEvent>
+xcopy "$(TargetDir)package.json" "$(SolutionDir)$(Configuration)\" /F /I /Y
+xcopy "$(TargetDir)config.json" "$(SolutionDir)$(Configuration)\" /F /I /Y
+xcopy "$(TargetDir)lib\fakedb\fakeDatabase.json" "$(SolutionDir)$(Configuration)\lib\fakedb\" /F /I /Y</PostBuildEvent>
   </PropertyGroup>
 </Project>

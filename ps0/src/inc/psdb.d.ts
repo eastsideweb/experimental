@@ -10,7 +10,6 @@
 //     2014 May 5th    TJ  Created
 //
 //
-
 // Describes interfaces implemented by PSDB library objects
 interface SeriesInfo {
     name: string;
@@ -28,6 +27,7 @@ interface CallBackWithCount {
 
 declare enum SeriesObjectType {
     'instructor',
+    'event',
     'puzzle',
     'team',
     'player',
@@ -86,6 +86,8 @@ interface PSDB {
     // Synchronous call to get a puzzleSeries object represented by given token (which was handed out earlier)
     // return value will be null if the token is invalid or has expired
     series(token: string): PuzzleSeries;
+
+    config?: any;
 }
 
 // Interface puzzleSeries that the series object needs to implement

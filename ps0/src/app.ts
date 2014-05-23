@@ -19,7 +19,8 @@
 
 import express = require('express');
 import path = require('path');
-
+import config = require('./lib/config');
+global.config = config('config');
 var app = express();
 var routes = require('./routes')(app);
 
@@ -46,7 +47,8 @@ app.use(function(req, res, next) {
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
-    app.use(function(err, req, res, next) {
+    app.use(function (err, req, res, next) {
+        console.log('Error: ' + err.message);
         res.status(err.status || 500);
         res.render('error', {
             message: err.message,
