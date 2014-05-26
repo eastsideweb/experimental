@@ -1,0 +1,9 @@
+{
+"Debug": true,
+"test": true,
+"psdb": {
+    "serverName": "localhost",
+    "seriesInfoDBName": "psdbSeries",
+    "seriesInfoCollectionName": "psdbSeries"
+	}
+}
