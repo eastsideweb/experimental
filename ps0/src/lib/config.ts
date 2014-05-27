@@ -26,12 +26,12 @@ var readConfig = function (filename: string) {
         console.log('running in env: ' + env);
         filenameEnv = filename + '.' + env + '.json';
         if (fs.existsSync(filenameEnv)) {
-            console.log('file found' + filenameEnv);
+            console.log('file found ' + filenameEnv);
             configEnv = JSON.parse(fs.readFileSync(filenameEnv, 'utf8'));
             config = merge(config, configEnv);
         }
         else {
-            console.log('file not found' + filenameEnv);
+            console.log('file not found ' + filenameEnv);
         }
     }
     else {

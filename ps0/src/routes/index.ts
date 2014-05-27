@@ -12,109 +12,212 @@
 //
 // This handles the requests to rest API endpoints
 ///<reference path="../inc/ext/express.d.ts"/>
-///<reference path="../lib/typedefinition.ts"/>
-
 "use strict";
 
 import express = require('express');
 var router = new express.Router();
 
-import typeDef = require('../lib/typedefinition');
-var types = new typeDef();
+import validator = require('../lib/validator');
 
-// TODO: Valdiations, exception handling and including the PSDB module
-// TODO: change all the reponses to return correct response objects
-//router.param('id', '/^[0-9a-fA-F]{24}$/');
-router.all('/:type*', function (request, response, next) {
-    if (types.checkValidType(request.params.type) !== undefined) {
+import psdb = require('../lib/psdb/psdb');
+
+
+/// Validations of requests
+// Checks if it is a valid string type
+router.param('type', function (request, response, next, type) {
+    if (validator.isCharactersOnly(type)) {
         next();
     }
     else {
-        response.json({
-            error_msg: request.params.type + ' is not a valid object type'
-        });
+        next(new Error('The requested url does not contain a valid type'));
     }
 });
 
+
+
+/// Routing API
+
+
+
 // Handles the default request to the root url
-router.get('/', function (req, res) {
+router.get('/', function (request, response) {
     // Change this to redirect to index.html page that displays all the series
-    res.send('respond with a resource');
+    response.send('respond with a resource');
 });
 
-// Gets all the entities or perform search on entities if query params are present
-// TODO:// create a separate request handing based on regex match for query parameters
-router.get('/:type', function (req, res) {
+
+
+/// Region series
+/// Start of series related requests
+
+
+// Handles the request for getting the list of series or query related to series
+// Request: GET contains series  
+// Response: set of series list
+router.get('/series', function (request, response, next) {
+    response.json({ 'test': {} });
+    //var series = psdb.findSeries('*', function (err, seriesList) {
+    //    if (err) {
+    //        next(err);
+    //    }
+    //    else {
+    //        response.json({ 'test': {}});
+    //    }
+    //});
+    
+});
+
+// Handles the request for getting the session id associated with a particular series
+// Called prior to viewing a series details
+// Request: POST should contain a valid series id, username and password
+// Response: valid token (session)
+router.post('/series/:id/session', function (request, response) {
+    //Retrieve user name and password
+    var username = request.body.username;
+    var password = request.body.password;
+    var roleType = request.body.roleType;
+
+    if (validator.isValidString(username) && validator.isValidString(password)) {
+        response.json(200, { 'token': 'token' + request.params.id });
+    }
+    else {
+        response.status(500).send(new Error('Not valid credentials, please provide valid credentials'));
+    }
+});
+
+// Handles the request for clearing the token associated with a particular series (logout)
+// Request: DELETE should contain a valid token
+// Response: status 200 ok
+router.delete('/series/:id/session/:token', function (request, response) {
+    //request.params.token;
+    //Check for token and Invalidate the token
+    response.json(200, {});
+});
+
+
+
+/// End region series
+
+
+
+/// Region types (require token for operations)
+
+
+
+// Handles the validation of authentication for all the incoming requests
+// Validates the incoming request if it contains a valid token in the header
+router.all('/:type*', function (request, response, next) {
+    // TODO: Validate token value
+    var token = request.headers['token'];
+    if (validator.isValidString(token)) {
+        next();
+    }
+    else {
+        next(new Error('This is an invalid token, please provide a valid session token'));
+    }
+});
+
+// Handles the request for getting list of types (events, players, teams etc)
+// Also performs search on entities if query params are present
+// Request: GET should contain a valid type, (and valid query string)
+// Response: list of the requested type
+router.get('/:type', function (request, response) {
+
+    var token = request.headers['token'];
     // pasdb function
+    if (request.query != null) {
+        //if it has query parameters, format and then pass it to 
+        response.json(200, { 'query': request.query });
+    }
 
     //if it has query parameters, format and then pass it to 
-    //check for any type other than series need token
-    res.json({ 'type': req.params.type });
+    response.json(200, {'type': request.params.id});
 });
 
-// Gets the session token for the respective series id
-router.post('/:type(' + types.getTypesAssociatedWithToken() + ')/:id/session', function (req, res) {
-
-    //retrieve user name and password from req body and generate token
-    res.json({ 'type': req.params.type });
+// Handles the request for getting a details of requested type
+// Not applicable for associated sub collections as they are retrieved using query parameters
+// Retrieves details of the particular type
+// Reequest: GET should contain a valid id of the requested type
+// Response: json object containing the details of the requested type
+router.get('/:type/:id', function (request, response) {
+    response.json(200, {});
 });
 
-// Deletes the session token for the respective series id
-router.delete('/:type(' + types.getTypesAssociatedWithToken() + ')/:id/session/:token', function (req, res) {
-    // Invalidate the token
-    res.json({});
+// Handles the request for get the status of the requested type
+// Applicable only for events.
+// Request: GET should contain only events
+// Response: Status of the event: notstarted/ended/started
+router.get('/:type/:id/status', function (request, response) {
+    response.json(200, {});
 });
 
-router.get('/:type/:id', function (req, res) {
-    res.json({});
+
+// Handles the request for creating a particular type
+// Request: POST containing the respective json object passed in the body
+// Response: the requested json object type created
+router.post('/:type', function (request, response) {
+    response.json({});
 });
 
-// Creates the respective type object passed in the body
-router.post('/:type', function (req, res) {
-    res.json({});
+// Handles the request for modifying a particular type
+// Not allowed sub-collections when used as association
+// Request: PUT containing the respective type to be modified, should contain a valid id
+// Response: count for the updated type
+router.put('/:type/:id', function (request, response) {
+    response.json({});
 });
 
-// Modify an type
-router.put('/:type/:id', function (req, res) {
-    res.json({});
-});
-
-// Activates the type. Not applicable for events. 
-// Body: true or false for states representing activate/deactivate
-router.put('/:type(' + types.getTypesAssociatedWithActiveState() + ')/:id/active', function (req, res) {
-    res.json({});
-});
-
-// Activates the type. Applicable only for events.
-// Status: notstarted/ended/started
-router.put('/:type(' + types.getTypesAssociatedWithStatus() + ')/:id/status', function (req, res) {
-    res.json({});
-});
-
-// Gets the status of the type. Applicable only for events.
-// Status: notstarted/ended/started
-router.get('/:type(' + types.getTypesAssociatedWithStatus() + ')/:id/status', function (req, res) {
-    res.json({});
-});
-
-// Deletes the type
+// Handles the request to delete a particular type
+// Request: DELETE containing a valid type id
+// Response: status ok
 router.delete('/:type/:id', function (req, res) {
     res.json({});
 });
 
-// Add players or puzzles to the team
-router.post('/:type(' + types.getTypesWithAssociatedRelations() + ')/:id/:associatedtype(' + types.getTypesAssociatedWithTeams() + ')', function (req, res) {
+
+
+/// Region for sub collections
+
+
+// Handles the request to add associated type (players or puzzles to the team)
+// Request: POST containing the json of ids of associated type (json containing player id or array of player ids)
+// Response: status ok
+router.post('/:type/:id/:associatedtype', function (request, response) {
+    response.json({});
+});
+
+
+// Handles the request for activating a particular type  
+// Request: PUT body containing true or false for states representing activate/deactivate
+// Response: status ok
+router.put('/:type/:id/active', function (request, response) {
+    response.json({});
+});
+
+// Handles the request for setting status on a particular type 
+// Applicable only for events
+// Reuquest: PUT containing status: notstarted/ended/started
+// Response: status ok
+router.put('/:type/:id/status', function (request, response) {
+    response.json({});
+});
+
+// Handles the reqest for modifying puzzle states associated to a team
+// Request: PUT containing json puzzle state string
+// Response: status ok
+router.put('/:type/:id/puzzlestates/id', function (req, res) {
     res.json({});
 });
 
-// Remove players or puzzles from the team
-router.delete('/:type(' + types.getTypesWithAssociatedRelations() + ')/:id/:associatedtype(' + types.getTypesAssociatedWithTeams() + ')', function (req, res) {
+// Handles the request to delete associated type (players or puzzles from the team)
+// Request: DELETE containing valid json ids of associated type
+// Response: status ok
+router.delete('/:type/:id/:associatedtype', function (req, res) {
     res.json({});
 });
 
-// Modify puzzle states to a team
-router.put('/:type(' + types.getTypesWithAssociatedRelations() + ')/:id/puzzlestates/id', function (req, res) {
-    res.json({});
-});
+/// End region for subcollections
+
+/// End region with token
 
 module.exports = router;

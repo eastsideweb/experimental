@@ -27,6 +27,9 @@
     <Content Include="www">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <TypeScriptCompile Include="inc\ext\connect.d.ts" />
+    <TypeScriptCompile Include="lib\validator.ts" />
+    <TypeScriptCompile Include="test\index.test.ts" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
@@ -35,7 +38,6 @@
     <TypeScriptCompile Include="inc\ext\node.d.ts" />
     <TypeScriptCompile Include="inc\psdb.d.ts" />
     <TypeScriptCompile Include="routes.ts" />
-    <TypeScriptCompile Include="lib\typedefinition.ts" />
     <TypeScriptCompile Include="routes\index.ts" />
   </ItemGroup>
   <ItemGroup>
