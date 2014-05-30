@@ -55,16 +55,16 @@ router.get('/', function (request, response) {
 // Request: GET contains series  
 // Response: set of series list
 router.get('/series', function (request, response, next) {
-    response.json({ 'test': {} });
-    //var series = psdb.findSeries('*', function (err, seriesList) {
-    //    if (err) {
-    //        next(err);
-    //    }
-    //    else {
-    //        response.json({ 'test': {}});
-    //    }
-    //});
-    
+    // Check for query parameters, else return all the available lists
+    var query = (request.query != null) ? request.query : {};
+    var series = psdb.findSeries(query, function (err, seriesList) {
+        if (err) {
+            next(err);
+        }
+        else {
+            response.json(seriesList);
+        }
+    });
 });
 
 // Handles the request for getting the session id associated with a particular series
@@ -205,15 +205,15 @@ router.put('/:type/:id/status', function (request, response) {
 // Handles the reqest for modifying puzzle states associated to a team
 // Request: PUT containing json puzzle state string
 // Response: status ok
-router.put('/:type/:id/puzzlestates/id', function (req, res) {
-    res.json({});
+router.put('/:type/:id/puzzlestates/id', function (request, response) {
+    response.json({});
 });
 
 // Handles the request to delete associated type (players or puzzles from the team)
 // Request: DELETE containing valid json ids of associated type
 // Response: status ok
-router.delete('/:type/:id/:associatedtype', function (req, res) {
-    res.json({});
+router.delete('/:type/:id/:associatedtype', function (request, response) {
+    response.json({});
 });
 
 /// End region for subcollections
