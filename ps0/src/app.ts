@@ -33,8 +33,6 @@ var app = express();
 app.use(connect.json());
 app.use(connect.urlencoded());
 
-var routes = require('./routes')(app);
-
 // view engine setup
 // Commented as this is present in the auto generated view
 // Will uncomment when the view is and its flow is finalized
@@ -44,6 +42,7 @@ var routes = require('./routes')(app);
 app.set('title', 'Puzzle Orchestration');
 
 app.use(express.static(path.join(__dirname, 'public')));
+var routes = require('./routes')(app);
 
 /// catch 404 and forwarding to error handler
 app.use(function(req, res, next) {

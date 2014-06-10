@@ -46,7 +46,6 @@ router.get('/', function (request, response) {
 });
 
 
-
 /// Region series
 /// Start of series related requests
 
@@ -71,27 +70,39 @@ router.get('/series', function (request, response, next) {
 // Called prior to viewing a series details
 // Request: POST should contain a valid series id, username and password
 // Response: valid token (session)
-router.post('/series/:id/session', function (request, response) {
+router.post('/series/:id/session', function (request, response, next) {
     //Retrieve user name and password
     var username = request.body.username;
     var password = request.body.password;
     var roleType = request.body.roleType;
 
-    if (validator.isValidString(username) && validator.isValidString(password)) {
-        response.json(200, { 'token': 'token' + request.params.id });
+    if (validator.isValidString(username) && validator.isValidString(password) && validator.isValidString(roleType)) {
+        //psdb.getSeriesToken(request.params.id, roleType, { 'username': username, 'password': password }, function (err, token) {
+        //    if (err) {
+        //        next(err);
+        //    }
+        //    else {
+        //        response.json(token);
+        //    }
+        //});
+        response.json({});
     }
     else {
-        response.status(500).send(new Error('Not valid credentials, please provide valid credentials'));
+        next(new Error('Not valid credentials, please provide valid credentials'));
     }
 });
 
 // Handles the request for clearing the token associated with a particular series (logout)
 // Request: DELETE should contain a valid token
 // Response: status 200 ok
-router.delete('/series/:id/session/:token', function (request, response) {
+router.delete('/series/:id/session/:token', function (request, response, next) {
     //request.params.token;
     //Check for token and Invalidate the token
-    response.json(200, {});
+    psdb.releaseSeriesToken(request.params.token, function (err) {
+        if (err) {
+            next(err);
+        }
+    });
 });
 
 
@@ -122,16 +133,20 @@ router.all('/:type*', function (request, response, next) {
 // Request: GET should contain a valid type, (and valid query string)
 // Response: list of the requested type
 router.get('/:type', function (request, response) {
-
     var token = request.headers['token'];
+    
     // pasdb function
-    if (request.query != null) {
-        //if it has query parameters, format and then pass it to 
-        response.json(200, { 'query': request.query });
-    }
-
-    //if it has query parameters, format and then pass it to 
-    response.json(200, {'type': request.params.id});
+    //if (!validator.isEmptyJson(request.query)) {
+    //    //if it has query parameters, format and then pass it to 
+    //    response.json(200, { 'query': request.query });
+    //    console.log("query is" + request.query);
+    //}
+    //else {
+    //    console.log("type is" + request.params.type);
+    //    //if it has query parameters, format and then pass it to 
+    //    response.json(200, { 'type': request.params.type });
+    //}
+    response.json(200, { 'type': request.params.type });
 });
 
 // Handles the request for getting a details of requested type
@@ -155,8 +170,8 @@ router.get('/:type/:id/status', function (request, response) {
 // Handles the request for creating a particular type
 // Request: POST containing the respective json object passed in the body
 // Response: the requested json object type created
-router.post('/:type', function (request, response) {
-    response.json({});
+router.post('/:type', function (request, response, next) {
+    response.json(200, {});
 });
 
 // Handles the request for modifying a particular type
@@ -170,8 +185,8 @@ router.put('/:type/:id', function (request, response) {
 // Handles the request to delete a particular type
 // Request: DELETE containing a valid type id
 // Response: status ok
-router.delete('/:type/:id', function (req, res) {
-    res.json({});
+router.delete('/:type/:id', function (request, response) {
+    response.json(200, {});
 });
 
 
@@ -183,7 +198,7 @@ router.delete('/:type/:id', function (req, res) {
 // Request: POST containing the json of ids of associated type (json containing player id or array of player ids)
 // Response: status ok
 router.post('/:type/:id/:associatedtype', function (request, response) {
-    response.json({});
+    response.json(200, {});
 });
 
 
@@ -191,7 +206,7 @@ router.post('/:type/:id/:associatedtype', function (request, response) {
 // Request: PUT body containing true or false for states representing activate/deactivate
 // Response: status ok
 router.put('/:type/:id/active', function (request, response) {
-    response.json({});
+    response.json(200, {});
 });
 
 // Handles the request for setting status on a particular type 
@@ -199,21 +214,21 @@ router.put('/:type/:id/active', function (request, response) {
 // Reuquest: PUT containing status: notstarted/ended/started
 // Response: status ok
 router.put('/:type/:id/status', function (request, response) {
-    response.json({});
+    response.json(200, {});
 });
 
 // Handles the reqest for modifying puzzle states associated to a team
 // Request: PUT containing json puzzle state string
 // Response: status ok
 router.put('/:type/:id/puzzlestates/id', function (request, response) {
-    response.json({});
+    response.json(200, {});
 });
 
 // Handles the request to delete associated type (players or puzzles from the team)
 // Request: DELETE containing valid json ids of associated type
 // Response: status ok
 router.delete('/:type/:id/:associatedtype', function (request, response) {
-    response.json({});
+    response.json(200, {});
 });
 
 /// End region for subcollections

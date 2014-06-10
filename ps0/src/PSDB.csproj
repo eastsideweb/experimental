@@ -50,6 +50,33 @@
     <Content Include="lib\fakedb\fakeDatabase.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="lib\schema\annotations.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="lib\schema\events.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="lib\schema\instructors.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="lib\schema\players.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="lib\schema\puzzles.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="lib\schema\puzzlesstates.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="lib\schema\teams.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="lib\schema\series.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="lib\schema\seriesList.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
@@ -57,6 +84,7 @@
       <DependentUpon>web.config</DependentUpon>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
@@ -103,6 +131,15 @@
     <PostBuildEvent>xcopy "$(TargetDir)www" "$(SolutionDir)$(Configuration)\bin\" /F /I /Y
 xcopy "$(TargetDir)package.json" "$(SolutionDir)$(Configuration)\" /F /I /Y
 xcopy "$(TargetDir)config.json" "$(SolutionDir)$(Configuration)\" /F /I /Y
-xcopy "$(TargetDir)lib\fakedb\fakeDatabase.json" "$(SolutionDir)$(Configuration)\lib\fakedb\" /F /I /Y</PostBuildEvent>
+xcopy "$(TargetDir)lib\fakedb\fakeDatabase.json" "$(SolutionDir)$(Configuration)\lib\fakedb\" /F /I /Y
+xcopy "$(TargetDir)lib\schema\series.json" "$(SolutionDir)$(Configuration)\public\schema\" /F /I /Y
+xcopy "$(TargetDir)lib\schema\seriesList.json" "$(SolutionDir)$(Configuration)\public\schema\" /F /I /Y
+xcopy "$(TargetDir)lib\schema\annotations.json" "$(SolutionDir)$(Configuration)\public\schema\" /F /I /Y
+xcopy "$(TargetDir)lib\schema\events.json" "$(SolutionDir)$(Configuration)\public\schema\" /F /I /Y
+xcopy "$(TargetDir)lib\schema\instructors.json" "$(SolutionDir)$(Configuration)\public\schema\" /F /I /Y
+xcopy "$(TargetDir)lib\schema\players.json" "$(SolutionDir)$(Configuration)\public\schema\" /F /I /Y
+xcopy "$(TargetDir)lib\schema\puzzles.json" "$(SolutionDir)$(Configuration)\public\schema\" /F /I /Y
+xcopy "$(TargetDir)lib\schema\puzzlesstates.json" "$(SolutionDir)$(Configuration)\public\schema\" /F /I /Y
+xcopy "$(TargetDir)lib\schema\teams.json" "$(SolutionDir)$(Configuration)\public\schema\" /F /I /Y</PostBuildEvent>
   </PropertyGroup>
 </Project>

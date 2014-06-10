@@ -59,7 +59,7 @@ describe('Server REST API', function () {
 
         // Test for searching using query parameters
         it('this should return an array of the type for the corresponding query parameters', function (done) {
-            request.get('/series?name=series1')
+            request.get('/series?name=name=Test%20Series1')
                 .expect(200)
                 .expect('Content-Type', /json/)
                 .end(function (err, res) {
@@ -71,18 +71,27 @@ describe('Server REST API', function () {
                 });
         });
 
-        describe('Series GET AND DELETE token', function () {
+        describe('Series GET AND DELETE token - Positive/Negative', function () {
             var testAccount = {
-                "id" :"1",
-                "username": "test1",
-                "password": "password"
+                "id": "1",
+                "credentials": {
+                    "username": "test1",
+                    "password": "password",
+                    "roleType": "administrator"
+                },
+                "invalidCredentials": {
+                    "username": "dummy",
+                    "password": " ",
+                    "roleType": "administrator"
+                }
             },
             sessionToken;
 
-            // Send a valid series id and get a token
-            it('this should return an array of the type if found valid', function (done) {
+
+            // Send a valid series id, username and get a token
+            it('this should return a valid token for the series', function (done) {
                 request.post('/series/' + testAccount.id + '/session')
-                    .send({ username: testAccount.username, password: testAccount.password })
+                    .send(testAccount.credentials)
                     .expect(200)
                     .expect('Content-Type', /json/)
                     .end(function (err, res) {
@@ -96,8 +105,23 @@ describe('Server REST API', function () {
                     });
             });
 
+            // Send a valid series id, invalid username and get a error
+            it('this should return an error as the paramertes are invalid', function (done) {
+                request.post('/series/' + testAccount.id + '/session')
+                    .send(testAccount.invalidCredentials)
+                    .expect(500)
+                    .expect('Content-Type', /json/)
+                    .end(function (err, res) {
+                        if (err) {
+                            done(err);
+                        } else {
+                            done();
+                        }
+                    });
+            });
+
             // Delete a valid series token
-            it('this should return an array of the type if found valid', function (done) {
+            it('this should delete the token', function (done) {
                 request.delete('/series/' + testAccount.id + '/session/' + sessionToken)
                     .expect(200)
                     .expect('Content-Type', /json/)
@@ -114,26 +138,42 @@ describe('Server REST API', function () {
 
     describe('REST endpoints within series', function () {
         var testAccount = {
-            "username": "test1",
-            "password": "password",
+            "credentials": {
+                "username": "test1",
+                "password": "password",
+                "roleType" : "administrator"
+            },
+            "id": "1",
+            "sessionToken": "",
             "series": {
-                "id": "1",
-                "sessionToken": "",
+                "annotations": {
+                },
                 "events": {
                     "id": "1",
-                    "queryParameters": "id=1234&name=event1&details%5Bdescription%5D=test%252A%2528%2529"
+                    "queryParameters": "description%5D=test%2A%28%29"
+                },
+                "instructors": {
+                },
+                "players": {
+                },
+                "puzzles": {
+                },
+                "puzzlestates": {
+                },
+                "teams": {
                 }
+                
             }
         };
         
         before(function (done) {
-            request.post('/series/' + testAccount.series.id + '/session')
-                .send(testAccount)
+            request.post('/series/' + testAccount.id + '/session')
+                .send(testAccount.credentials)
                 .end(function (err, res) {
                     if (err) {
                         done(err);
                     } else {
-                        testAccount.series.sessionToken = res.body.token;
+                        testAccount.sessionToken = res.body.token;
                         done();
                     }
                 });
@@ -141,26 +181,45 @@ describe('Server REST API', function () {
 
         // Test for retrieving generic types list: events, players, teams, instructor
 
-        describe("Tests events endpoints", function () {
+        describe("Test accessing collection without setting the token", function () {
+            for (var coll in testAccount.series) {
+                it('this should throw error since there are no valid token', function (done) {
+                    request.get('/' + coll)
+                        .expect(500)
+                        .expect('Content-Type', /json/)
+                        .end(function (err, res) {
+                            if (err) {
+                                done(err);
+                            } else {
+                                done();
+                            }
+                        });
+                });
+            }
+        });
 
-            it('this should return an array of the type for the corresponding query parameters', function (done) {
-                request.get('/events')
-                    .set('token', testAccount.series.sessionToken)
-                    .expect(200)
-                    .expect('Content-Type', /json/)
-                    .end(function (err, res) {
-                        if (err) {
-                            done(err);
-                        } else {
-                            done();
-                        }
-                    });
-            });
+        describe("Test generic endpoints", function () {
+            for (var coll in testAccount.series) {
+                it('this should return an array of the type for the corresponding query parameters', function (done) {
+                    request.get('/' + coll)
+                        .set('token', testAccount.sessionToken)
+                        .expect(200)
+                        .expect('Content-Type', /json/)
+                        .end(function (err, res) {
+                            if (err) {
+                                done(err);
+                            } else {
+                                done();
+                            }
+                        });
+                });
+            }
+            
 
             // Test for searching using query parameters
             it('this should return an array of the type for the corresponding query parameters', function (done) {
                 request.get('/events?' + testAccount.series.events.queryParameters)
-                    .set('token', testAccount.series.sessionToken)
+                    .set('token', testAccount.sessionToken)
                     .expect(200)
                     .expect('Content-Type', /json/)
                     .end(function (err, res) {
@@ -175,7 +234,7 @@ describe('Server REST API', function () {
             // Test for a single object type
             it('this should return an object of the type with the corresponding id', function (done) {
                 request.get('/events/' + testAccount.series.events.id)
-                    .set('token', testAccount.series.sessionToken)
+                    .set('token', testAccount.sessionToken)
                     .expect(200)
                     .expect('Content-Type', /json/)
                     .end(function (err, res) {
@@ -190,7 +249,7 @@ describe('Server REST API', function () {
             //// Test for a single object type
             it('this should return the status of the type with the corresponding id', function (done) {
                 request.get('/events/' + testAccount.series.events.id + '/status')
-                    .set('token', testAccount.series.sessionToken)
+                    .set('token', testAccount.sessionToken)
                     .expect(200)
                     .expect('Content-Type', /json/)
                     .end(function (err, res) {
@@ -205,7 +264,8 @@ describe('Server REST API', function () {
             //// Test for a single object type
             it('test the status of event type with the corresponding id', function (done) {
                 request.put('/events/' + testAccount.series.events.id + '/status')
-                    .set('token', testAccount.series.sessionToken)
+                    .set('token', testAccount.sessionToken)
+                    .send({ 'name': 'events1', 'status': 'started' })
                     .expect(200)
                     .expect('Content-Type', /json/)
                     .end(function (err, res) {

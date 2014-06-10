@@ -1,0 +1,44 @@
+{
+    "$schema": "http://json-schema.org/draft-03/schema",
+    "type": "object" ,
+    "id":"http://eastsideweb.github.io/schema/events.json",
+    "additionalProperties" : false,
+    "properties": {
+        "description" : {
+            "type": "string"
+        },
+        "id" : {
+            "type": "string"
+        },
+        "instructorIds" : {
+            "type": "array" ,
+            "items":
+            {
+                "type": "string"
+            }
+        },
+        "name": {
+            "type": "string",
+	        "required":true
+        },
+        "puzzleIds" : {
+            "type": "array" ,
+            "items":
+            {
+                "type": "string"
+            }
+        },
+        "status": {
+            "type": "string",
+            "enum":["notStarted","started","ended"],
+            "default": "notStarted"
+        },
+        "teamids" : {
+            "type": "array" ,
+            "items":
+            {
+                "type": "string"
+            }
+        }
+    }
+}
