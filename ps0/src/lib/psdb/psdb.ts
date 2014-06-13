@@ -17,132 +17,63 @@
 "use strict";
 
 import http = require('http');
+import assert = require('assert');
 import crudmodule = require('./crudmodule');
-import config = require('../config');
+import utils = require('../utils');
+import puzzleSeries = require('./series');
 
-
-class Token {
-    constructor(public seriesId: string, public role: RoleType, public credentials: Credentials) {
-        this.tokenString = Token.createUniqueToken(seriesId , role.toString() , credentials.userName);
+class Token implements IToken {
+    constructor(public seriesId: string, public role: string, public credentials: ICredentials) {
+        this.tokenString = Token.createUniqueToken(seriesId, role, credentials.userName);
+        this.creationTime = Date.now();
     }
-    private tokenString: string;
+    public tokenString: string;
+    private creationTime;
     static tokenIndex: number = 0;
     static createUniqueToken(seriesId: string, role: string, name: string): string {
         var retval;
-        if (global.isTestMode != undefined && global.isTestMode == true) {
+        if (global.config.Debug) {
             retval = Token.tokenIndex + '-' + seriesId + '-' + role + '-' + name;
         }
         else {
-            var t = '' + Math.floor(Math.random() * 1000).toString();
+            var t = Math.floor(Math.random() * 1000).toString();
             var d = new Date();
             retval = Token.tokenIndex + "-" + t + "-" + seriesId + "-" + d.getMilliseconds().toString();
         }
         Token.tokenIndex += Math.floor(Math.random() * 10);
         return retval;
     }
+
+    // Check if this token is still valid based on when it was created and the current time
+    public isValid(): boolean {
+        var currentTime = Date.now();
+        utils.log(" config tolerence= " + global.config.psdb.tokenValidityTolerence);
+        var tolerence = global.config.psdb.tokenValidityTolerence || /* one day - 24 * 60 * 60 * 1000*/ 86400000;
+        utils.log("creation: " + this.creationTime + " current: " + currentTime + " tolerence: " + tolerence);
+        return (currentTime - this.creationTime < tolerence);
+    }
+
 }
 
-class puzzleSeries implements PuzzleSeries {
-    constructor(token: string) { }
-    // Activate/Deactivate a given object from the given SeriesObjectType collection having given objId
-    // when the objType is "event", activate will also mark start of that event and deactivate will mark end of that event
-    // Possible err:
-    //      "InvalidObjType"        "Invalid object type"
-    //      "InvalidObjId"          "Invaid object id"
-    //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
-    activate(objType: SeriesObjectType, objId: string, callback: SimpleCallBack): void { }
-    deactivate(objType: SeriesObjectType, objId: string, callback: SimpleCallBack): void { }
 
-    // Update static fields of a given object from the given SeriesObjectType collection having given objId
-    // Possible err:
-    //      "InvalidObjType"        "Invalid object type"
-    //      "InvalidObjId"          "Invaid object id"
-    //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
-    updateObj(objType: SeriesObjectType, objId: string, updateFields: any, callback: CallBackWithCount): void { }
+var infoDBcrud: DBCRUD,
+    roleTypes = {
+        'administrator': 'administrator',
+        'instructor': 'instructor',
+        'player': 'player'
+    },
+    tokenMap = {},
+    env = process.env.NODE_ENV || "ENV_NOT_FOUND";
 
-    // Add a new object of given type
-    // Possible errors:
-    //      "InvalidObjType"        "Invalid object type"
-    //      "EmptyName"             "name field missing"
-    //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
-    addObj(objType: SeriesObjectType, objInfo: any, callback: (err: Error, objInfo: SeriesObject) => void): void { }
+//----------- Begin Initialization
 
-    // Delete an object with given object id from the series
-    // Possible errors:
-    //      "InvalidObjType"        "Invalid object type"
-    //      "InvalidObjId"          "Invaid object id"
-    //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
-    deleteObj(objType: SeriesObjectType, objInfo: any, callback: CallBackWithCount): void { }
-
-    // Add given set of players to the given team
-    // Possible errors:
-    //      "InvalidPlayerId"       "One or more invalid player ids"
-    //      "InvalidTeamId"         "Invalid team id"
-    //      "PlayerNotActive"       "One or more player is deactivate"
-    //      "PlayerOnAnotherTeam"   "One or more player is already part of another team"
-    //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
-    addPlayersToTeam(listPlayerIds: string[], teamId: string, callback: SimpleCallBack): void { }
-
-    // Remove given set of players from the given team
-    // Possible errors:
-    //      "InvalidPlayerId"       "One or more invalid player ids"
-    //      "InvalidTeamId"         "Invalid team id"
-    //      "PlayerNotOnTeam"       "One or more player is not part of the team"
-    //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
-    removePlayersFromTeam(listPlayerIds: string[], teamId: string, callback: CallBackWithCount): void { }
-
-    // Get a list of fields of objects of given SeriesObjectType meeting the select-query condition
-    // Possible errors:
-    //      "InvalidObjType"        "Invalid object type"
-    //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
-    findObj(objType: SeriesObjectType, queryFields: any, fieldsReturned: any, callback: (err: Error, list: any[]) => void): void { }
-
-    // Set status of an event. 
-    // Possible errors:
-    //      "InvalidEventId"        "Invalid event id"
-    //      "InvalidStatusChange"   "attemp to start an event already underway or ended OR attempt to end an event already ended"
-    //      "InvalidEventChange"    "another event already active"
-    //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
-    setEventStatus(eventId: string, eventStatus: EventStatus, callback: SimpleCallBack): void { }
-
-    // Assign given set of puzzles to the given team
-    // Possible errors:
-    //      "InvalidPuzzleId"       "One or more invalid puzzle ids"
-    //      "InvalidTeamId"         "Invalid team id"
-    //      "PuzzleNotInEvent"      "One or more puzzles not part of the current event"
-    //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
-    assignPuzzlesToTeam(listPuzzleIds: string[], teamId: string, callback: SimpleCallBack): void { }
-
-    // Remove given set of puzzles from the given team
-    // Possible errors:
-    //      "InvalidPuzzleId"       "One or more invalid puzzle ids"
-    //      "InvalidTeamId"         "Invalid team id"
-    //      "PuzzleNotInTeam"       "One or more puzzles not assigned to the team"
-    //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
-    removePuzzlesFromTeam(listPuzzleIds: string[], teamId: string, callback: SimpleCallBack): void { }
-
-    // Update the state of the given puzzle for the given team
-    // Possible errors:
-    //      "InvalidPuzzleId"       "One or more invalid puzzle ids"
-    //      "InvalidTeamId"         "Invalid team id"
-    //      "PuzzleNotInEvent"      "puzzle not assigned to the team"
-    //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
-    updatePuzzleState(teamID: string, puzzleID: string, puzzleState: any, callback: SimpleCallBack): void { }
-}
-
-var seriesInfo: SeriesInfo[], psdbConfig: any, crud: DBCRUD,
-    seriesObjMap: any = {},
-    activeTokenList,
-    seriesInfoList: SeriesInfo[];
-
-/// Begin Initialization
-var env = process.env.NODE_ENV || "ENV_NOT_FOUND";
 console.log("Started psdb module in " + env + " ... ");
 
-crud = crudmodule.createDBHandle(global.config.psdb.serverName, global.config.psdb.seriesInfoDBName);
+infoDBcrud = crudmodule.createDBHandle(global.config.psdb.serverName, global.config.psdb.infoDBName);
 
-/// End Initialization
-var psdb: PSDB = {
+//----------- End Initialization
+
+var psdb: IPSDB = {
 
     // --------------Begin private methods------------
     // --------------End private methods--------------
@@ -153,12 +84,10 @@ var psdb: PSDB = {
     // queryFields - the select clauses to get a subset of SeriesInfo objects
     // REVIEW: Removing this projection argument cause we want keep the SeriesInfo type specification. 
     // fieldsReturned - the projection that identifies 
-    findSeries: function(queryFields: any, /* fieldsReturned: any, */callback: (err: Error, list: Array<SeriesInfo>) => void) {
-        console.log(__filename + " calling ..findObj.....");
-        crud.findObj(global.config.psdb.seriesInfoCollectionName, queryFields, {}, function (innerErr: Error, seriesList) {
-            console.log(__filename + " got callback " + seriesList);
+    findSeries: function (queryFields: any, /* fieldsReturned: any, */callback: (err: Error, list: Array<SeriesInfo>) => void) {
+        infoDBcrud.findObj(global.config.psdb.seriesInfoCollectionName, queryFields, {}, function (innerErr: Error, seriesList) {
             callback(innerErr, seriesList);
-        });     
+        });
     },
 
     // Function to get a token that represents access to the series object for a given series id, with previliges appropriate 
@@ -169,19 +98,113 @@ var psdb: PSDB = {
     //      "InvalidRoleType"           "Invalid role"
     //      "InvalidCredentials"        "Invalid credentials"
     //      "RoleNotSupportedForUser"   "User not authorized for role" 
-    getSeriesToken: function(id: string, role: RoleType, credentials: Credentials, callback: (err: Error, token: string) => void){
+    getSeriesToken: function (id: string, role: string, credentials: ICredentials, options: any, callback: (err: Error, token: string) => void) {
+        //TODO: check if a puzzleSeries object exists for this combination of seriesId, role and credentials and hand out the same token (to avoid DOS attack)
+
+        // Check if seriesId is valid
+        infoDBcrud.findObj(global.config.psdb.seriesInfoCollectionName, { "_id": id }, { "name": 1, "dbName": 1 }, function (innerErr2: Error, seriesList: any[]) {
+            if (innerErr2) {
+                callback(innerErr2, null);
+                return;
+            }
+            else if (seriesList.length == 0) {
+                // No series with given id was found
+                callback(utils.errors.invalidSeriesID, null);
+                return;
+            }
+            else if (!seriesList[0].database) {
+                // database not found - return error
+                callback(utils.errors.inconsistentDB, null);
+                return;
+            }
+            else {
+                // check if credentials are valid and the given roletype is allowed for this username
+                // Administrator user data is in the infoDB  whereas Instructor and player user data is within the specific db for the series
+                // Check accordingly
+                var userCrud, collectionName;
+                switch (role) {
+                    case "administrator":
+                        userCrud = infoDBcrud;
+                        collectionName = global.config.psdb.userInfoCollectionName;
+                        break;
+                    case "instructor":
+                        userCrud = crudmodule.createDBHandle(global.config.psdb.serverName, seriesList[0].database);
+                        collectionName = global.config.psdb.instructorsCollectionName;
+                        break;
+                    case "player":
+                        userCrud = crudmodule.createDBHandle(global.config.psdb.serverName, seriesList[0].database);
+                        collectionName = global.config.psdb.playersCollectionName;
+                }
+                userCrud.findObj(collectionName, { "name": credentials.userName }, { roleType: 1, password: 1 },
+                    function (innerErr1: Error, userList: any[]) {
+
+                        if (innerErr1) {
+                            // Got an error from the CRUD call, pass it on..
+                            callback(innerErr1, null);
+                            return;
+                        }
+                        else if (userList.length === 0 ||
+                            (userList[0].password && userList[0].password !== credentials.password)) {
+                            // Username and/or password is not valid
+                            callback(utils.errors.invalidCredentials, null);
+                            return;
+                        }
+                        else {
+                            //console.log(utils.getShortfileName(__filename) + " userList[0] = ");
+                            //for (var pr in userList[0]) {
+                            //    if (userList[0].hasOwnProperty(pr)) {
+                            //        console.log(pr + " : " + userList[0][pr]);
+                            //    }
+                            //}
+                            if (userList[0].roleType.indexOf(role) < 0) {
+                                //given role is not allowed for this user
+                                callback(utils.errors.invalidRole, null);
+                                return;
+                            }
+                            else {
+                                // Instantiate a token object and pass it on to puzzleSeries constructor, alongwith the name of the db
+                                var seriesToken = new Token(id, role, credentials);
+                                var series = new puzzleSeries(seriesToken, seriesList[0].database);
+                                // Save the puzzleSries object in the tokenMap
+                                tokenMap[seriesToken.tokenString] = { "token": seriesToken, "series": series };
+                                utils.log(utils.getShortfileName(__filename) + " returning token " + seriesToken.tokenString);
+                                callback(null, seriesToken.tokenString);
+                            }
+                        }
+                    });
+                return;
+            }
+        });
+        return;
     },
 
     // Function to release a token that was previously obtained using getSeriesToken api
     // Possible errors: 
     //      "InvalidTokenId"    "Invalid token"
     releaseSeriesToken(token: string, callback: SimpleCallBack): void {
+    // Make sure the given token is still valid
+    if (tokenMap[token] && tokenMap[token].token.isValid()) {
+        delete tokenMap[token];
+        callback(null);
+    }
+    else {
+        //Invalid token
+        callback(utils.errors.invalidTokenID);
+    }
+
     },
 
     // Synchronous call to get a puzzleSeries object represented by given token (which was handed out earlier)
     // return value will be null if the token is invalid or has expired
-    series(token: string): PuzzleSeries {
-        return new puzzleSeries(token);
+    series(token: string): IPuzzleSeries {
+        // Check the token is still valid
+        if (tokenMap[token] && tokenMap[token].token.isValid()) {
+            assert(tokenMap[token].series);
+            return tokenMap[token].series;
+        }
+        else {
+            return null;
+        }
     }
     // -------------- End PSDB interface  methods --------------
 

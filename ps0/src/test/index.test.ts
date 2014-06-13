@@ -18,9 +18,6 @@ var request = require('supertest'),
     app = require('../app.js'),
     agent = request.agent(app);
 
-declare function describe(text: string, callback: () => void): any;
-declare function it(text: string, callback: (done) => void): any;
-declare function before(callback: (done) => void): any;
 
 request = request(app);
 
@@ -71,12 +68,12 @@ describe('Server REST API', function () {
                 });
         });
 
-        describe('Series GET AND DELETE token - Positive/Negative', function () {
+        describe.skip('Series GET AND DELETE token - Positive/Negative', function () {
             var testAccount = {
-                "id": "1",
+                "id": "testSeriesId1",
                 "credentials": {
-                    "username": "test1",
-                    "password": "password",
+                    "username": "Admin1",
+                    "password": "testAdminPassword",
                     "roleType": "administrator"
                 },
                 "invalidCredentials": {
@@ -99,7 +96,8 @@ describe('Server REST API', function () {
                             done(err);
                         } else {
                             sessionToken = res.body.token;
-                            assert(sessionToken, /^\w+$/);
+                            //assert.throws(sessionToken, /^\w+$/);
+                            assert.ok(sessionToken);
                             done();
                         }
                     });
@@ -139,17 +137,17 @@ describe('Server REST API', function () {
     describe('REST endpoints within series', function () {
         var testAccount = {
             "credentials": {
-                "username": "test1",
-                "password": "password",
+                "username": "Admin1",
+                "password": "testAdminPassword",
                 "roleType" : "administrator"
             },
-            "id": "1",
+            "id": "testSeriesId1",
             "sessionToken": "",
             "series": {
                 "annotations": {
                 },
                 "events": {
-                    "id": "1",
+                    "id": "eventId1",
                     "queryParameters": "description%5D=test%2A%28%29"
                 },
                 "instructors": {

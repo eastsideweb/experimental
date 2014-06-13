@@ -1,0 +1,8 @@
+{
+"Debug": true,
+"test": true,
+"printLog": true,
+"psdb": {
+    "serverName": "localhost"
+	}
+}

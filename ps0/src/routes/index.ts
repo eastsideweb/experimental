@@ -75,16 +75,16 @@ router.post('/series/:id/session', function (request, response, next) {
     var username = request.body.username;
     var password = request.body.password;
     var roleType = request.body.roleType;
-
+    var creds: ICredentials = { 'userName': username, 'password': password };
     if (validator.isValidString(username) && validator.isValidString(password) && validator.isValidString(roleType)) {
-        //psdb.getSeriesToken(request.params.id, roleType, { 'username': username, 'password': password }, function (err, token) {
-        //    if (err) {
-        //        next(err);
-        //    }
-        //    else {
-        //        response.json(token);
-        //    }
-        //});
+        psdb.getSeriesToken(request.params.id, roleType, creds, {}, function (err, token) {
+            if (err) {
+                next(err);
+            }
+            else {
+                response.json(token);
+            }
+        });
         response.json({});
     }
     else {
