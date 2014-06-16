@@ -19,6 +19,7 @@ class Validator {
 
     constructor(value: Array<string>) {
         this.fsHandle = require('fs');
+        // JSV supports only upto JSON schema draft-03
         this.jsonValidator = require('JSV').JSV.createEnvironment('json-schema-draft-03');
 
         this.loadSchema(value);
@@ -54,7 +55,7 @@ class Validator {
         return (value == null || Object.keys(value).length === 0);                   
     }
 
-    // Loads the json schema for validation and registers it with a predefined URI schema
+    // Loads the JSON schema for validation and registers it with a predefined URI schema
     private loadSchema(value: Array<string>): void {
         var schemaPath: string;
         for (var i = 0; i < value.length; i++) {
@@ -67,9 +68,12 @@ class Validator {
     // Validates the json object against the registered schema. Returns a error array if found invalid.
     public checkSchema(type: string, jsonBody: JSON, callback: (err: any) => void): void {
         var schemaRefUri = this.getSchemaRefUri(type);
+        // Find the JSON schema by serarching it using the registered schema uri
         var schemaJson = this.jsonValidator.findSchema(schemaRefUri);
 
-        // validate an instance 'source' 
+        // Check if a JSON schema exists
+        // If present, then validate the input JSON according to the defined schema
+        // Return the error object. If the input JSON is invalid, the error object will contain an array with details of the error
         if (schemaJson) {
             var result = this.jsonValidator.validate(jsonBody, schemaJson);
             callback(result.errors);
@@ -79,6 +83,11 @@ class Validator {
         }
     }
 
+    // Reads the schema file from the given path
+    // Associates it with a schema URI
+    // jsv.CreateSchema, reads and validates the schema and registers it against the given URI
+    // The registration of JSON schema against a schema URI helps it validate schemas referencing other schemas in their JSON
+    // Ex: series.json schema file is parsed and registered under "http://eastsideweb.github.io/schema/series.json" schema uri
     private loadSchemaFromPath(schemaName: string, schemaPath: string, schemaRefUri: string) {
         if (this.fsHandle.existsSync(schemaPath)) {
             this.jsonValidator.createSchema(JSON.parse(this.fsHandle.readFileSync(schemaPath, 'utf8')), undefined, schemaRefUri);

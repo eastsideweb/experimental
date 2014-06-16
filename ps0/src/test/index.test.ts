@@ -68,7 +68,7 @@ describe('Server REST API', function () {
                 });
         });
 
-        describe.skip('Series GET AND DELETE token - Positive/Negative', function () {
+        describe('Series GET AND DELETE token - Positive/Negative', function () {
             var testAccount = {
                 "id": "testSeriesId1",
                 "credentials": {
@@ -76,9 +76,14 @@ describe('Server REST API', function () {
                     "password": "testAdminPassword",
                     "roleType": "administrator"
                 },
-                "invalidCredentials": {
-                    "username": "dummy",
-                    "password": " ",
+                "invalidCredentials1": {
+                    "username": " ",
+                    "password": "dummyPassword",
+                    "roleType": "administrator"
+                },
+                "invalidCredentials2": {
+                    "username": "Admin1",
+                    "password": "dummyPassword",
                     "roleType": "administrator"
                 }
             },
@@ -90,23 +95,38 @@ describe('Server REST API', function () {
                 request.post('/series/' + testAccount.id + '/session')
                     .send(testAccount.credentials)
                     .expect(200)
-                    .expect('Content-Type', /json/)
+                    .expect('Content-Type', 'text/html; charset=utf-8')
                     .end(function (err, res) {
-                        if (err) {
-                            done(err);
-                        } else {
-                            sessionToken = res.body.token;
-                            //assert.throws(sessionToken, /^\w+$/);
-                            assert.ok(sessionToken);
-                            done();
-                        }
-                    });
+                    if (err) {
+                        done(err);
+                    } else {
+                        sessionToken = res.text;
+                        assert.ok(typeof(sessionToken) === 'string');
+                        assert.ok(sessionToken && !(/^\s*$/.test(sessionToken)));
+                        done();
+                    }
+                });
             });
 
             // Send a valid series id, invalid username and get a error
             it('this should return an error as the paramertes are invalid', function (done) {
                 request.post('/series/' + testAccount.id + '/session')
-                    .send(testAccount.invalidCredentials)
+                    .send(testAccount.invalidCredentials1)
+                    .expect(500)
+                    .expect('Content-Type', /json/)
+                    .end(function (err, res) {
+                        if (err) {
+                            done(err);
+                        } else {
+                            done();
+                        }
+                    });
+            });
+
+            // Send a valid series id, invalid password and get a error
+            it('this should return an error as the paramertes are invalid', function (done) {
+                request.post('/series/' + testAccount.id + '/session')
+                    .send(testAccount.invalidCredentials2)
                     .expect(500)
                     .expect('Content-Type', /json/)
                     .end(function (err, res) {
@@ -122,7 +142,6 @@ describe('Server REST API', function () {
             it('this should delete the token', function (done) {
                 request.delete('/series/' + testAccount.id + '/session/' + sessionToken)
                     .expect(200)
-                    .expect('Content-Type', /json/)
                     .end(function (err, res) {
                         if (err) {
                             done(err);

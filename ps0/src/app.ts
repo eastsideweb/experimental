@@ -20,8 +20,11 @@
 
 //process.env.NODE_ENV = 'test';
 
+/// Instantiate all the necessary modules
+
 import express = require('express');
 import path = require('path');
+// Use connect for middleware parsing of encoded params
 import connect = require('connect');
 
 import config = require('./lib/config');
@@ -29,7 +32,8 @@ global.config = config('config');
 
 var app = express();
 
-// Use the parser to encode json and url encoded body params
+// Use the connect parser to parse body params
+// Include parse options for both json encoded and url encoded body
 app.use(connect.json());
 app.use(connect.urlencoded());
 
@@ -39,19 +43,28 @@ app.use(connect.urlencoded());
 //app.set('views', path.join(__dirname, 'views'));
 //app.set('view engine', 'jade');
 
+
+
+/// Set the routing for all requests using express
+/// Express handles routing based on the order in which handlers are added
+/// Use next() function to pass on the request to the next handler
+/// Use response.send() or response.json() to close the request processing and send the response
+
+// Set atttribute on app.locals.settings
+// Sets the title to be used in the view
 app.set('title', 'Puzzle Orchestration');
 
+// Set routing handler to serve all static files
+// Set the directory public to serve static files
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Set routing handlers for all Rest API requests
 var routes = require('./routes')(app);
 
-/// catch 404 and forwarding to error handler
-app.use(function(req, res, next) {
-    var err = new Error('Not Found');
-    //err.status = 404;
-    next(err);
-});
 
-/// error handlers
+// Set error handlers
+// Assign a function as a handler, where error is passed as the first object
+// Check for test environment and if yes, then pass on the details of the error
 if (app.get('NODE_ENV') === 'test') {
     app.use(function(err, req, res, next) {
         res.status(err.status || 500)
@@ -64,8 +77,8 @@ if (app.get('NODE_ENV') === 'test') {
     });
 }
 
-// production error handler
-// no stacktraces leaked to user
+// Production error handler
+// No stacktraces leaked to user
 app.use(function(err, req, res, next) {
     res.status(err.status || 500).json({
         'error': {

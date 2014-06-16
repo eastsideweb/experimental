@@ -26,9 +26,12 @@ import psdb = require('../lib/psdb/psdb');
 // Checks if it is a valid string type
 router.param('type', function (request, response, next, type) {
     if (validator.isCharactersOnly(type)) {
+        // Pass on the request to next associated handler
         next();
     }
     else {
+        // Pass on the request to the error handler
+        // By pass all other handlers
         next(new Error('The requested url does not contain a valid type'));
     }
 });
@@ -82,10 +85,9 @@ router.post('/series/:id/session', function (request, response, next) {
                 next(err);
             }
             else {
-                response.json(token);
+                response.send(token);
             }
         });
-        response.json({});
     }
     else {
         next(new Error('Not valid credentials, please provide valid credentials'));
@@ -101,6 +103,9 @@ router.delete('/series/:id/session/:token', function (request, response, next) {
     psdb.releaseSeriesToken(request.params.token, function (err) {
         if (err) {
             next(err);
+        }
+        else {
+            response.send(200);
         }
     });
 });
