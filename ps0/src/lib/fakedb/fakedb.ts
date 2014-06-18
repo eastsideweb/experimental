@@ -17,25 +17,17 @@
 // Strictly used for testing purposes only 
 
 import fs = require('fs');
-//TODO: create a list of canned errors
-var psdb_err_notimpl : Error = {
-    name: 'NOTIMPLEMENTED',
-    message:'Method not implemented yet'
-}
-var psdb_err_notInDebug: Error = {
-    name: 'NOTINDEBUG',
-    message: 'Debug method called while not in debug mode'
-}
-
+import assert = require("assert");
+import utils = require('../utils');
 class fakeDB implements DBCRUD {
 
     private server: string;
     private dbName: string;
     private fakeDataBase: any;
 
-    private readFakeDatabase = function (): void {
-        var fakeDBFilename = __dirname + "/fakeDatabase.json";
+    private readFakeDatabase = function (fakeDBFilename): void {
         if (fs.existsSync(fakeDBFilename)) {
+            utils.log(utils.getShortfileName(__filename) + " file found " + fakeDBFilename);
             this.fakeDataBase = JSON.parse(fs.readFileSync(fakeDBFilename, 'utf8'));
         }
         else {
@@ -52,9 +44,12 @@ class fakeDB implements DBCRUD {
         return (global.config && global.config.Debug == true);
     };
     constructor(server: string, dbName: string) {
+        var fakeDBFilename;
         this.server = server;
         this.dbName = dbName;
-        this.readFakeDatabase();
+        utils.log("server = " + server + "dbName " + dbName);
+        fakeDBFilename = __dirname + "/" + dbName + ".json";
+        this.readFakeDatabase(fakeDBFilename);
     }
     // /*Testing purpose*/
     // Allowed collection strings:
@@ -64,10 +59,10 @@ class fakeDB implements DBCRUD {
     // Allowed objMap cannot have _id. Could have name, description, active, status, teamLead, players[], puzzles[]
     public insertObj(collection: string, objMap: any, callback: (err: Error, obj: any) => void) {
         if (!fakeDB.checkInDebug()) {
-            callback(psdb_err_notInDebug, null);
+            callback(utils.errors.notInDebug, null);
             return;
         }
-        callback(psdb_err_notimpl, null);
+        callback(utils.errors.inconsistentDB, null);
     }
 
     // Find objects from the given collection
@@ -75,22 +70,41 @@ class fakeDB implements DBCRUD {
     //  PuzzleSeriesInfo/all SeriesObjectTypes / eventPuzzleStates* 
     // Allowed find_map: {_id: string, name: string}
     public findObj(collection: string, findMap: any, projMap: any, callback: (err: Error, objList: any[]) => void) {
-        //console.log(__filename + " findObj reached with " + "c: " + collection);// + ",s: " + psdb.config.seriesInfoCollectionName);
         if (!fakeDB.checkInDebug()) {
-            callback(psdb_err_notInDebug, null);
+            callback(utils.errors.notInDebug, null);
             return;
         }
 
-        // Check if the collection name is a special one
-        if (collection == global.config.psdb.seriesInfoCollectionName) {
-            // We will return hardcoded seriesInfo 
-            //console.log(__filename + " findObj: " + retVal.seriesInfoList);
-            setTimeout(callback(null, this.fakeDataBase.seriesInfoCollection), 1000);
+        // Check if the fakedatabase has this collection, 
+        utils.log(utils.getShortfileName(__filename) + " collection requested " + collection);
+        utils.log("collection = " + this.fakeDataBase[collection]);
+
+        if (!this.fakeDataBase[collection]) {
+            utils.log(utils.getShortfileName(__filename) + " collection not found: " + collection);
+            callback(utils.errors.notImpl, null);
         }
-        else {
-            console.log(__filename + " Non-series object requested");
-            callback(psdb_err_notimpl, null);
+        //return hardcoded data
+        var retVal: any[] = this.fakeDataBase[collection];
+        // Check if any query params were passed. Only "_id" & "name" are entertained for now
+        if (findMap.name || findMap._id) {
+            var prop: string = findMap._id ? "_id" : "name",
+                found: boolean = false;
+            utils.log(utils.getShortfileName(__filename) + " found property: " + prop);
+            for (var i: number = 0; i < retVal.length && !found; i++) {
+                if (retVal[i][prop] == findMap[prop]) {
+                    utils.log(utils.getShortfileName(__filename) + " found item: " + retVal[i][prop]);
+                    retVal = retVal.slice(i, i + 1);
+                    found = true;
+                }
+            }
+            if (!found) {
+                retVal = [];
+            }
+            else {
+                assert(retVal.length == 1);
+            }
         }
+        setTimeout(callback(null,retVal), 100);
     }
 
 
@@ -107,10 +121,10 @@ class fakeDB implements DBCRUD {
     //          {$pull: {puzzleid1, puzzleid2,..} //no multi-pull available
     public updateObj(collection: string, findMap: any, setMap: any, callback: CallBackWithCount) {
         if (!fakeDB.checkInDebug()) {
-            callback(psdb_err_notInDebug, null);
+            callback(utils.errors.notInDebug, null);
             return;
         }
-        callback(psdb_err_notimpl, 0);
+        callback(utils.errors.notImpl, 0);
     }
 
 
@@ -120,10 +134,10 @@ class fakeDB implements DBCRUD {
     // Allowed findMap: {_id: string}
     public deleteObj(collection: string, findMap: any, callback: CallBackWithCount) {
         if (!fakeDB.checkInDebug()) {
-            callback(psdb_err_notInDebug, null);
+            callback(utils.errors.notInDebug, null);
             return;
         }
-        callback(psdb_err_notimpl, 0);
+        callback(utils.errors.notImpl, 0);
     }
 }
 

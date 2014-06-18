@@ -21,15 +21,20 @@
     <Content Include="lib\fakedb\fakedb.ts" />
     <Content Include="lib\psdb\psdb.ts" />
     <Content Include="public\index.html" />
-    <Content Include="test\test-psdb.js" />
     <Content Include="test\test.html" />
     <Content Include="web.config" />
     <Content Include="www">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <TypeScriptCompile Include="inc\ext\connect.d.ts" />
+    <TypeScriptCompile Include="inc\ext\mocha.d.ts" />
+    <TypeScriptCompile Include="inc\ext\should.d.ts" />
+    <TypeScriptCompile Include="lib\psdb\crudmodule.ts" />
+    <TypeScriptCompile Include="lib\psdb\series.ts" />
+    <TypeScriptCompile Include="lib\utils.ts" />
     <TypeScriptCompile Include="lib\validator.ts" />
     <TypeScriptCompile Include="test\index.test.ts" />
+    <TypeScriptCompile Include="test\psdb.test.ts" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
@@ -45,9 +50,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="config.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="lib\fakedb\fakeDatabase.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="lib\schema\annotations.json">
@@ -75,6 +77,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="lib\schema\seriesList.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="lib\fakedb\psdbInfo.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="lib\fakedb\SeriesDB_testSeriesId1.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="web.Debug.config">
@@ -131,7 +139,8 @@
     <PostBuildEvent>xcopy "$(TargetDir)www" "$(SolutionDir)$(Configuration)\bin\" /F /I /Y
 xcopy "$(TargetDir)package.json" "$(SolutionDir)$(Configuration)\" /F /I /Y
 xcopy "$(TargetDir)config.json" "$(SolutionDir)$(Configuration)\" /F /I /Y
-xcopy "$(TargetDir)lib\fakedb\fakeDatabase.json" "$(SolutionDir)$(Configuration)\lib\fakedb\" /F /I /Y
+xcopy "$(TargetDir)lib\fakedb\psdbInfo.json" "$(SolutionDir)$(Configuration)\lib\fakedb\" /F /I /Y
+xcopy "$(TargetDir)lib\fakedb\SeriesDB_testSeriesId1.json" "$(SolutionDir)$(Configuration)\lib\fakedb\" /F /I /Y
 xcopy "$(TargetDir)lib\schema\series.json" "$(SolutionDir)$(Configuration)\public\schema\" /F /I /Y
 xcopy "$(TargetDir)lib\schema\seriesList.json" "$(SolutionDir)$(Configuration)\public\schema\" /F /I /Y
 xcopy "$(TargetDir)lib\schema\annotations.json" "$(SolutionDir)$(Configuration)\public\schema\" /F /I /Y

@@ -18,9 +18,15 @@ var fs = require('fs');
 // In addition, it looks for a file, if any, by name "filename.NODE_ENV.json" for any overriding
 // configurations. The object from "filename.NODE_ENV.json" is merged into the config object
 var readConfig = function (filename: string) {
-    var config, env, filenameEnv, configEnv;
-    //TODO: Check if file exists
-    config = JSON.parse(fs.readFileSync(filename + '.json', 'utf8'));
+    var config = {}, env, configfilename, filenameEnv, configEnv;
+    //Check if file exists
+    configfilename = filename + '.json';
+    if (!fs.existsSync(configfilename)) {
+        console.log('file not found ' + configfilename);
+        return config;
+    }
+
+    config = JSON.parse(fs.readFileSync(configfilename, 'utf8'));
     env = process.env.NODE_ENV;
     if (env != undefined) {
         console.log('running in env: ' + env);

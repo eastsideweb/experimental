@@ -18,9 +18,6 @@ var request = require('supertest'),
     app = require('../app.js'),
     agent = request.agent(app);
 
-declare function describe(text: string, callback: () => void): any;
-declare function it(text: string, callback: (done) => void): any;
-declare function before(callback: (done) => void): any;
 
 request = request(app);
 
@@ -73,15 +70,20 @@ describe('Server REST API', function () {
 
         describe('Series GET AND DELETE token - Positive/Negative', function () {
             var testAccount = {
-                "id": "1",
+                "id": "testSeriesId1",
                 "credentials": {
-                    "username": "test1",
-                    "password": "password",
+                    "username": "Admin1",
+                    "password": "testAdminPassword",
                     "roleType": "administrator"
                 },
-                "invalidCredentials": {
-                    "username": "dummy",
-                    "password": " ",
+                "invalidCredentials1": {
+                    "username": " ",
+                    "password": "dummyPassword",
+                    "roleType": "administrator"
+                },
+                "invalidCredentials2": {
+                    "username": "Admin1",
+                    "password": "dummyPassword",
                     "roleType": "administrator"
                 }
             },
@@ -93,22 +95,38 @@ describe('Server REST API', function () {
                 request.post('/series/' + testAccount.id + '/session')
                     .send(testAccount.credentials)
                     .expect(200)
-                    .expect('Content-Type', /json/)
+                    .expect('Content-Type', 'text/html; charset=utf-8')
                     .end(function (err, res) {
-                        if (err) {
-                            done(err);
-                        } else {
-                            sessionToken = res.body.token;
-                            assert(sessionToken, /^\w+$/);
-                            done();
-                        }
-                    });
+                    if (err) {
+                        done(err);
+                    } else {
+                        sessionToken = res.text;
+                        assert.ok(typeof(sessionToken) === 'string');
+                        assert.ok(sessionToken && !(/^\s*$/.test(sessionToken)));
+                        done();
+                    }
+                });
             });
 
             // Send a valid series id, invalid username and get a error
             it('this should return an error as the paramertes are invalid', function (done) {
                 request.post('/series/' + testAccount.id + '/session')
-                    .send(testAccount.invalidCredentials)
+                    .send(testAccount.invalidCredentials1)
+                    .expect(500)
+                    .expect('Content-Type', /json/)
+                    .end(function (err, res) {
+                        if (err) {
+                            done(err);
+                        } else {
+                            done();
+                        }
+                    });
+            });
+
+            // Send a valid series id, invalid password and get a error
+            it('this should return an error as the paramertes are invalid', function (done) {
+                request.post('/series/' + testAccount.id + '/session')
+                    .send(testAccount.invalidCredentials2)
                     .expect(500)
                     .expect('Content-Type', /json/)
                     .end(function (err, res) {
@@ -124,7 +142,6 @@ describe('Server REST API', function () {
             it('this should delete the token', function (done) {
                 request.delete('/series/' + testAccount.id + '/session/' + sessionToken)
                     .expect(200)
-                    .expect('Content-Type', /json/)
                     .end(function (err, res) {
                         if (err) {
                             done(err);
@@ -139,17 +156,17 @@ describe('Server REST API', function () {
     describe('REST endpoints within series', function () {
         var testAccount = {
             "credentials": {
-                "username": "test1",
-                "password": "password",
+                "username": "Admin1",
+                "password": "testAdminPassword",
                 "roleType" : "administrator"
             },
-            "id": "1",
+            "id": "testSeriesId1",
             "sessionToken": "",
             "series": {
                 "annotations": {
                 },
                 "events": {
-                    "id": "1",
+                    "id": "eventId1",
                     "queryParameters": "description%5D=test%2A%28%29"
                 },
                 "instructors": {

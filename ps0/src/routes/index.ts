@@ -26,9 +26,12 @@ import psdb = require('../lib/psdb/psdb');
 // Checks if it is a valid string type
 router.param('type', function (request, response, next, type) {
     if (validator.isCharactersOnly(type)) {
+        // Pass on the request to next associated handler
         next();
     }
     else {
+        // Pass on the request to the error handler
+        // By pass all other handlers
         next(new Error('The requested url does not contain a valid type'));
     }
 });
@@ -75,17 +78,16 @@ router.post('/series/:id/session', function (request, response, next) {
     var username = request.body.username;
     var password = request.body.password;
     var roleType = request.body.roleType;
-
+    var creds: ICredentials = { 'userName': username, 'password': password };
     if (validator.isValidString(username) && validator.isValidString(password) && validator.isValidString(roleType)) {
-        //psdb.getSeriesToken(request.params.id, roleType, { 'username': username, 'password': password }, function (err, token) {
-        //    if (err) {
-        //        next(err);
-        //    }
-        //    else {
-        //        response.json(token);
-        //    }
-        //});
-        response.json({});
+        psdb.getSeriesToken(request.params.id, roleType, creds, {}, function (err, token) {
+            if (err) {
+                next(err);
+            }
+            else {
+                response.send(token);
+            }
+        });
     }
     else {
         next(new Error('Not valid credentials, please provide valid credentials'));
@@ -101,6 +103,9 @@ router.delete('/series/:id/session/:token', function (request, response, next) {
     psdb.releaseSeriesToken(request.params.token, function (err) {
         if (err) {
             next(err);
+        }
+        else {
+            response.send(200);
         }
     });
 });

@@ -1,9 +1,18 @@
 {
 "Debug": true,
-"test": true,
+"test": false,
+"printLog": false,
 "psdb": {
     "serverName": "localhost",
-    "seriesInfoDBName": "psdbSeries",
-    "seriesInfoCollectionName": "psdbSeries"
+    "infoDBName": "psdbInfo",
+    "seriesInfoCollectionName": "psdbSeriesInfo",
+    "userInfoCollectionName":  "psdbUsersInfo",
+    "instructorsCollectionName":  "instructors",
+    "eventsCollectionName":  "events",
+    "puzzlesCollectionName":  "puzzles",
+    "playersCollectionName":  "players",
+    "teamsCollectionName":  "teams",
+    "annotationsCollectionName":  "annotations",
+    "puzzleStatesCollectionNamePrefix":  "puzzleStates"
 	}
 }

@@ -1,7 +1,0 @@
-{
-"seriesInfoCollection" :
-	[
-	{ "name": "Test Series1", "id": "testSeriesId1", "description": "description for test series 1"},
-	{ "name": "Test Series2", "id": "testSeriesId2", "description": "description for test series 2"}
-	]
-}

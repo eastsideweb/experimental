@@ -22,7 +22,6 @@ import fakedb = require('../fakedb/fakedb');
 
 var dbcrudmodule: DBCRUDModule = {
     createDBHandle: function (server: string, dbName: string) {
-        console.log(__filename + " reached createDBModule with " + server + " " + dbName);
         if (global.config.Debug) {
             // We are in debug mode, return the fakedb module
             var retval = new fakedb(server, dbName);
