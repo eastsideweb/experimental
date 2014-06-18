@@ -1,17 +1,19 @@
 {
-  "//": [ 
-  "package.json", 
-  "Copyright (c) 2014 Eastside Web (http://eastsideweb.github.io/)",
-  "FILE: package.json",
-  "DESCRIPTION: The packages to be installed for Puzzle Orchestration",
-  "HISTORY: ",
-  "Date            By  Comment",
-  "2014 May 10th    NSA  Created"
+  "//": [
+    "package.json",
+    "Copyright (c) 2014 Eastside Web (http://eastsideweb.github.io/)",
+    "FILE: package.json",
+    "DESCRIPTION: The packages to be installed for Puzzle Orchestration",
+    "HISTORY: ",
+    "Date            By  Comment",
+    "2014 May 10th    NSA  Created"
   ],
   "name": "Puzzle-Orchestration",
   "version": "0.0.1",
   "private": true,
-  "engines": { "node": "0.10. x" },
+  "engines": {
+    "node": "0.10. x"
+  },
   "scripts": {
     "start": "node ./bin/www",
     "test": "mocha test"
@@ -22,7 +24,9 @@
     "connect": "^2.17.1"
   },
   "devDependencies": {
-    "supertest": "^0.12.1",
-    "mocha": "^1.19.0"
+    "grunt": "^0.4.5",
+    "grunt-contrib-copy": "^0.5.0",
+    "mocha": "^1.19.0",
+    "supertest": "^0.12.1"
   }
 }
