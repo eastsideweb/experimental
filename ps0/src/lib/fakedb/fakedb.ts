@@ -41,7 +41,7 @@ class fakeDB implements DBCRUD {
        }
     }
     static checkInDebug = function (): boolean {
-        return (global.config && global.config.Debug == true);
+        return (global.config && global.config.psdb.useFakeDB == true);
     };
     constructor(server: string, dbName: string) {
         var fakeDBFilename;

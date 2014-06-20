@@ -20,6 +20,7 @@ import psdb = require('../lib/psdb/psdb');
 import config = require("../lib/config");
 import utils = require("../lib/utils");
 import series = require("../lib/psdb/series");
+import crudmodule = require('../lib/psdb/crudmodule');
 var should = require("should");
 
 
@@ -35,6 +36,10 @@ var psdb_findSeries = function (done) {
         }
     });
 };
+
+var handleToInfoDatabase, infoDBCrud, seriesDBCrud;
+infoDBCrud = crudmodule.createDBHandle(global.config.psdb.serverName, global.config.psdb.infoDBName);
+handleToInfoDatabase = infoDBCrud.handleToDatabase ? infoDBCrud.handleToDatabase : null;
 describe("psdb apis tests", function () {
     var savedToken, savedSeries;
     it("psdb findseries api", psdb_findSeries);
@@ -72,7 +77,7 @@ describe("psdb apis tests", function () {
             done();
         });
     });
-    it.skip("psdb releaseSeriesToken api - expired Token", function (done) {
+    it("psdb releaseSeriesToken api - expired Token", function (done) {
         var oldTolerence = global.config.tokenValidityTolerence;
         global.config.psdb.tokenValidityTolerence = 100;
         psdb.getSeriesToken("testSeriesId1", "administrator",
@@ -107,15 +112,74 @@ describe("series apis test with administrator role", function () {
                 }
             });
     });
-    it("series findObj api - events", function (done) {
+
+    it("series findObj api - all valid objectTypes", function (done) {
         var series = psdb.series(seriesToken);
         series.should.be.ok;
         series.findObj('event', {}, {}, function (err: Error, eventList) {
-            eventList.should.have.length(1);
-            eventList[0]._id.should.eql("eventId1");
-            done();
+            if (err) {
+                done(err);
+            }
+            else {
+                eventList.should.have.length(1);
+                eventList[0]._id.should.eql("eventId1");
+                series.findObj('player', {}, {}, function (innerErr1: Error, playerList) {
+                    if (innerErr1) {
+                        done(innerErr1);
+                    }
+                    else {
+                        playerList.should.have.length(4);
+                        // cannot assume order in returned object list
+                        // playerList[0]._id.should.eql("playerId1");
+                        series.findObj('puzzle', {}, {}, function (innerErr2: Error, puzzleList) {
+                            if (innerErr2) {
+                                done(innerErr2);
+                            }
+                            else {
+                                puzzleList.should.have.length(2);
+                                // cannot assume order in returned object list
+                                // puzzleList[0]._id.should.eql("puzzleId1");
+                                series.findObj('team', {}, {}, function (innerErr3: Error, teamList) {
+                                    if (innerErr3) {
+                                        done(innerErr3);
+                                    }
+                                    else {
+                                        teamList.should.have.length(2);
+                                        // cannot assume order in returned object list
+                                        // teamList[0]._id.should.eql("teamId1");
+                                        series.findObj('instructor', {}, {}, function (innerErr4: Error, instructorList) {
+                                            if (innerErr4) {
+                                                done(innerErr4);
+                                            }
+                                            else {
+                                                instructorList.should.have.length(1);
+                                                instructorList[0]._id.should.eql("instructorId1");
+                                                done();
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            }
         });
     });
+    it("series findObj api - invalid objectType", function (done) {
+        var series = psdb.series(seriesToken);
+        series.should.be.ok;
+        series.findObj('dummyObject', {}, {}, function (err: Error, eventList) {
+            if (err) {
+                err.should.eql(utils.errors.invalidObjType);
+                done();
+            }
+            else {
+                done({ name: "InvalidObjFailed", message: "InvalidObj test with dummyObject objectTypeFailed" });
+            }
+        });
+    });
+
 });
 var tests = { "psdb_findSeries": psdb_findSeries };
 

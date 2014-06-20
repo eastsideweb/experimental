@@ -28,11 +28,10 @@ interface SeriesObjTypeInfo {
     allowedPropertiesMap: any
 }
 
-class puzzleSeries implements IPuzzleSeries {
+class PuzzleSeries implements IPuzzleSeries {
     private seriesId: string;
     private role: string;
     private credentials: ICredentials;
-    private crud: DBCRUD;
 
     // Begin static var/functions
     static initDone: boolean = false;
@@ -154,7 +153,7 @@ class puzzleSeries implements IPuzzleSeries {
 
     static initializeObjTypeMap = function () {
         var objType, schema_path;
-        if (puzzleSeries.initDone)
+        if (PuzzleSeries.initDone)
             return;
         //for (objType in puzzleSeries.seriesObjTypeMap) {
         //    if (puzzleSeries.seriesObjTypeMap.hasOwnProperty(objType)) {
@@ -164,7 +163,8 @@ class puzzleSeries implements IPuzzleSeries {
     };
 
     static checkObjType = function (objType: string /*SeriesObjectType*/) {
-        if (!puzzleSeries.seriesObjTypeMap[objType]) {
+        if (!PuzzleSeries.seriesObjTypeMap[objType]) {
+            utils.log(utils.getShortfileName(__filename) + " returning false out of checkObjType() with objType: " + objType);
             return false;
         }
         else {
@@ -179,11 +179,9 @@ class puzzleSeries implements IPuzzleSeries {
     // End static var/functions
 
 
-    constructor(public token: IToken, public dbName: string) {
-        //get a handle for the database
-        this.crud = crudmodule.createDBHandle(global.config.psdb.serverName, dbName);
-        if (!puzzleSeries.initDone) {
-            puzzleSeries.initializeObjTypeMap();
+    constructor(public token: IToken, public crudHandle: DBCRUD) {
+        if (!PuzzleSeries.initDone) {
+            PuzzleSeries.initializeObjTypeMap();
         }
     }
 
@@ -243,16 +241,18 @@ class puzzleSeries implements IPuzzleSeries {
     //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
     findObj(objType: string /*SeriesObjectType*/, queryFields: any, fieldsReturned: any, callback: (err: Error, list: any[]) => void): void {
         // Check if objType is valid
-        if (!puzzleSeries.checkObjType(objType)) {
+        if (!PuzzleSeries.checkObjType(objType)) {
+            utils.log(utils.getShortfileName(__filename) + " returning invalidObjType error with objType: " + objType);
             callback(utils.errors.invalidObjType, null);
+            return;
         }
 
         //prune the fieldsReturned based on the role
-        var prunedFieldsReturned = puzzleSeries.pruneFields(fieldsReturned, objType, this.token.role);
+        var prunedFieldsReturned = PuzzleSeries.pruneFields(fieldsReturned, objType, this.token.role);
         utils.log(" objType " + objType);
-        utils.log(" soType " + puzzleSeries.seriesObjTypeMap[objType]);
-        utils.log(" collection " + puzzleSeries.seriesObjTypeMap[objType].collectionName);
-        this.crud.findObj(puzzleSeries.seriesObjTypeMap[objType].collectionName, queryFields, prunedFieldsReturned, function (innerErr: Error, objList: any[]) {
+        utils.log(" soType " + PuzzleSeries.seriesObjTypeMap[objType]);
+        utils.log(" collection " + PuzzleSeries.seriesObjTypeMap[objType].collectionName);
+        this.crudHandle.findObj(PuzzleSeries.seriesObjTypeMap[objType].collectionName, queryFields, prunedFieldsReturned, function (innerErr: Error, objList: any[]) {
             callback(innerErr, objList);
         });        
     }
@@ -290,4 +290,4 @@ class puzzleSeries implements IPuzzleSeries {
     updatePuzzleState(teamID: string, puzzleID: string, puzzleState: any, callback: SimpleCallBack): void { }
     //------------------ End PuzzleSeries interface methods ------------------
 }
-export = puzzleSeries;
+export = PuzzleSeries;
