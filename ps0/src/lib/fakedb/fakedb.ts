@@ -23,15 +23,15 @@ class fakeDB implements DBCRUD {
 
     private server: string;
     private dbName: string;
-    private fakeDataBase: any;
+    public handleToDataBase: any;
 
     private readFakeDatabase = function (fakeDBFilename): void {
         if (fs.existsSync(fakeDBFilename)) {
             utils.log(utils.getShortfileName(__filename) + " file found " + fakeDBFilename);
-            this.fakeDataBase = JSON.parse(fs.readFileSync(fakeDBFilename, 'utf8'));
+            this.handleToDataBase = JSON.parse(fs.readFileSync(fakeDBFilename, 'utf8'));
         }
         else {
-            this.fakeDataBase = {
+            this.handleToDataBase = {
                 "seriesInfoCollection":
                 [
                     { "name": "HC Test Series1", "id": "testSeriesId1", "description": "description for test series 1" },
@@ -75,16 +75,16 @@ class fakeDB implements DBCRUD {
             return;
         }
 
-        // Check if the fakedatabase has this collection, 
+        // Check if the handleToDataBase has this collection, 
         utils.log(utils.getShortfileName(__filename) + " collection requested " + collection);
-        utils.log("collection = " + this.fakeDataBase[collection]);
+        utils.log("collection = " + this.handleToDataBase[collection]);
 
-        if (!this.fakeDataBase[collection]) {
+        if (!this.handleToDataBase[collection]) {
             utils.log(utils.getShortfileName(__filename) + " collection not found: " + collection);
             callback(utils.errors.notImpl, null);
         }
         //return hardcoded data
-        var retVal: any[] = this.fakeDataBase[collection];
+        var retVal: any[] = this.handleToDataBase[collection];
         // Check if any query params were passed. Only "_id" & "name" are entertained for now
         if (findMap.name || findMap._id) {
             var prop: string = findMap._id ? "_id" : "name",
