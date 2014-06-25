@@ -3,6 +3,7 @@
 "test": false,
 "printLog": false,
 "psdb": {
+    "useFakeDB":  true,
     "serverName": "localhost",
     "infoDBName": "psdbInfo",
     "seriesInfoCollectionName": "psdbSeriesInfo",

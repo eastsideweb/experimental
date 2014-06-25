@@ -51,5 +51,7 @@ interface DBCRUD {
     // all SeriesObjectTypes / eventPuzzleStates* 
     // Allowed findMap: {_id: string}
     deleteObj(collection: string, findMap: any, callback: CallBackWithCount): void;
+
+    handleToDataBase?: any;
 }
  

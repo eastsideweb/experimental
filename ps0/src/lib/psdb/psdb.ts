@@ -20,10 +20,10 @@ import http = require('http');
 import assert = require('assert');
 import crudmodule = require('./crudmodule');
 import utils = require('../utils');
-import puzzleSeries = require('./series');
+import PuzzleSeries = require('./series');
 
 class Token implements IToken {
-    constructor(public seriesId: string, public role: string, public credentials: ICredentials) {
+    constructor(public seriesId: string, public database: string, public role: string, public credentials: ICredentials) {
         this.tokenString = Token.createUniqueToken(seriesId, role, credentials.userName);
         this.creationTime = Date.now();
     }
@@ -62,7 +62,7 @@ var infoDBcrud: DBCRUD,
         'instructor': 'instructor',
         'player': 'player'
     },
-    tokenMap = {},
+    tokenMap = {}, // Map of token string to the corresponding IToken object and the crudHandle to the series database
     env = process.env.NODE_ENV || "ENV_NOT_FOUND";
 
 //----------- Begin Initialization
@@ -163,10 +163,10 @@ var psdb: IPSDB = {
                             }
                             else {
                                 // Instantiate a token object and pass it on to puzzleSeries constructor, alongwith the name of the db
-                                var seriesToken = new Token(id, role, credentials);
-                                var series = new puzzleSeries(seriesToken, seriesList[0].database);
-                                // Save the puzzleSries object in the tokenMap
-                                tokenMap[seriesToken.tokenString] = { "token": seriesToken, "series": series };
+                                var seriesToken = new Token(id, seriesList[0].database, role, credentials);
+                                // Save the IToken object in the tokenMap and set the crudHandle to null, we will create it
+                                // when needed
+                                tokenMap[seriesToken.tokenString] = { "token": seriesToken, "crudHandle": null };
                                 utils.log(utils.getShortfileName(__filename) + " returning token " + seriesToken.tokenString);
                                 callback(null, seriesToken.tokenString);
                             }
@@ -182,15 +182,15 @@ var psdb: IPSDB = {
     // Possible errors: 
     //      "InvalidTokenId"    "Invalid token"
     releaseSeriesToken(token: string, callback: SimpleCallBack): void {
-    // Make sure the given token is still valid
-    if (tokenMap[token] && tokenMap[token].token.isValid()) {
-        delete tokenMap[token];
-        callback(null);
-    }
-    else {
-        //Invalid token
-        callback(utils.errors.invalidTokenID);
-    }
+        // Make sure the given token is still valid
+        if (tokenMap[token] && tokenMap[token].token && tokenMap[token].token.isValid()) {
+            delete tokenMap[token];
+            callback(null);
+        }
+        else {
+            //Invalid token
+            callback(utils.errors.invalidTokenID);
+        }
 
     },
 
@@ -198,13 +198,21 @@ var psdb: IPSDB = {
     // return value will be null if the token is invalid or has expired
     series(token: string): IPuzzleSeries {
         // Check the token is still valid
-        if (tokenMap[token] && tokenMap[token].token.isValid()) {
-            assert(tokenMap[token].series);
-            return tokenMap[token].series;
+        if (tokenMap[token]) {
+            if (tokenMap[token].token && tokenMap[token].token.isValid()) {
+                if (tokenMap[token].crudHandle == null) {
+                    // Need to get a handle to the database first
+                    tokenMap[token].crudHandle = crudmodule.createDBHandle(global.config.psdb.serverName, tokenMap[token].token.database);
+                }
+                return new PuzzleSeries(tokenMap[token].token, tokenMap[token].crudHandle);
+            }
+            else {
+                utils.log(utils.getShortfileName(__filename) + " got an invalidToken request with token: " + token);
+                delete tokenMap[token];
+                return null;
+            }
         }
-        else {
-            return null;
-        }
+        return null;
     }
     // -------------- End PSDB interface  methods --------------
 
