@@ -15,6 +15,10 @@
         "teamId": {
             "type": "string" ,
             "required": true
+        },
+        "_id":  {
+            "type": "string" ,
+            "required": true
         }
     }
 }

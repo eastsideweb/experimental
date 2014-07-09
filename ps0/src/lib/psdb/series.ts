@@ -8,7 +8,8 @@
 //   HISTORY:
 //     Date            By  Comment
 //     2014 May 28th    TJ  Created
-// 
+//     2014 Jun 20th    TJ  findObj implemented
+//     2014 Jun 28th    TJ  addObj implemented. SeriesObjTypeInfo finalized for events
 /// <reference path="../../inc/ext/node.d.ts"/>
 /// <reference path="../../inc/psdb.d.ts"/>
 /// <reference path="../../inc/crud.d.ts"/>
@@ -16,16 +17,16 @@
 
 import crudmodule = require('./crudmodule');
 import utils = require('../utils');
-
+import validator = require('../validator');
 
 // Interface that describes the information relevant for a SeriesObjType
 interface SeriesObjTypeInfo {
-    // Schema for this object type
-    schema: any;
     // Name of the collection in the series database that holds objects of this type 
     collectionName: string;
     // A map of role => array of properties that are allowed for that role
-    allowedPropertiesMap: any
+    // Possible values of writePermission are "unrestricted", empty array (indicating no permission) or an array of allowed properties
+    allowedPropertyMap: any;
+    fixObjForInsertion?: (obj: any) => any;
 }
 
 class PuzzleSeries implements IPuzzleSeries {
@@ -35,11 +36,13 @@ class PuzzleSeries implements IPuzzleSeries {
 
     // Begin static var/functions
     static initDone: boolean = false;
+
+    // jsonValidator used for schema validation
+    static jsonValidator: any;
     // Map of schema for all allowed SeriesObjectTypes
     static seriesObjTypeMap: any = {
-        'instructor':
+        'instructors':
         {
-            schema: null,
             collectionName: global.config.psdb.instructorsCollectionName,
             allowedPropertyMap: {
                 'administrator': {
@@ -47,17 +50,16 @@ class PuzzleSeries implements IPuzzleSeries {
                     "write": "unrestricted"
                 },
                 'instructor': {
-                    "read": ["name", "description", "_id", "state"],
+                    "read": ["name", "description", "_id", "active"],
                     "write": ["name", "description", "_id", ],
                 },
                 'player': {
-                    "read": ["name", "description", "_id", "state"],
-                    "write": [ ],
+                    "read": ["name", "description", "_id", "active"],
+                    "write": [],
                 }
             }
         },
-        'event': {
-            schema: null,
+        'events': {
             collectionName: global.config.psdb.eventsCollectionName,
             allowedPropertyMap: {
                 'administrator': {
@@ -65,17 +67,23 @@ class PuzzleSeries implements IPuzzleSeries {
                     "write": "unrestricted"
                 },
                 'instructor': {
-                    "read": ["name", "description", "_id", "state", "status", "puzzleIds", "instructorIds", "teamIds"],
-                    "write": ["name", "description", "_id", "state", "status", "puzzleIds", "instructorIds", "teamIds"],
+                    "read": ["name", "description", "_id", "active", "status", "puzzleIds", "instructorIds", "teamIds"],
+                    "write": ["name", "description", "_id", "active", "status", "puzzleIds", "instructorIds", "teamIds"],
                 },
                 'player': {
-                    "read": ["name", "description", "_id", "state"],
+                    "read": ["name", "description", "_id", "active"],
                     "write": [],
                 }
+            },
+            fixObjForInsertion: function (obj) {
+                obj.status = "notStarted";
+                obj.puzzleIds = [];
+                obj.instructorIds = [];
+                obj.teamIds = [];
+                return obj;
             }
         },
-        'puzzle': {
-            schema: null,
+        'puzzles': {
             collectionName: global.config.psdb.puzzlesCollectionName,
             propertyAccessMap: {
                 'administrator': {
@@ -83,17 +91,19 @@ class PuzzleSeries implements IPuzzleSeries {
                     "write": "unrestricted"
                 },
                 'instructor': {
-                    "read": ["name", "description", "_id", "state", "status", "puzzleIds", "instructorIds", "teamIds"],
-                    "write": ["name", "description", "_id", "state", "status", "puzzleIds", "instructorIds", "teamIds"],
+                    "read": ["name", "description", "_id", "active", "status", "puzzleIds", "instructorIds", "teamIds"],
+                    "write": ["name", "description", "_id", "active", "status", "puzzleIds", "instructorIds", "teamIds"],
                 },
                 'player': {
-                    "read": ["name", "description", "_id", "state"],
+                    "read": ["name", "description", "_id", "active"],
                     "write": [],
                 }
+            },
+            fixObjForInsertion: function (obj) {
+                return obj;
             }
         },
-        'team': {
-            schema: null,
+        'teams': {
             collectionName: global.config.psdb.teamsCollectionName,
             allowedPropertyMap: {
                 'administrator': {
@@ -101,17 +111,19 @@ class PuzzleSeries implements IPuzzleSeries {
                     "write": "unrestricted"
                 },
                 'instructor': {
-                    "read": ["name", "description", "_id", "state", "status", "puzzleIds", "instructorIds", "teamIds"],
-                    "write": ["name", "description", "_id", "state", "status", "puzzleIds", "instructorIds", "teamIds"],
+                    "read": ["name", "description", "_id", "active", "status", "puzzleIds", "instructorIds", "teamIds"],
+                    "write": ["name", "description", "_id", "active", "status", "puzzleIds", "instructorIds", "teamIds"],
                 },
                 'player': {
-                    "read": ["name", "description", "_id", "state"],
+                    "read": ["name", "description", "_id", "active"],
                     "write": [],
                 }
+            },
+            fixObjForInsertion: function (obj) {
+                return obj;
             }
         },
-        'player': {
-            schema: null,
+        'players': {
             collectionName: global.config.psdb.playersCollectionName,
             allowedPropertyMap: {
                 'administrator': {
@@ -119,17 +131,39 @@ class PuzzleSeries implements IPuzzleSeries {
                     "write": "unrestricted"
                 },
                 'instructor': {
-                    "read": ["name", "description", "_id", "state", "status", "puzzleIds", "instructorIds", "teamIds"],
-                    "write": ["name", "description", "_id", "state", "status", "puzzleIds", "instructorIds", "teamIds"],
+                    "read": ["name", "description", "_id", "active", "status", "puzzleIds", "instructorIds", "teamIds"],
+                    "write": ["name", "description", "_id", "active", "status", "puzzleIds", "instructorIds", "teamIds"],
                 },
                 'player': {
-                    "read": ["name", "description", "_id", "state"],
+                    "read": ["name", "description", "_id", "active"],
                     "write": [],
                 }
+            },
+            fixObjForInsertion: function (obj) {
+                return obj;
             }
         },
-        'annotation': {
-            schema: null,
+        'puzzleStates': {
+            collectionName: global.config.psdb.playersCollectionName,
+            allowedPropertyMap: {
+                'administrator': {
+                    "read": "unrestricted",
+                    "write": "unrestricted"
+                },
+                'instructor': {
+                    "read": ["name", "description", "_id", "active", "status", "puzzleIds", "instructorIds", "teamIds"],
+                    "write": ["name", "description", "_id", "active", "status", "puzzleIds", "instructorIds", "teamIds"],
+                },
+                'player': {
+                    "read": ["name", "description", "_id", "active"],
+                    "write": [],
+                }
+            },
+            fixObjForInsertion: function (obj) {
+                return obj;
+            }
+        },
+        'annotations': {
             collectionName: global.config.psdb.annotationsCollectionName,
             allowedPropertyMap: {
                 'administrator': {
@@ -137,29 +171,26 @@ class PuzzleSeries implements IPuzzleSeries {
                     "write": "unrestricted"
                 },
                 'instructor': {
-                    "read": ["name", "description", "_id", "state", "status", "puzzleIds", "instructorIds", "teamIds"],
-                    "write": ["name", "description", "_id", "state", "status", "puzzleIds", "instructorIds", "teamIds"],
+                    "read": ["name", "description", "_id", "active", "status", "puzzleIds", "instructorIds", "teamIds"],
+                    "write": ["name", "description", "_id", "active", "status", "puzzleIds", "instructorIds", "teamIds"],
                 },
                 'player': {
-                    "read": ["name", "description", "_id", "state"],
+                    "read": ["name", "description", "_id", "active"],
                     "write": [],
                 }
+            },
+            fixObjForInsertion: function (obj) {
+                return obj;
             }
         },
     };
 
-    static loadSchema = function (schema_path) {
-    };
 
     static initializeObjTypeMap = function () {
-        var objType, schema_path;
+        var objType;
         if (PuzzleSeries.initDone)
             return;
-        //for (objType in puzzleSeries.seriesObjTypeMap) {
-        //    if (puzzleSeries.seriesObjTypeMap.hasOwnProperty(objType)) {
-        //        puzzleSeries.loadSchema("filename");
-        //    }
-        //}
+        PuzzleSeries.jsonValidator = new validator(["annotations", "events", "instructors", "players", "puzzlestates", "series"]);
     };
 
     static checkObjType = function (objType: string /*SeriesObjectType*/) {
@@ -176,6 +207,13 @@ class PuzzleSeries implements IPuzzleSeries {
         //TODO: prune fields based on the role
         return fieldsReturned;
     }
+
+    static commonFixObjForInsertion = function (obj) {
+        // Make sure the object is marked non-active
+        obj["active"] = false;
+        obj["description"] = obj["description"] || "";
+    }
+
     // End static var/functions
 
 
@@ -208,7 +246,64 @@ class PuzzleSeries implements IPuzzleSeries {
     //      "EmptyName"             "name field missing"
     //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
     addObj(objType: string /*SeriesObjectType*/, objInfo: any, callback: (err: Error, objInfo: ISeriesObject) => void): void {
-        //TODO: validate the schema
+        var self = this;
+        // Check if objType is valid
+        if (!PuzzleSeries.checkObjType(objType)) {
+            utils.log(utils.getShortfileName(__filename) + " returning invalidObjType error with objType: " + objType);
+            callback(utils.errors.invalidObjType, null);
+            return;
+        }
+
+        // Check write access for this object for given role
+        var writePermission = PuzzleSeries.seriesObjTypeMap[objType].allowedPropertyMap[this.token.role].write;
+        
+        if (writePermission != "unrestricted" && (Array.isArray(writePermission) && writePermission.length === 0)) {
+            callback(utils.errors.UnauthorizedAccess, null);
+            return;
+        }
+        // Check the schema for the objType using the validator
+        PuzzleSeries.jsonValidator.checkSchema(objType, objInfo, function (innerErr1) {
+            if (innerErr1 && innerErr1.length !== 0) {
+                console.log(innerErr1);
+                var error = { "name": "InvalidObjSchema", "message": innerErr1.toString() };
+                callback(error, null);
+            }
+            else {
+                // Got objInfo that has valid schema, insert it in the db after massaging it
+                var fixedObj = {};
+                // **WARNING** assuming only static fields coming in - we should do a deep copy
+                for (var prop in objInfo) {
+                    // Copy only the properties that are allowed by write permission
+                    // Dont copy the "_id" property
+                    if (writePermission == "unrestricted" || writePermission[prop] ) {
+                        if (prop != "_id")
+                            fixedObj[prop] = objInfo[prop];
+                    }
+                }
+                utils.log("*********** " + utils.getShortfileName(__filename) + "after copy " + JSON.stringify(fixedObj));
+                // Fix the object with common properties                                u
+                PuzzleSeries.commonFixObjForInsertion(fixedObj);
+                utils.log("*********** " + utils.getShortfileName(__filename) + "after fixing " + JSON.stringify(fixedObj));
+
+                //Check if the object type has an additional fixObjForInsertion 
+                if (PuzzleSeries.seriesObjTypeMap[objType].fixObjForInsertion && typeof (PuzzleSeries.seriesObjTypeMap[objType].fixObjForInsertion) == "function") {
+                    fixedObj = PuzzleSeries.seriesObjTypeMap[objType].fixObjForInsertion(fixedObj);
+                }
+                utils.log("*********** " + utils.getShortfileName(__filename) + "after fixing second time " + JSON.stringify(fixedObj));
+
+                self.crudHandle.insertObj(PuzzleSeries.seriesObjTypeMap[objType].collectionName, fixedObj, function (innerErr2: Error, resultObj: any) {
+                    if (innerErr2 != null) {
+                        callback(innerErr2, null);
+                    }
+                    else {
+                        // Insertion was successful, prune the fields before returning the object
+                        var prunedFieldsReturned = PuzzleSeries.pruneFields(resultObj, objType, self.token.role);
+                        utils.log("*********** " + utils.getShortfileName(__filename) + "returning " + JSON.stringify(prunedFieldsReturned));
+                        callback(null, prunedFieldsReturned);
+                    }
+                });
+            }
+        });
     }
 
     // Delete an object with given object id from the series

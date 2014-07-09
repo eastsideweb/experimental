@@ -42,7 +42,7 @@ declare enum EventStatus {
 // Common fields expected of all Series Objects
 interface ISeriesObject {
     name: string;
-    id: string;
+    _id: string;
     description: string;
     active: boolean;
 }

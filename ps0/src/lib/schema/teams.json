@@ -8,7 +8,7 @@
         "description" : {
             "type": "string"
         },
-        "id" : {
+        "_id" : {
             "type": "string"
         },
         "name": {
@@ -29,7 +29,7 @@
                 "type": "string"
             }
         },
-        "state": {
+        "active": {
             "type": "boolean" ,
             "default": false
         },

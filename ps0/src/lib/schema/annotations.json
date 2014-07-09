@@ -19,7 +19,7 @@
                 "type": "string"
             }
         },
-        "id" : {
+        "_id" : {
             "type": "string"
         },
         "name" : {

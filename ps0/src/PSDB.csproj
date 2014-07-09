@@ -85,6 +85,9 @@
     <Content Include="lib\fakedb\SeriesDB_testSeriesId1.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="lib\fakedb\SeriesDB_testSeriesId2.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
@@ -141,6 +144,7 @@ xcopy "$(TargetDir)package.json" "$(SolutionDir)$(Configuration)\" /F /I /Y
 xcopy "$(TargetDir)config.json" "$(SolutionDir)$(Configuration)\" /F /I /Y
 xcopy "$(TargetDir)lib\fakedb\psdbInfo.json" "$(SolutionDir)$(Configuration)\lib\fakedb\" /F /I /Y
 xcopy "$(TargetDir)lib\fakedb\SeriesDB_testSeriesId1.json" "$(SolutionDir)$(Configuration)\lib\fakedb\" /F /I /Y
+xcopy "$(TargetDir)lib\fakedb\SeriesDB_testSeriesId2.json" "$(SolutionDir)$(Configuration)\lib\fakedb\" /F /I /Y
 xcopy "$(TargetDir)lib\schema\series.json" "$(SolutionDir)$(Configuration)\public\schema\" /F /I /Y
 xcopy "$(TargetDir)lib\schema\seriesList.json" "$(SolutionDir)$(Configuration)\public\schema\" /F /I /Y
 xcopy "$(TargetDir)lib\schema\annotations.json" "$(SolutionDir)$(Configuration)\public\schema\" /F /I /Y
