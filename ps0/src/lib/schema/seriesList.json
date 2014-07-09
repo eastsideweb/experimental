@@ -16,7 +16,7 @@
                 "required": false,
                 "type": "string"
             },
-            "id" : {
+            "_id" : {
                 "required": false,
                 "type": "string"
             },

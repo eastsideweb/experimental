@@ -7,7 +7,7 @@
         "description" : {
             "type": "string"
         },
-        "id" : {
+        "_id" : {
             "type": "string"
         },
         "instructorIds" : {
@@ -39,6 +39,10 @@
             {
                 "type": "string"
             }
+        },
+        "active" :  {
+            "type": "boolean" ,
+            "default": false
         }
     }
 }

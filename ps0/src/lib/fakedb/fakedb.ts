@@ -24,6 +24,7 @@ class fakeDB implements DBCRUD {
     private server: string;
     private dbName: string;
     public handleToDataBase: any;
+    private lastIndex = {};
 
     private readFakeDatabase = function (fakeDBFilename): void {
         if (fs.existsSync(fakeDBFilename)) {
@@ -34,8 +35,8 @@ class fakeDB implements DBCRUD {
             this.handleToDataBase = {
                 "seriesInfoCollection":
                 [
-                    { "name": "HC Test Series1", "id": "testSeriesId1", "description": "description for test series 1" },
-                    { "name": "HC Test Series2", "id": "testSeriesId2", "description": "description for test series 2" }
+                    { "name": "HC Test Series1", "_id": "testSeriesId1", "description": "description for test series 1" },
+                    { "name": "HC Test Series2", "_id": "testSeriesId2", "description": "description for test series 2" }
                 ]
             }
        }
@@ -62,7 +63,24 @@ class fakeDB implements DBCRUD {
             callback(utils.errors.notInDebug, null);
             return;
         }
-        callback(utils.errors.inconsistentDB, null);
+        // Check if the handleToDataBase has this collection, 
+        utils.log(utils.getShortfileName(__filename) + " collection requested " + collection);
+        utils.log("collection = " + this.handleToDataBase[collection]);
+
+        if (!this.handleToDataBase[collection]) {
+            utils.log(utils.getShortfileName(__filename) + " collection not found: " + collection);
+            callback(utils.errors.notImpl, null);
+        }
+        //insert data into collection
+        if (this.lastIndex[collection] === undefined) {
+            this.lastIndex[collection] = 1;
+        }
+        objMap._id = collection + "Id" + this.lastIndex[collection];
+        this.lastIndex[collection]++;
+
+        this.handleToDataBase[collection].push(objMap);
+        // TODO: create a new object by doing a deep copy before returning it
+        callback(null, objMap);
     }
 
     // Find objects from the given collection

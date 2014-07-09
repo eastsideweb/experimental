@@ -105,16 +105,18 @@ describe("psdb apis tests", function () {
     });
 });
 describe("series apis test with administrator role", function () {
-    var seriesToken, seriesId1, credentials, seriesCRUD, handleToSeriesDatabase;
+    var seriesToken, seriesId1, seriesId2, credentials, seriesCRUD1, seriesCRUD2, handleToSeriesDatabase;
     it("getSeriesToken", function (done) {
         //*** WARNING: assuming order in the array in the seriesInfoCollectionName
         seriesId1 = handleToInfoDatabase[global.config.psdb.seriesInfoCollectionName][0]._id;
+        seriesId2 = handleToInfoDatabase[global.config.psdb.seriesInfoCollectionName][1]._id;
         credentials = {
             "userName": handleToInfoDatabase[global.config.psdb.userInfoCollectionName][0].name,
             "password": handleToInfoDatabase[global.config.psdb.userInfoCollectionName][0].password
         };
-        seriesCRUD = crudmodule.createDBHandle(global.config.psdb.serverName, handleToInfoDatabase[global.config.psdb.seriesInfoCollectionName][0].database);
-        handleToSeriesDatabase = seriesCRUD.handleToDataBase;
+        seriesCRUD1 = crudmodule.createDBHandle(global.config.psdb.serverName, handleToInfoDatabase[global.config.psdb.seriesInfoCollectionName][0].database);
+        seriesCRUD2 = crudmodule.createDBHandle(global.config.psdb.serverName, handleToInfoDatabase[global.config.psdb.seriesInfoCollectionName][1].database);
+        handleToSeriesDatabase = seriesCRUD1.handleToDataBase;
         handleToSeriesDatabase.should.be.ok;
         psdb.getSeriesToken(seriesId1, "administrator",
             credentials, {}, function (err: Error, token: string) {
@@ -132,16 +134,16 @@ describe("series apis test with administrator role", function () {
     it("series findObj api - all valid objectTypes", function (done) {
         var series = psdb.series(seriesToken);
         series.should.be.ok;
-        series.findObj('event', {}, {}, function (err: Error, eventList) {
+        series.findObj('events', {}, {}, function (err: Error, eventList) {
             if (err) {
                 done(err);
             }
             else {
                 eventList.should.have.length(handleToSeriesDatabase[global.config.psdb.eventsCollectionName].length);
                 if (eventList.length == 1) {
-                    eventList[0]._id.should.eql(handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0]._id);
+                    eventList[0].name.should.eql(handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0].name);
                 }
-                series.findObj('player', {}, {}, function (innerErr1: Error, playerList) {
+                series.findObj('players', {}, {}, function (innerErr1: Error, playerList) {
                     if (innerErr1) {
                         done(innerErr1);
                     }
@@ -149,9 +151,9 @@ describe("series apis test with administrator role", function () {
                         playerList.should.have.length(handleToSeriesDatabase[global.config.psdb.playersCollectionName].length);
                         // cannot assume order in returned object list unless length is 1
                         if (playerList.length == 1) {
-                            playerList[0]._id.should.eql(handleToSeriesDatabase[global.config.psdb.playersCollectionName][0]._id);
+                            playerList[0].name.should.eql(handleToSeriesDatabase[global.config.psdb.playersCollectionName][0].name);
                         }
-                        series.findObj('puzzle', {}, {}, function (innerErr2: Error, puzzleList) {
+                        series.findObj('puzzles', {}, {}, function (innerErr2: Error, puzzleList) {
                             if (innerErr2) {
                                 done(innerErr2);
                             }
@@ -159,9 +161,9 @@ describe("series apis test with administrator role", function () {
                                 puzzleList.should.have.length(handleToSeriesDatabase[global.config.psdb.puzzlesCollectionName].length);
                                 // cannot assume order in returned object list unless length is 1
                                 if (puzzleList.length == 1) {
-                                    puzzleList[0]._id.should.eql(handleToSeriesDatabase[global.config.psdb.puzzlesCollectionName][0]._id);
+                                    puzzleList[0].name.should.eql(handleToSeriesDatabase[global.config.psdb.puzzlesCollectionName][0].name);
                                 }
-                                series.findObj('team', {}, {}, function (innerErr3: Error, teamList) {
+                                series.findObj('teams', {}, {}, function (innerErr3: Error, teamList) {
                                     if (innerErr3) {
                                         done(innerErr3);
                                     }
@@ -169,16 +171,16 @@ describe("series apis test with administrator role", function () {
                                         teamList.should.have.length(handleToSeriesDatabase[global.config.psdb.teamsCollectionName].length);
                                         // cannot assume order in returned object list unless length is 1
                                         if (teamList.length == 1) {
-                                            teamList[0]._id.should.eql(handleToSeriesDatabase[global.config.psdb.teamsCollectionName][0]._id);
+                                            teamList[0].name.should.eql(handleToSeriesDatabase[global.config.psdb.teamsCollectionName][0].name);
                                         }
-                                        series.findObj('instructor', {}, {}, function (innerErr4: Error, instructorList) {
+                                        series.findObj('instructors', {}, {}, function (innerErr4: Error, instructorList) {
                                             if (innerErr4) {
                                                 done(innerErr4);
                                             }
                                             else {
                                                 instructorList.should.have.length(handleToSeriesDatabase[global.config.psdb.instructorsCollectionName].length);
                                                 if (instructorList.length == 1) {
-                                                    instructorList[0]._id.should.eql(handleToSeriesDatabase[global.config.psdb.instructorsCollectionName][0]._id);
+                                                    instructorList[0].name.should.eql(handleToSeriesDatabase[global.config.psdb.instructorsCollectionName][0].name);
                                                 }
                                                 done();
                                             }
@@ -202,6 +204,33 @@ describe("series apis test with administrator role", function () {
             }
             else {
                 done({ name: "InvalidObjFailed", message: "InvalidObj test with dummyObject objectTypeFailed" });
+            }
+        });
+    });
+    it("series addObj, updateObj, deleteObj apis", function (done) {
+        var series, eventObj, teamObj;
+        series = psdb.series(seriesToken);
+        series.should.be.ok;
+        eventObj = {
+            "name": handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0].name,
+            "description": handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0].description,
+            "_id" : "dummyId"
+        };            
+        teamObj = {
+            "name": handleToSeriesDatabase[global.config.psdb.teamsCollectionName][0].name,
+            "description": handleToSeriesDatabase[global.config.psdb.teamsCollectionName][0].description,
+            "_id": "dummyId"
+        };
+        series.addObj("events", eventObj, function (err: Error, objInfo: ISeriesObject) {
+            if (err)
+                done(err);
+            else {
+                objInfo.name.should.eql(eventObj.name);
+                eventObj.description.should.eql(objInfo.description);
+                eventObj._id.should.not.eql(objInfo._id);
+                objInfo._id.should.be.ok;
+                objInfo.active.should.be.false;
+                done();
             }
         });
     });

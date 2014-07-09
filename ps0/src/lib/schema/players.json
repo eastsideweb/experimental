@@ -7,14 +7,14 @@
         "description" : {
             "type": "string"
         },
-        "id" : {
+        "_id" : {
             "type": "string"
         },
         "name": {
             "type": "string" ,
             "required": true
         },
-        "state": {
+        "active": {
             "type": "boolean" ,
             "default": false
         }

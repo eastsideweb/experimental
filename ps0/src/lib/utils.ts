@@ -45,6 +45,10 @@ var errors = {
     "invalidObjType": {
         name: "InvalidObjType",
         message: "Invalid object type specified"
+    },
+    "UnauthorizedAccess": {
+        name: "UnauthorizedAccess",
+        message: "Access to this api not supported for the RoleType"
     }
 };
 var getShortfileName = function (filename: string): string {
