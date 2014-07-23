@@ -21,12 +21,15 @@ module psdbClient {
             setModalLocation();
             $('body').append('<div id="mask" class="mask"></div>');
 
-            jqueryMap.$container.find('a.btn_close').one('click', function () {
+            jqueryMap.$container.find('a.btn_close').one('utap.utap', function () {
                 clearModal();
                 return false;
             });
 
-            jqueryMap.$container.find('button.submit').on('click', function () {
+            var $submitBtn = jqueryMap.$container.find('button.submit');
+            $submitBtn.on('click', function () {
+                // Disable the submit button
+                $submitBtn.attr("disabled", true);
                 jqueryMap.$container.find('#error').html('');
                 getSessionToken(seriesId);
                 return false;
@@ -35,6 +38,8 @@ module psdbClient {
             jqueryMap.$container.keypress(function (e) {
                 // If enter
                 if (e.which == 13) {
+                    // Disable the submit button
+                    $submitBtn.attr("disabled", true);
                     jqueryMap.$container.find('#error').html('');
                     getSessionToken(seriesId);
                     return false;
@@ -70,6 +75,7 @@ module psdbClient {
         }
         function onLogin(err: IPSDBClientError, data) {
             if (err) {
+                jqueryMap.$container.find('#continueButton').removeAttr('disabled');
                 jqueryMap.$container.find('#error').html(err.title);  
             }
             else {
@@ -100,6 +106,7 @@ module psdbClient {
                 function (index: any, item:any) {
                     inputObject[item.name] = item.value;
                 });
+            var requestParams: IRequestParameters = { isAsync:false, loadPreloader:false };
             psdbClient.util.postRequest(config.sessionUrl.replace('{id}', seriesId), inputObject, onLogin);
         }
         //------------------- END UTILITY METHODS--------------------------------------------

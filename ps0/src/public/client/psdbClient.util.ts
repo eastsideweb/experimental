@@ -13,7 +13,7 @@
 module psdbClient {
     export interface IRequestParameters {
         isAsync?: boolean;
-        session: string;
+        session?: string;
         loadPreloader?: boolean;
     }
     export module util {
@@ -36,15 +36,9 @@ module psdbClient {
         export function handleError(err: IPSDBClientError, $container:JQuery, ignoreError = false) {
             if (!ignoreError) {
                 renderTemplate(config.modalTemplate, err, $container);
-
                 $container.fadeIn(10);
-                var popMargTop = ($container.height() + 24) / 2;
-                var popMargLeft = ($container.width() + 24) / 2;
+                setModalLocation();
 
-                $container.css({
-                    'margin-top': -popMargTop,
-                    'margin-left': -popMargLeft
-                });
                 $('body').append('<div id="mask" class="mask"></div>');
 
                 // find the close button and ensure to remove the modal template once dismissed
@@ -116,12 +110,12 @@ module psdbClient {
                 timeout: config.timeout,
                 beforeSend: function () {
                     if (requestParams.loadPreloader) {
-                        //launchpreloader();
+                        launchPreloader();
                     }
                 },
                 complete: function () {
                     if (requestParams.loadPreloader) {
-                        //stopPreloader();
+                        stopPreloader();
                     }
                 }
             })
@@ -139,10 +133,25 @@ module psdbClient {
                 });
         }
 
+        function setModalLocation() {
+            var loginModal = $('div.modal');
+            var popMargTop = (loginModal.height()) / 2;
+            var popMargLeft = (loginModal.width()) / 2;
+
+            loginModal.css({
+                'margin-top': -popMargTop,
+                'margin-left': -popMargLeft
+            });
+        }
+
         function launchPreloader() {
+            $('div.psdbClient-shell-preloader').fadeIn('slow');
+            $('body').append('<div id="mask" class="mask"></div>');
         }
 
         function stopPreloader() {
+            $('div.psdbClient-shell-preloader').fadeOut('slow');
+            $('#mask').remove();
         }
 
         function checkRequestParams(requestParams: IRequestParameters) {

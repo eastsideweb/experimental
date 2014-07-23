@@ -30,7 +30,7 @@ module psdbClient {
             $.gevent.subscribe(jqueryMap.$acct, 'psdbClient-login', onSeriesLogin);
 
             // Call series
-            psdbClient.util.getRequest(config.seriesUrl, renderSeriesTemplate);
+            psdbClient.util.getRequestAsync(config.seriesUrl, renderSeriesTemplate);
         };
         // End PUBLIC method /initModule/
     }

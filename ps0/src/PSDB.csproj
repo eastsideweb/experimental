@@ -18,6 +18,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="public\client\img\close.png" />
+    <Content Include="public\client\img\preloader.gif" />
     <Content Include="public\client\lib\dust-full.min.js" />
     <Content Include="public\client\lib\jquery-2.1.1.min.js" />
     <Content Include="lib\config.ts" />
@@ -142,8 +143,8 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <TypeScriptTarget>ES5</TypeScriptTarget>
     <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
-    <TypeScriptSourceMap>True</TypeScriptSourceMap>
-    <TypeScriptModuleKind>none</TypeScriptModuleKind>
+    <TypeScriptSourceMap>False</TypeScriptSourceMap>
+    <TypeScriptModuleKind>commonjs</TypeScriptModuleKind>
     <TypeScriptOutDir>..\"$(Configuration)"\</TypeScriptOutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
