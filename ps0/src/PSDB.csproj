@@ -17,15 +17,31 @@
     <IISExpressUseClassicPipelineMode />
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="public\client\img\close.png" />
+    <Content Include="public\client\lib\dust-full.min.js" />
+    <Content Include="public\client\lib\jquery-2.1.1.min.js" />
     <Content Include="lib\config.ts" />
     <Content Include="lib\fakedb\fakedb.ts" />
     <Content Include="lib\psdb\psdb.ts" />
+    <Content Include="public\client\lib\jquery.event.gevent-0.2.0.js" />
+    <Content Include="public\client\lib\jquery.event.ue-0.3.3.js" />
+    <TypeScriptCompile Include="public\client\psdbClient.config.ts" />
+    <TypeScriptCompile Include="public\client\psdbClient.series.ts" />
+    <TypeScriptCompile Include="public\client\psdbClient.ts" />
+    <TypeScriptCompile Include="public\client\psdbClient.shell.ts" />
+    <TypeScriptCompile Include="public\client\psdbClient.util.ts" />
+    <Content Include="public\client\styles\style.css" />
+    <Content Include="public\client\templates\loginTemplate.tl" />
+    <Content Include="public\client\templates\modalTemplate.tl" />
+    <None Include="public\client\templates\listTemplate.tl" />
+    <TypeScriptCompile Include="public\client\psdbClient.login.ts" />
     <Content Include="public\index.html" />
     <Content Include="test\test.html" />
     <Content Include="web.config" />
     <Content Include="www">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <TypeScriptCompile Include="public\client\inc\jquery.d.ts" />
     <TypeScriptCompile Include="inc\ext\connect.d.ts" />
     <TypeScriptCompile Include="inc\ext\mocha.d.ts" />
     <TypeScriptCompile Include="inc\ext\should.d.ts" />
@@ -126,8 +142,8 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <TypeScriptTarget>ES5</TypeScriptTarget>
     <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
-    <TypeScriptSourceMap>true</TypeScriptSourceMap>
-    <TypeScriptModuleKind>commonjs</TypeScriptModuleKind>
+    <TypeScriptSourceMap>True</TypeScriptSourceMap>
+    <TypeScriptModuleKind>none</TypeScriptModuleKind>
     <TypeScriptOutDir>..\"$(Configuration)"\</TypeScriptOutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
@@ -145,14 +161,10 @@ xcopy "$(TargetDir)config.json" "$(SolutionDir)$(Configuration)\" /F /I /Y
 xcopy "$(TargetDir)lib\fakedb\psdbInfo.json" "$(SolutionDir)$(Configuration)\lib\fakedb\" /F /I /Y
 xcopy "$(TargetDir)lib\fakedb\SeriesDB_testSeriesId1.json" "$(SolutionDir)$(Configuration)\lib\fakedb\" /F /I /Y
 xcopy "$(TargetDir)lib\fakedb\SeriesDB_testSeriesId2.json" "$(SolutionDir)$(Configuration)\lib\fakedb\" /F /I /Y
-xcopy "$(TargetDir)lib\schema\series.json" "$(SolutionDir)$(Configuration)\public\schema\" /F /I /Y
-xcopy "$(TargetDir)lib\schema\seriesList.json" "$(SolutionDir)$(Configuration)\public\schema\" /F /I /Y
-xcopy "$(TargetDir)lib\schema\annotations.json" "$(SolutionDir)$(Configuration)\public\schema\" /F /I /Y
-xcopy "$(TargetDir)lib\schema\events.json" "$(SolutionDir)$(Configuration)\public\schema\" /F /I /Y
-xcopy "$(TargetDir)lib\schema\instructors.json" "$(SolutionDir)$(Configuration)\public\schema\" /F /I /Y
-xcopy "$(TargetDir)lib\schema\players.json" "$(SolutionDir)$(Configuration)\public\schema\" /F /I /Y
-xcopy "$(TargetDir)lib\schema\puzzles.json" "$(SolutionDir)$(Configuration)\public\schema\" /F /I /Y
-xcopy "$(TargetDir)lib\schema\puzzlesstates.json" "$(SolutionDir)$(Configuration)\public\schema\" /F /I /Y
-xcopy "$(TargetDir)lib\schema\teams.json" "$(SolutionDir)$(Configuration)\public\schema\" /F /I /Y</PostBuildEvent>
+xcopy "$(TargetDir)lib\schema\*" "$(SolutionDir)$(Configuration)\public\schema\" /F /I /Y
+xcopy "$(SolutionDir)src\public\index.html" "$(SolutionDir)$(Configuration)\public\" /F /I /Y
+xcopy "$(SolutionDir)src\public\client\styles\style.css" "$(SolutionDir)$(Configuration)\public\client\styles\" /F /I /Y
+xcopy "$(SolutionDir)src\public\client\img\*" "$(SolutionDir)$(Configuration)\public\client\img\" /F /I /Y
+xcopy "$(SolutionDir)src\public\client\lib\*" "$(SolutionDir)$(Configuration)\public\client\lib\" /F /I /Y</PostBuildEvent>
   </PropertyGroup>
 </Project>

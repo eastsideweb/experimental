@@ -69,10 +69,8 @@ if (app.get('NODE_ENV') === 'test') {
     app.use(function(err, req, res, next) {
         res.status(err.status || 500)
             .json({
-            'error': {
                 'title': err.message,
                 'details': err
-            }
         });
     });
 }
@@ -81,10 +79,8 @@ if (app.get('NODE_ENV') === 'test') {
 // No stacktraces leaked to user
 app.use(function(err, req, res, next) {
     res.status(err.status || 500).json({
-        'error': {
             'title': err.message,
             'details': {}
-        }
     });
 });
 
