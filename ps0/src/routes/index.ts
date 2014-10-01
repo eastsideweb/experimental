@@ -58,7 +58,7 @@ router.get('/', function (request, response) {
 // Response: set of series list
 router.get('/series', function (request, response, next) {
     // Check for query parameters, else return all the available lists
-    var query = (request.query != null) ? request.query : {};
+    var query = (request.query !== null) ? request.query : {};
     var series = psdb.findSeries(query, function (err, seriesList) {
         if (err) {
             next(err);
@@ -85,7 +85,7 @@ router.post('/series/:id/session', function (request, response, next) {
                 next(err);
             }
             else {
-                response.send(token);
+                response.json({ token: token });
             }
         });
     }
@@ -139,19 +139,16 @@ router.all('/:type*', function (request, response, next) {
 // Response: list of the requested type
 router.get('/:type', function (request, response) {
     var token = request.headers['token'];
-    
-    // pasdb function
-    //if (!validator.isEmptyJson(request.query)) {
-    //    //if it has query parameters, format and then pass it to 
-    //    response.json(200, { 'query': request.query });
-    //    console.log("query is" + request.query);
-    //}
-    //else {
-    //    console.log("type is" + request.params.type);
-    //    //if it has query parameters, format and then pass it to 
-    //    response.json(200, { 'type': request.params.type });
-    //}
-    response.json(200, { 'type': request.params.type });
+    var query = (request.query !== null) ? request.query : {};
+    response.json(200, {});
+    //var series = psdb.(query, function (err, seriesList) {
+    //    if (err) {
+    //        next(err);
+    //    }
+    //    else {
+    //        response.json(seriesList);
+    //    }
+    //});
 });
 
 // Handles the request for getting a details of requested type

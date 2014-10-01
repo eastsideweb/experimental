@@ -107,7 +107,7 @@ var psdb: IPSDB = {
                 callback(innerErr2, null);
                 return;
             }
-            else if (seriesList.length == 0) {
+            else if (seriesList.length === 0) {
                 // No series with given id was found
                 callback(utils.errors.invalidSeriesID, null);
                 return;
@@ -200,7 +200,7 @@ var psdb: IPSDB = {
         // Check the token is still valid
         if (tokenMap[token]) {
             if (tokenMap[token].token && tokenMap[token].token.isValid()) {
-                if (tokenMap[token].crudHandle == null) {
+                if (tokenMap[token].crudHandle === null) {
                     // Need to get a handle to the database first
                     tokenMap[token].crudHandle = crudmodule.createDBHandle(global.config.psdb.serverName, tokenMap[token].token.database);
                 }

@@ -257,7 +257,7 @@ class PuzzleSeries implements IPuzzleSeries {
         // Check write access for this object for given role
         var writePermission = PuzzleSeries.seriesObjTypeMap[objType].allowedPropertyMap[this.token.role].write;
         
-        if (writePermission != "unrestricted" && (Array.isArray(writePermission) && writePermission.length === 0)) {
+        if (writePermission !== "unrestricted" && (Array.isArray(writePermission) && writePermission.length === 0)) {
             callback(utils.errors.UnauthorizedAccess, null);
             return;
         }
@@ -275,8 +275,8 @@ class PuzzleSeries implements IPuzzleSeries {
                 for (var prop in objInfo) {
                     // Copy only the properties that are allowed by write permission
                     // Dont copy the "_id" property
-                    if (writePermission == "unrestricted" || writePermission[prop] ) {
-                        if (prop != "_id")
+                    if (writePermission === "unrestricted" || writePermission[prop] ) {
+                        if (prop !== "_id")
                             fixedObj[prop] = objInfo[prop];
                     }
                 }
@@ -286,13 +286,13 @@ class PuzzleSeries implements IPuzzleSeries {
                 utils.log("*********** " + utils.getShortfileName(__filename) + "after fixing " + JSON.stringify(fixedObj));
 
                 //Check if the object type has an additional fixObjForInsertion 
-                if (PuzzleSeries.seriesObjTypeMap[objType].fixObjForInsertion && typeof (PuzzleSeries.seriesObjTypeMap[objType].fixObjForInsertion) == "function") {
+                if (PuzzleSeries.seriesObjTypeMap[objType].fixObjForInsertion && typeof (PuzzleSeries.seriesObjTypeMap[objType].fixObjForInsertion) === "function") {
                     fixedObj = PuzzleSeries.seriesObjTypeMap[objType].fixObjForInsertion(fixedObj);
                 }
                 utils.log("*********** " + utils.getShortfileName(__filename) + "after fixing second time " + JSON.stringify(fixedObj));
 
                 self.crudHandle.insertObj(PuzzleSeries.seriesObjTypeMap[objType].collectionName, fixedObj, function (innerErr2: Error, resultObj: any) {
-                    if (innerErr2 != null) {
+                    if (innerErr2 !== null) {
                         callback(innerErr2, null);
                     }
                     else {

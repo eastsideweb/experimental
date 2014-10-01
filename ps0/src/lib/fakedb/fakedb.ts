@@ -42,7 +42,7 @@ class fakeDB implements DBCRUD {
        }
     }
     static checkInDebug = function (): boolean {
-        return (global.config && global.config.psdb.useFakeDB == true);
+        return (global.config && global.config.psdb.useFakeDB === true);
     };
     constructor(server: string, dbName: string) {
         var fakeDBFilename;
@@ -109,7 +109,7 @@ class fakeDB implements DBCRUD {
                 found: boolean = false;
             utils.log(utils.getShortfileName(__filename) + " found property: " + prop);
             for (var i: number = 0; i < retVal.length && !found; i++) {
-                if (retVal[i][prop] == findMap[prop]) {
+                if (retVal[i][prop] === findMap[prop]) {
                     utils.log(utils.getShortfileName(__filename) + " found item: " + retVal[i][prop]);
                     retVal = retVal.slice(i, i + 1);
                     found = true;
@@ -119,7 +119,7 @@ class fakeDB implements DBCRUD {
                 retVal = [];
             }
             else {
-                assert(retVal.length == 1);
+                assert(retVal.length === 1);
             }
         }
         setTimeout(callback(null,retVal), 100);
