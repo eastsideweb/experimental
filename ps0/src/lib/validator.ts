@@ -52,7 +52,7 @@ class Validator {
 
     // Validates if it is an empty json object
     public static isEmptyJson(value: Object): boolean {
-        return (value == null || Object.keys(value).length === 0);                   
+        return (value === null || Object.keys(value).length === 0);                   
     }
 
     // Loads the JSON schema for validation and registers it with a predefined URI schema

@@ -37,7 +37,7 @@ var psdb_findSeries = function (done) {
             done(err);
         else {
             handleToInfoDatabase.should.be.ok;
-            assert(list.length == handleToInfoDatabase[global.config.psdb.seriesInfoCollectionName].length);
+            assert(list.length === handleToInfoDatabase[global.config.psdb.seriesInfoCollectionName].length);
             done();
         }
     });
@@ -65,7 +65,7 @@ describe("psdb apis tests", function () {
             "password": handleToInfoDatabase[global.config.psdb.userInfoCollectionName][0].password
         };
         psdb.getSeriesToken(seriesId1, "administrator", credentials, {}, function (err: Error, token: string) {
-            (err == null).should.be.true;
+            (err === null).should.be.true;
             token.should.be.a.String;
             savedToken = token;
             done();
@@ -73,7 +73,7 @@ describe("psdb apis tests", function () {
     });
     it("psdb releaseSeriesToken api", function (done) {
         psdb.releaseSeriesToken(savedToken, function (err: Error) {
-            (err == null).should.be.true;
+            (err === null).should.be.true;
             done();
         });
     });
@@ -90,7 +90,7 @@ describe("psdb apis tests", function () {
         psdb.getSeriesToken(seriesId1, "administrator",
             credentials, {}, function (err: Error, token: string) {
                 setTimeout(function () {
-                    (psdb.series(token) == null).should.be.true;
+                    (psdb.series(token) === null).should.be.true;
                     // Reset the tolerence
                     global.config.psdb.tokenValidityTolerence = oldTolerence;
                     done();
@@ -100,7 +100,7 @@ describe("psdb apis tests", function () {
 
     it("psdb series api", function (done) {
         savedSeries = psdb.series(savedToken);
-        (savedSeries == null).should.be.true;
+        (savedSeries === null).should.be.true;
         done();
     });
 });
@@ -140,7 +140,7 @@ describe("series apis test with administrator role", function () {
             }
             else {
                 eventList.should.have.length(handleToSeriesDatabase[global.config.psdb.eventsCollectionName].length);
-                if (eventList.length == 1) {
+                if (eventList.length === 1) {
                     eventList[0].name.should.eql(handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0].name);
                 }
                 series.findObj('players', {}, {}, function (innerErr1: Error, playerList) {
@@ -150,7 +150,7 @@ describe("series apis test with administrator role", function () {
                     else {
                         playerList.should.have.length(handleToSeriesDatabase[global.config.psdb.playersCollectionName].length);
                         // cannot assume order in returned object list unless length is 1
-                        if (playerList.length == 1) {
+                        if (playerList.length === 1) {
                             playerList[0].name.should.eql(handleToSeriesDatabase[global.config.psdb.playersCollectionName][0].name);
                         }
                         series.findObj('puzzles', {}, {}, function (innerErr2: Error, puzzleList) {
@@ -160,7 +160,7 @@ describe("series apis test with administrator role", function () {
                             else {
                                 puzzleList.should.have.length(handleToSeriesDatabase[global.config.psdb.puzzlesCollectionName].length);
                                 // cannot assume order in returned object list unless length is 1
-                                if (puzzleList.length == 1) {
+                                if (puzzleList.length === 1) {
                                     puzzleList[0].name.should.eql(handleToSeriesDatabase[global.config.psdb.puzzlesCollectionName][0].name);
                                 }
                                 series.findObj('teams', {}, {}, function (innerErr3: Error, teamList) {
@@ -170,7 +170,7 @@ describe("series apis test with administrator role", function () {
                                     else {
                                         teamList.should.have.length(handleToSeriesDatabase[global.config.psdb.teamsCollectionName].length);
                                         // cannot assume order in returned object list unless length is 1
-                                        if (teamList.length == 1) {
+                                        if (teamList.length === 1) {
                                             teamList[0].name.should.eql(handleToSeriesDatabase[global.config.psdb.teamsCollectionName][0].name);
                                         }
                                         series.findObj('instructors', {}, {}, function (innerErr4: Error, instructorList) {
@@ -179,7 +179,7 @@ describe("series apis test with administrator role", function () {
                                             }
                                             else {
                                                 instructorList.should.have.length(handleToSeriesDatabase[global.config.psdb.instructorsCollectionName].length);
-                                                if (instructorList.length == 1) {
+                                                if (instructorList.length === 1) {
                                                     instructorList[0].name.should.eql(handleToSeriesDatabase[global.config.psdb.instructorsCollectionName][0].name);
                                                 }
                                                 done();

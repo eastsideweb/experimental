@@ -58,7 +58,7 @@ router.get('/', function (request, response) {
 // Response: set of series list
 router.get('/series', function (request, response, next) {
     // Check for query parameters, else return all the available lists
-    var query = (request.query != null) ? request.query : {};
+    var query = (request.query !== null) ? request.query : {};
     var series = psdb.findSeries(query, function (err, seriesList) {
         if (err) {
             next(err);
@@ -139,7 +139,7 @@ router.all('/:type*', function (request, response, next) {
 // Response: list of the requested type
 router.get('/:type', function (request, response) {
     var token = request.headers['token'];
-    var query = (request.query != null) ? request.query : {};
+    var query = (request.query !== null) ? request.query : {};
     response.json(200, {});
     //var series = psdb.(query, function (err, seriesList) {
     //    if (err) {
