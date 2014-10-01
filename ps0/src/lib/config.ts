@@ -28,7 +28,7 @@ var readConfig = function (filename: string) {
 
     config = JSON.parse(fs.readFileSync(configfilename, 'utf8'));
     env = process.env.NODE_ENV;
-    if (env != undefined) {
+    if (env !== undefined) {
         console.log('running in env: ' + env);
         filenameEnv = filename + '.' + env + '.json';
         if (fs.existsSync(filenameEnv)) {
@@ -51,8 +51,8 @@ var merge = function (o1: any, o2: any) {
     for (var prop in o2) {
         var val = o2[prop];
         if (o1.hasOwnProperty(prop)) {
-            if (typeof val == 'object') {
-                if (val && val.constructor != Array) { // not array
+            if (typeof val === 'object') {
+                if (val && val.constructor !== Array) { // not array
                     val = merge(o1[prop], val);
                 }
             }
