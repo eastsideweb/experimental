@@ -95,12 +95,12 @@ describe('Server REST API', function () {
                 request.post('/series/' + testAccount.id + '/session')
                     .send(testAccount.credentials)
                     .expect(200)
-                    .expect('Content-Type', 'text/html; charset=utf-8')
+                    .expect('Content-Type', /json/)
                     .end(function (err, res) {
                     if (err) {
                         done(err);
                     } else {
-                        sessionToken = res.text;
+                        sessionToken = res.body.token;
                         assert.ok(typeof(sessionToken) === 'string');
                         assert.ok(sessionToken && !(/^\s*$/.test(sessionToken)));
                         done();
