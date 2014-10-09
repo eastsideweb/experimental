@@ -10,6 +10,8 @@
 //     2014 May 30th    TJ  Created
 //     2014 Jun 13th    TJ  More tests added
 //     2014 Jun 20th    TJ  Tests added for psdb api and PuzzleSeries.findObj api 
+//     2014 July 20th   TJ  Tests added for PuzzleSeries.addObj api
+//     2014 July 28th   TJ  Tests added for PuzzleSeries.updateObj api
 /// <reference path="../inc/ext/node.d.ts"/>
 /// <reference path="../inc/ext/should.d.ts"/>
 /// <reference path="../inc/ext/mocha.d.ts"/>
@@ -105,7 +107,7 @@ describe("psdb apis tests", function () {
     });
 });
 describe("series apis test with administrator role", function () {
-    var seriesToken, seriesId1, seriesId2, credentials, seriesCRUD1, seriesCRUD2, handleToSeriesDatabase;
+    var seriesToken, seriesToken2, seriesId1, seriesId2, credentials, seriesCRUD1, seriesCRUD2, handleToSeriesDatabase;
     it("getSeriesToken", function (done) {
         //*** WARNING: assuming order in the array in the seriesInfoCollectionName
         seriesId1 = handleToInfoDatabase[global.config.psdb.seriesInfoCollectionName][0]._id;
@@ -126,7 +128,17 @@ describe("series apis test with administrator role", function () {
                 else {
                     token.should.be.a.String;
                     seriesToken = token;
-                    done();
+                    psdb.getSeriesToken(seriesId2, "administrator",
+                        credentials, {}, function (err2: Error, token2: string) {
+                            if (err) {
+                                done(err);
+                            }
+                            else {
+                                token2.should.be.a.String;
+                                seriesToken2 = token2;
+                                done();
+                            }
+                        });
                 }
             });
     });
@@ -207,21 +219,29 @@ describe("series apis test with administrator role", function () {
             }
         });
     });
-    it("series addObj, updateObj, deleteObj apis", function (done) {
-        var series, eventObj, teamObj;
-        series = psdb.series(seriesToken);
-        series.should.be.ok;
+    it("series addObj apis - valid and invalid objectTypes", function (done) {
+        var series2, eventObj, teamObj, playerObj, puzzleStateCollectionName, instructorObj, puzzleStateObj;
+        puzzleStateCollectionName = global.config.psdb.puzzleStatesCollectionNamePrefix + handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0]._id;
+        series2 = psdb.series(seriesToken2);
+        series2.should.be.ok;
         eventObj = {
             "name": handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0].name,
             "description": handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0].description,
-            "_id" : "dummyId"
-        };            
+            "_id": "dummyId"
+        };
         teamObj = {
             "name": handleToSeriesDatabase[global.config.psdb.teamsCollectionName][0].name,
             "description": handleToSeriesDatabase[global.config.psdb.teamsCollectionName][0].description,
+            "teamLeadId": handleToSeriesDatabase[global.config.psdb.teamsCollectionName][0].teamLeadId,
             "_id": "dummyId"
         };
-        series.addObj("events", eventObj, function (err: Error, objInfo: ISeriesObject) {
+        puzzleStateObj = {
+            "puzzleId": handleToSeriesDatabase[puzzleStateCollectionName][0].puzzleId,
+            "teamId": handleToSeriesDatabase[puzzleStateCollectionName][0].teamId,
+            "solved": false,
+            "_id": "dummyId"
+        };
+        series2.addObj("events", eventObj, function (err: Error, objInfo: any /*ISeriesObject*/) {
             if (err)
                 done(err);
             else {
@@ -230,11 +250,114 @@ describe("series apis test with administrator role", function () {
                 eventObj._id.should.not.eql(objInfo._id);
                 objInfo._id.should.be.ok;
                 objInfo.active.should.be.false;
-                done();
+                Array.isArray(objInfo.playerIds).should.be.ok;
+                objInfo.playerIds.length.should.eql(0);
+                Array.isArray(objInfo.puzzleIds).should.be.ok;
+                objInfo.puzzleIds.length.should.eql(0);
+                Array.isArray(objInfo.instructorIds).should.be.ok;
+                objInfo.instructorIds.length.should.eql(0);
+                Array.isArray(objInfo.teamIds).should.be.ok;
+                objInfo.teamIds.length.should.eql(0);
+                series2.addObj("teams", teamObj, function (innererr1: Error, objInfo1: any) {
+                    if (innererr1) {
+                        done(innererr1);
+                    }
+                    else {
+                        objInfo1.name.should.eql(teamObj.name);
+                        teamObj.description.should.eql(objInfo1.description);
+                        teamObj._id.should.not.eql(objInfo1._id);
+                        objInfo1._id.should.be.ok;
+                        objInfo1.active.should.be.false;
+                        Array.isArray(objInfo1.playerIds).should.be.ok;
+                        objInfo1.playerIds.length.should.eql(0);
+                        Array.isArray(objInfo1.puzzleIds).should.be.ok;
+                        objInfo1.puzzleIds.length.should.eql(0);
+                        objInfo1.teamLeadId.should.eql(teamObj.teamLeadId);
+                        // Skipping addObj of puzzle/instructor/player - no custom fields
+
+                        // addObj of puzzleStates shouldn't succeed - we don't allow it directly. One is expected to use the 
+                        // updatePuzzleState api
+                        series2.addObj("puzzleStates", puzzleStateObj, function (innererr2: Error, objInfo2: any) {
+                            innererr2.should.eql(utils.errors.invalidObjType, "puzzleStates cannot be added through addObj api");
+                            series2.addObj("dummyObj", null, function (innererr3: Error, objInfo3: any) {
+                                innererr3.should.eql(utils.errors.invalidObjType);
+                                done();
+                            });
+                        });
+                    }
+                });
+            }
+        });
+    });
+    it("series updateObj apis - valid updates", function (done) {
+        var series, eventUpdateObj, newEventDescription = "new Event Description",
+            newteamLeadId = "dummyLeadId", eventId, teamId, teamUpdateObj, puzzleStateCollectionName, puzzleStateObj;
+        puzzleStateCollectionName = global.config.psdb.puzzleStatesCollectionNamePrefix + handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0]._id;
+        series = psdb.series(seriesToken);
+        series.should.be.ok;
+        eventId = handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0]._id;
+        teamId = handleToSeriesDatabase[global.config.psdb.teamsCollectionName][0]._id;
+        eventUpdateObj = {
+            "description": newEventDescription,
+            "status": "started"
+        };
+        teamUpdateObj = {
+            "teamLeadId": newteamLeadId,
+        };
+        puzzleStateObj = {
+            "puzzleId": handleToSeriesDatabase[puzzleStateCollectionName][0].puzzleId,
+            "teamId": handleToSeriesDatabase[puzzleStateCollectionName][0].teamId,
+            "solved": false,
+            "_id": "dummyId"
+        };
+        series.updateObj("events", eventId, eventUpdateObj, function (err: Error, count: number) {
+            if (err)
+                done(err);
+            else {
+                series.findObj('events', { "_id": eventId }, {}, function (err: Error, eventList) {
+                    if (err) {
+                        done(err);
+                    }
+                    else {
+
+                        eventList.length.should.eql(1);
+                        eventList[0].description.should.eql(newEventDescription);
+                        done();
+
+                    }
+                });
             }
         });
     });
 
+    it("series updateObj apis - invalid updates", function (done) {
+        var series, eventUpdateObj,
+            newteamLeadId = "dummyLeadId", eventId, teamId, teamUpdateObj, puzzleStateCollectionName, puzzleStateObj;
+        puzzleStateCollectionName = global.config.psdb.puzzleStatesCollectionNamePrefix + handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0]._id;
+        series = psdb.series(seriesToken);
+        series.should.be.ok;
+        eventId = handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0]._id;
+        teamId = handleToSeriesDatabase[global.config.psdb.teamsCollectionName][0]._id;
+        eventUpdateObj = {
+            "status": "started"
+        };
+        teamUpdateObj = {
+            "teamLeadId": newteamLeadId,
+        };
+        puzzleStateObj = {
+            "puzzleId": handleToSeriesDatabase[puzzleStateCollectionName][0].puzzleId,
+            "teamId": handleToSeriesDatabase[puzzleStateCollectionName][0].teamId,
+            "solved": false,
+            "_id": "dummyId"
+        };
+        series.updateObj("dummyObj", eventId, eventUpdateObj, function (err: Error, count: Number) {
+            err.should.eql(utils.errors.invalidObjType);
+            series.updateObj("events", eventId, eventUpdateObj, function (err1: Error, count: number) {
+                err1.name.should.eql("InvalidUpdate");
+                done();
+            });
+        });
+    });
 });
 var tests = { "psdb_findSeries": psdb_findSeries };
 

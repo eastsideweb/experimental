@@ -34,6 +34,9 @@
     <Content Include="public\client\styles\style.css" />
     <Content Include="public\client\templates\loginTemplate.tl" />
     <Content Include="public\client\templates\modalTemplate.tl" />
+    <Content Include="lib\schema\puzzleStates.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="public\client\templates\listTemplate.tl" />
     <TypeScriptCompile Include="public\client\psdbClient.login.ts" />
     <Content Include="public\index.html" />
@@ -82,9 +85,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="lib\schema\puzzles.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="lib\schema\puzzlesstates.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="lib\schema\teams.json">

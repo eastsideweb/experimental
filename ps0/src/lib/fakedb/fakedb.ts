@@ -138,11 +138,48 @@ class fakeDB implements DBCRUD {
     //          {$addToSet: { puzzles: { $each: [id1, id2, id3] } }
     //          {$pull: {puzzleid1, puzzleid2,..} //no multi-pull available
     public updateObj(collection: string, findMap: any, setMap: any, callback: CallBackWithCount) {
+        var updateObj;
         if (!fakeDB.checkInDebug()) {
             callback(utils.errors.notInDebug, null);
             return;
         }
-        callback(utils.errors.notImpl, 0);
+        // Check if the handleToDataBase has this collection, 
+        utils.log(utils.getShortfileName(__filename) + " collection requested " + collection);
+        utils.log("collection = " + this.handleToDataBase[collection]);
+
+        if (!this.handleToDataBase[collection]) {
+            utils.log(utils.getShortfileName(__filename) + " collection not found: " + collection);
+            callback(utils.errors.notImpl, null);
+        }
+        //update hardcoded data
+        // Check if any query params were passed. Only "_id" & "name" are entertained for now
+        if (findMap.name || findMap._id) {
+            var prop: string = findMap._id ? "_id" : "name",
+                found: boolean = false;
+            utils.log(utils.getShortfileName(__filename) + " found property: " + prop);
+            for (var i: number = 0; i < this.handleToDataBase[collection].length && !found; i++) {
+                if (this.handleToDataBase[collection][i][prop] == findMap[prop]) {
+                    updateObj = this.handleToDataBase[collection][i];
+                    utils.log(utils.getShortfileName(__filename) + "updateObj: found item: " + this.handleToDataBase[collection][i].toString());
+                    found = true;
+                    for (var setProp in setMap) {
+                        if (setMap.hasOwnProperty(setProp)) {
+                            updateObj[setProp] = setMap[setProp];
+                        }
+                    }
+                    utils.log(utils.getShortfileName(__filename) + "updateObj: found item: " + updateObj.toString());
+                    utils.log(utils.getShortfileName(__filename) + "updateObj: updated item: " + this.handleToDataBase[collection][i].toString());
+                }
+            }
+            if (found) {
+                setTimeout(callback(null, 1), 100);
+            }
+            else {
+                setTimeout(callback(utils.errors.inconsistentDB, 0), 100);
+            }
+            return;
+        }
+        setTimeout(callback(utils.errors.inconsistentDB, 0), 100);
     }
 
 

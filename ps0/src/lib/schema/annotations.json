@@ -12,7 +12,7 @@
         "description" : {
             "type": "string"
         },
-        "eventId" : {
+        "eventIds" : {
             "type": "array" ,
             "items":
             {
@@ -25,21 +25,21 @@
         "name" : {
             "type": "string"
         },
-        "playerId" : {
+        "playerIds" : {
             "type": "array" ,
             "items":
             {
                 "type": "string"
             }
         },
-        "puzzleId" : {
+        "puzzleIds" : {
             "type": "array" ,
             "items":
             {
                 "type": "string"
             }
         },
-        "teamId" : {
+        "teamIds" : {
             "type": "array" ,
             "items":
             {

@@ -33,7 +33,7 @@
             "type": "boolean" ,
             "default": false
         },
-        "teamleadId" : {
+        "teamLeadId" : {
             "type": "string"
         }
     }

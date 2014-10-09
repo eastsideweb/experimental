@@ -51,7 +51,7 @@ class PuzzleSeries implements IPuzzleSeries {
                 },
                 'instructor': {
                     "read": ["name", "description", "_id", "active"],
-                    "write": ["name", "description", "_id", ],
+                    "write": ["name", "description", ],
                 },
                 'player': {
                     "read": ["name", "description", "_id", "active"],
@@ -68,7 +68,7 @@ class PuzzleSeries implements IPuzzleSeries {
                 },
                 'instructor': {
                     "read": ["name", "description", "_id", "active", "status", "puzzleIds", "instructorIds", "teamIds"],
-                    "write": ["name", "description", "_id", "active", "status", "puzzleIds", "instructorIds", "teamIds"],
+                    "write": ["name", "description", "active", "status", "puzzleIds", "instructorIds", "teamIds"],
                 },
                 'player': {
                     "read": ["name", "description", "_id", "active"],
@@ -78,10 +78,12 @@ class PuzzleSeries implements IPuzzleSeries {
             fixObjForInsertion: function (obj) {
                 obj.status = "notStarted";
                 obj.puzzleIds = [];
+                obj.playerIds = [];
                 obj.instructorIds = [];
                 obj.teamIds = [];
                 return obj;
-            }
+            },
+
         },
         'puzzles': {
             collectionName: global.config.psdb.puzzlesCollectionName,
@@ -91,8 +93,8 @@ class PuzzleSeries implements IPuzzleSeries {
                     "write": "unrestricted"
                 },
                 'instructor': {
-                    "read": ["name", "description", "_id", "active", "status", "puzzleIds", "instructorIds", "teamIds"],
-                    "write": ["name", "description", "_id", "active", "status", "puzzleIds", "instructorIds", "teamIds"],
+                    "read": ["name", "description", "_id", "active"],
+                    "write": ["name", "description", ],
                 },
                 'player': {
                     "read": ["name", "description", "_id", "active"],
@@ -111,58 +113,54 @@ class PuzzleSeries implements IPuzzleSeries {
                     "write": "unrestricted"
                 },
                 'instructor': {
-                    "read": ["name", "description", "_id", "active", "status", "puzzleIds", "instructorIds", "teamIds"],
-                    "write": ["name", "description", "_id", "active", "status", "puzzleIds", "instructorIds", "teamIds"],
+                    "read": ["name", "description", "_id", "active", "puzzleIds", "playerIds", "teamLeadId"],
+                    "write": ["name", "description", "active", "puzzleIds", "playerIds", "teamLeadId"],
                 },
                 'player': {
-                    "read": ["name", "description", "_id", "active"],
+                    "read": ["name", "description", "_id", "active", "puzzleIds", "playerIds", "teamLeadId"],
                     "write": [],
                 }
             },
             fixObjForInsertion: function (obj) {
+                obj.puzzleIds = [];
+                obj.playerIds = [];
+                obj.teamLeadId = obj.teamLeadId || "";
                 return obj;
             }
         },
         'players': {
             collectionName: global.config.psdb.playersCollectionName,
-            allowedPropertyMap: {
-                'administrator': {
-                    "read": "unrestricted",
-                    "write": "unrestricted"
-                },
-                'instructor': {
-                    "read": ["name", "description", "_id", "active", "status", "puzzleIds", "instructorIds", "teamIds"],
-                    "write": ["name", "description", "_id", "active", "status", "puzzleIds", "instructorIds", "teamIds"],
-                },
-                'player': {
-                    "read": ["name", "description", "_id", "active"],
-                    "write": [],
-                }
+            'administrator': {
+                "read": "unrestricted",
+                "write": "unrestricted"
             },
-            fixObjForInsertion: function (obj) {
-                return obj;
+            'instructor': {
+                "read": ["name", "description", "_id", "active"],
+                "write": ["name", "description", ],
+            },
+            'player': {
+                "read": ["name", "description", "_id", "active"],
+                "write": [],
             }
         },
-        'puzzleStates': {
-            collectionName: global.config.psdb.playersCollectionName,
-            allowedPropertyMap: {
-                'administrator': {
-                    "read": "unrestricted",
-                    "write": "unrestricted"
-                },
-                'instructor': {
-                    "read": ["name", "description", "_id", "active", "status", "puzzleIds", "instructorIds", "teamIds"],
-                    "write": ["name", "description", "_id", "active", "status", "puzzleIds", "instructorIds", "teamIds"],
-                },
-                'player': {
-                    "read": ["name", "description", "_id", "active"],
-                    "write": [],
-                }
-            },
-            fixObjForInsertion: function (obj) {
-                return obj;
-            }
-        },
+        // we will not allow addObj for this objType because the only way to add an object of this type is through updatePuzzleState api
+        //'puzzleStates': {
+        //    collectionName: global.config.psdb.playersCollectionName,
+        //    allowedPropertyMap: {
+        //        'administrator': {
+        //            "read": "unrestricted",
+        //            "write": "unrestricted"
+        //        },
+        //        'instructor': {
+        //            "read": ["puzzleId", "solved", "teamId", "_id"],
+        //            "write": ["puzzleId", "solved", "teamId", "_id"],
+        //        },
+        //        'player': {
+        //            "read": ["puzzleId", "solved", "teamId", "_id"],
+        //            "write": [],
+        //        }
+        //    },
+        //},
         'annotations': {
             collectionName: global.config.psdb.annotationsCollectionName,
             allowedPropertyMap: {
@@ -171,11 +169,11 @@ class PuzzleSeries implements IPuzzleSeries {
                     "write": "unrestricted"
                 },
                 'instructor': {
-                    "read": ["name", "description", "_id", "active", "status", "puzzleIds", "instructorIds", "teamIds"],
-                    "write": ["name", "description", "_id", "active", "status", "puzzleIds", "instructorIds", "teamIds"],
+                    "read": ["name", "description", "_id", "puzzleIds", "eventIds", "teamIds","playerIds"],
+                    "write": ["name", "description", "_id", "puzzleIds", "eventIds", "teamIds", "playerIds"],
                 },
                 'player': {
-                    "read": ["name", "description", "_id", "active"],
+                    "read": ["name", "description", "_id", "puzzleIds", "eventIds", "teamIds", "playerIds"],
                     "write": [],
                 }
             },
@@ -186,11 +184,12 @@ class PuzzleSeries implements IPuzzleSeries {
     };
 
 
+
     static initializeObjTypeMap = function () {
         var objType;
         if (PuzzleSeries.initDone)
             return;
-        PuzzleSeries.jsonValidator = new validator(["annotations", "events", "instructors", "players", "puzzlestates", "series"]);
+        PuzzleSeries.jsonValidator = new validator(["annotations", "events", "instructors", "players", "puzzleStates", "series","teams"]);
     };
 
     static checkObjType = function (objType: string /*SeriesObjectType*/) {
@@ -208,10 +207,41 @@ class PuzzleSeries implements IPuzzleSeries {
         return fieldsReturned;
     }
 
-    static commonFixObjForInsertion = function (obj) {
+    static commonFixObjForInsertion = function (objInfo, writePermission) : any {
+        var fixedObj = {};
+        // **WARNING** assuming only static fields coming in - otherwise we need to do a deep copy
+        for (var prop in objInfo) {
+            // Copy only the properties that are allowed by write permission
+            // Dont copy the "_id" property
+            if (prop != "_id" && (writePermission == "unrestricted" || writePermission[prop])) {
+               fixedObj[prop] = objInfo[prop];
+            }
+        }
+        utils.log("*********** " + utils.getShortfileName(__filename) + "after copy " + JSON.stringify(fixedObj));
+        // Fix the object with common properties                                
         // Make sure the object is marked non-active
-        obj["active"] = false;
-        obj["description"] = obj["description"] || "";
+        fixedObj["active"] = false;
+        fixedObj["description"] = fixedObj["description"] || "";
+
+        utils.log("*********** " + utils.getShortfileName(__filename) + "after fixing " + JSON.stringify(fixedObj));
+        return fixedObj;
+    }
+
+    static checkObjForUpdate = function (objInfo, writePermission): boolean {
+        if (writePermission == "unrestricted")
+            return true;
+        for (var prop in objInfo) {
+            // Allow only the properties that are allowed by write permission
+            if (!writePermission[prop]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    static composePuzzleStateId = function (teamId: string, puzzleId: string) {
+        return "puzzleStateId_" + teamId + "_" + puzzleId;
     }
 
     // End static var/functions
@@ -222,6 +252,45 @@ class PuzzleSeries implements IPuzzleSeries {
             PuzzleSeries.initializeObjTypeMap();
         }
     }
+
+
+    // start utility methods
+
+    // Utility method to check that the updates meant for given currentObj of given objType meet the symantics of that objType. If any of the updates
+    // don't meet the symantics, error is returned and the update is rejected
+    checkObjectValidity(objType: string /*SeriesObjectType*/, currentObj: any, updateFields, callback: SimpleCallBack): void {
+        var err: Error = { name: "InvalidUpdate", message: "" };
+        switch (objType) {
+            case "events":
+                if (updateFields.status) {
+                    // Make sure the update of the status is valid: notStarted -> started -> ended
+                    if (currentObj.status == "ended" ||
+                        (currentObj.status == "notStarted" && updateFields.status != "started") ||
+                        (currentObj.status == "started" && updateFields.status != "ended")) 
+                    {
+                        err.message = "Events: status update is invalid";
+                        callback(err);
+                        return;
+                    }
+                }
+                break;
+            case "teams":
+                if (updateFields.teamLeadId) {
+                    // Make sure the provided teamLeadId is a valid id and that the player is already part of the team
+                }
+                break;
+            case "players":
+                break;
+            case "instructors":
+                break;
+            case "puzzles": 
+                break;
+            default:
+                break;
+        }
+        callback(null);
+    }
+    // end utility methods
 
     //------------------ Begin PuzzleSeries interface methods ------------------
     // Activate/Deactivate a given object from the given SeriesObjectType collection having given objId
@@ -238,17 +307,11 @@ class PuzzleSeries implements IPuzzleSeries {
     //      "InvalidObjType"        "Invalid object type"
     //      "InvalidObjId"          "Invaid object id"
     //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
-    updateObj(objType: string /*SeriesObjectType*/, objId: string, updateFields: any, callback: CallBackWithCount): void { }
-
-    // Add a new object of given type
-    // Possible errors:
-    //      "InvalidObjType"        "Invalid object type"
-    //      "EmptyName"             "name field missing"
-    //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
-    addObj(objType: string /*SeriesObjectType*/, objInfo: any, callback: (err: Error, objInfo: ISeriesObject) => void): void {
+    updateObj(objType: string /*SeriesObjectType*/, objId: string, updateFields: any, callback: CallBackWithCount): void {
         var self = this;
         // Check if objType is valid
-        if (!PuzzleSeries.checkObjType(objType)) {
+        if (objType === "puzzleStates" /* We dont allow updating of puzzleState through this api, it is to be done with the updatePuzzleState api */
+            || !PuzzleSeries.checkObjType(objType)) {
             utils.log(utils.getShortfileName(__filename) + " returning invalidObjType error with objType: " + objType);
             callback(utils.errors.invalidObjType, null);
             return;
@@ -256,6 +319,68 @@ class PuzzleSeries implements IPuzzleSeries {
 
         // Check write access for this object for given role
         var writePermission = PuzzleSeries.seriesObjTypeMap[objType].allowedPropertyMap[this.token.role].write;
+
+        if (writePermission != "unrestricted" && (Array.isArray(writePermission) && writePermission.length === 0)) {
+            callback(utils.errors.UnauthorizedAccess, null);
+            return;
+        }
+        if (!PuzzleSeries.checkObjForUpdate(updateFields, writePermission)) {
+            callback(utils.errors.UnauthorizedAccess, 0);
+        }
+        else {
+            self.crudHandle.findObj(PuzzleSeries.seriesObjTypeMap[objType].collectionName, { "_id": objId }, {}, function (innererr1: Error, objList: any[]) {
+                if (innererr1) {
+                    callback(innererr1, 0);
+                }
+                else {
+                    if (objList.length != 1) {
+                        callback(utils.errors.inconsistentDB, 0);
+                    }
+                    else {
+                        self.checkObjectValidity(objType, objList[0], updateFields, function (innererr2: Error) {
+                            if (innererr2) {
+                                callback(innererr2, 0);
+                            }
+                            else {
+                                //Updates are valid, proceed with the update
+                                self.crudHandle.updateObj(PuzzleSeries.seriesObjTypeMap[objType].collectionName, { "_id": objId }, updateFields, function (innererr3: Error, count: number) {
+                                    if (innererr3) {
+                                        callback(innererr3, 0);
+                                    }
+                                    else {
+                                        if (count < 1) {
+                                            callback(utils.errors.inconsistentDB, 0);
+                                        }
+                                        else {
+                                            callback(null, count);
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
+            });
+        }
+    }
+
+    // Add a new object of given type
+    // Possible errors:
+    //      "InvalidObjType"        "Invalid object type"
+    //      "EmptyName"             "name field missing"
+    //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
+    addObj(objType: string /*SeriesObjectType*/, objInfo: any, callback: (err: Error, objInfo: ISeriesObject) => void): void {
+        var self = this, writePermission, fixedObj;
+        // Check if objType is valid
+        if (objType === "puzzleStates" /* We dont allow adding of puzzleState through this api, it is to be done with the updatePuzzleState api */
+             || !PuzzleSeries.checkObjType(objType)) {
+            utils.log(utils.getShortfileName(__filename) + " returning invalidObjType error with objType: " + objType);
+            callback(utils.errors.invalidObjType, null);
+            return;
+        }
+
+        // Check write access for this object for given role
+        writePermission = PuzzleSeries.seriesObjTypeMap[objType].allowedPropertyMap[this.token.role].write;
         
         if (writePermission !== "unrestricted" && (Array.isArray(writePermission) && writePermission.length === 0)) {
             callback(utils.errors.UnauthorizedAccess, null);
@@ -270,21 +395,7 @@ class PuzzleSeries implements IPuzzleSeries {
             }
             else {
                 // Got objInfo that has valid schema, insert it in the db after massaging it
-                var fixedObj = {};
-                // **WARNING** assuming only static fields coming in - we should do a deep copy
-                for (var prop in objInfo) {
-                    // Copy only the properties that are allowed by write permission
-                    // Dont copy the "_id" property
-                    if (writePermission === "unrestricted" || writePermission[prop] ) {
-                        if (prop !== "_id")
-                            fixedObj[prop] = objInfo[prop];
-                    }
-                }
-                utils.log("*********** " + utils.getShortfileName(__filename) + "after copy " + JSON.stringify(fixedObj));
-                // Fix the object with common properties                                u
-                PuzzleSeries.commonFixObjForInsertion(fixedObj);
-                utils.log("*********** " + utils.getShortfileName(__filename) + "after fixing " + JSON.stringify(fixedObj));
-
+                fixedObj = PuzzleSeries.commonFixObjForInsertion(objInfo, writePermission);
                 //Check if the object type has an additional fixObjForInsertion 
                 if (PuzzleSeries.seriesObjTypeMap[objType].fixObjForInsertion && typeof (PuzzleSeries.seriesObjTypeMap[objType].fixObjForInsertion) === "function") {
                     fixedObj = PuzzleSeries.seriesObjTypeMap[objType].fixObjForInsertion(fixedObj);
@@ -311,7 +422,38 @@ class PuzzleSeries implements IPuzzleSeries {
     //      "InvalidObjType"        "Invalid object type"
     //      "InvalidObjId"          "Invaid object id"
     //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
-    deleteObj(objType: string /*SeriesObjectType*/, objInfo: any, callback: CallBackWithCount): void { }
+    deleteObj(objType: string /*SeriesObjectType*/, objInfo: any, callback: CallBackWithCount): void {
+        var self = this, writePermission;
+        // Check if objType is valid
+        if (!PuzzleSeries.checkObjType(objType)) {
+            utils.log(utils.getShortfileName(__filename) + " returning invalidObjType error with objType: " + objType);
+            callback(utils.errors.invalidObjType, null);
+            return;
+        }
+
+        // Check write access for this object for given role
+        writePermission = PuzzleSeries.seriesObjTypeMap[objType].allowedPropertyMap[this.token.role].write;
+
+        if (writePermission != "unrestricted" && (Array.isArray(writePermission) && writePermission.length === 0)) {
+            callback(utils.errors.UnauthorizedAccess, null);
+            return;
+        }
+
+        self.crudHandle.deleteObj(PuzzleSeries.seriesObjTypeMap[objType].collectionName, objInfo, function (innerErr2: Error, count: number) {
+            if (innerErr2 != null) {
+                callback(innerErr2, null);
+            }
+            else {
+                if (count < 1) {
+                    callback(utils.errors.inconsistentDB, 0);
+                }
+                else {
+                    //success!!
+                    callback(null, 1);
+                }
+            }
+        });
+    }
 
     // Add given set of players to the given team
     // Possible errors:
@@ -382,7 +524,53 @@ class PuzzleSeries implements IPuzzleSeries {
     //      "InvalidTeamId"         "Invalid team id"
     //      "PuzzleNotInEvent"      "puzzle not assigned to the team"
     //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
-    updatePuzzleState(teamID: string, puzzleID: string, puzzleState: any, callback: SimpleCallBack): void { }
+    updatePuzzleState(teamID: string, puzzleID: string, puzzleState: any, callback: SimpleCallBack): void {
+        var self = this, pzStateId, puzzleStateCollectionName, eventId /* TODO: which eventId to use? the one and only active event? */;
+
+        //Figure out the eventId
+        pzStateId = PuzzleSeries.composePuzzleStateId(teamID, puzzleID);
+        puzzleStateCollectionName = global.config.psdb.puzzleStatesCollectionNamePrefix + eventId;
+        //Check if such an item exists in the db - if so, we will update the state else
+        this.crudHandle.findObj(puzzleStateCollectionName, { "_id": pzStateId }, {}, function (err: Error, objList: any[]) {
+            if (err) {
+                callback(err);
+            }
+            else {
+                if (objList && objList.length == 1) {
+                    // Found the item with the given  team & puzzle id. Just update the state
+                    self.crudHandle.updateObj(puzzleStateCollectionName, { "_id": pzStateId }, { "solved": puzzleState }, function (err1: Error, count: number) {
+                        if (err1) {
+                            // Something went wrong in the update!!
+                            callback(err1);
+                        }
+                        else {
+                        if (count < 1) {
+                                // Something went wrong in the update!!
+                                callback(utils.errors.inconsistentDB);
+                            }
+                        else {
+                                // Success!!
+                                callback(null);
+                            }
+                        }
+                    });
+                }
+                else {
+                    // No item found with the given team & puzzle id. Add a new item
+                    self.crudHandle.insertObj(puzzleStateCollectionName, { "_id": pzStateId, "teamId": teamID, "puzzleId": puzzleID, "solved": puzzleState },
+                        function (err2: Error, obj: any) {
+                            if (err2) {
+                                callback(err2);
+                            }
+                            else {
+                                // Success!!
+                                callback(null);
+                            }
+                        });
+                }
+            }
+        });
+    }
     //------------------ End PuzzleSeries interface methods ------------------
 }
 export = PuzzleSeries;

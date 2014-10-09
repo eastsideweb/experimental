@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-03/schema",
     "type": "object" ,
-    "id":"http://eastsideweb.github.io/schema/puzzlesstates.json",
+    "id":"http://eastsideweb.github.io/schema/puzzleStates.json",
     "additionalProperties" : false,
     "properties": {
         "puzzleId": {

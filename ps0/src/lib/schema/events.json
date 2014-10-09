@@ -33,7 +33,7 @@
             "enum":["notStarted","started","ended"],
             "default": "notStarted"
         },
-        "teamids" : {
+        "teamIds" : {
             "type": "array" ,
             "items":
             {
