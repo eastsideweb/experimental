@@ -3,6 +3,7 @@
 "test": true,
 "printLog": true,
 "psdb": {
-    "serverName": "localhost"
+    "useFakeDB":  false,
+    "infoDBName": "testpsdbInfo"
 	}
 }

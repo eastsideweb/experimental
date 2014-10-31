@@ -22,7 +22,8 @@
     "express": "~4.0.0",
     "debug": "~0.7.4",
     "connect": "^2.17.1",
-    "JSV": "^4.0.2"
+    "JSV": "^4.0.2",
+    "mongodb": "1.4.x"
   },
   "devDependencies": {
     "grunt": "^0.4.5",

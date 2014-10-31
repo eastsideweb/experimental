@@ -1,0 +1,4 @@
+[
+{ "_id" : { "$oid" : "54483fb64eb0a28bbf23c4cc" }, "name" : "Admin1", "description" : "the one and only admin of the test system", "roleType" : [ "administrator", "instructor", "player" ], "password" : "testAdminPassword" },
+{ "_id" : { "$oid" : "5448401b4eb0a28bbf23c4cd" }, "name" : "Instructor Andy", "description" : "the one and only instructor of the test system", "roleType" : [ "instructor", "player" ], "password" : "testInstructorPassword" }
+]

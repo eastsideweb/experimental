@@ -1,0 +1,7 @@
+%mongoimport%\mongoimport.exe -v --db SeriesDB_testseriesId1 --jsonArray  --file .\events.json"
+%mongoimport%\mongoimport.exe -v --db SeriesDB_testseriesId1 --jsonArray  --file .\puzzles.json"
+%mongoimport%\mongoimport.exe -v --db SeriesDB_testseriesId1 --jsonArray  --file .\teams.json"
+%mongoimport%\mongoimport.exe -v --db SeriesDB_testseriesId1 --jsonArray  --file .\instructors.json"
+%mongoimport%\mongoimport.exe -v --db SeriesDB_testseriesId1 --jsonArray  --file .\players.json"
+%mongoimport%\mongoimport.exe -v --db SeriesDB_testseriesId1 --jsonArray  --file .\puzzleStates_eventId1.json"
+%mongoimport%\mongoimport.exe -v --db SeriesDB_testseriesId1 --jsonArray  --file .\annotations.json"

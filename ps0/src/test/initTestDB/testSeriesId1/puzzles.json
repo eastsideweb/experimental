@@ -1,0 +1,4 @@
+[
+{ "name": "Test Puzzle1", "_id": "puzzleId1","description": "description for test puzzle 1 from test series 1","active": "true"},
+{ "name": "Test Puzzle2", "_id": "puzzleId2", "description": "description for test puzzle 2 from test series 1","active": "true"}
+]

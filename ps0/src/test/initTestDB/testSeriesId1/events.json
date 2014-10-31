@@ -1,0 +1,12 @@
+[
+	{ "name": "Test Event1", 
+      "_id": "eventId1", 
+      "description": "description for event 1 from test series 1",
+      "active": "true",
+      "status":  "notStarted",
+      "puzzleIds":  ["puzzleId1", "puzzleId2"], 
+      "teamIds":  ["teamId1","teamId2"], 
+      "playerIds": ["playerId1", "playerId2", "playerId3", "playerId4"],
+      "instructorIds": ["instructorId1"]
+	}
+]

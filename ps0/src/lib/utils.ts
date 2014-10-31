@@ -49,6 +49,10 @@ var errors = {
     "UnauthorizedAccess": {
         name: "UnauthorizedAccess",
         message: "Access to this api not supported for the RoleType"
+    },
+    "serverNotReady": {
+        name: "serverNotReady",
+        message:"Connection to the server not established"
     }
 };
 var getShortfileName = function (filename: string): string {

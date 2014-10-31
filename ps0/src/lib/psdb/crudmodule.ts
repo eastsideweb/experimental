@@ -17,23 +17,20 @@
 // depending on the mode (debug vs non-debug)
 
 import fakedb = require('../fakedb/fakedb');
-
+import mongoDBCRUD = require('./mongodbcrud');
 "use strict"
 
 var dbcrudmodule: DBCRUDModule = {
     createDBHandle: function (server: string, dbName: string) {
-        if (global.config.Debug) {
-            // We are in debug mode, return the fakedb module
-            var retval = new fakedb(server, dbName);
-            //retval.findObj("abc", {}, {}, function (innerErr: Error, list) {
-            //    console.log(__filename + "got calledback");
-            //});
-            return retval;
+        var retval;
+        if (global.config.psdb.useFakeDB) {
+            // useFakeDB is set, return the fakedb module
+            retval = new fakedb(global.config.psdb.fakeserver, dbName);
         }
         else {
-            // TODO: instantiate and return dbcrud module
-            return null;
+            retval = new mongoDBCRUD(server, dbName);
         }
+        return retval;
     }
 }
 export = dbcrudmodule;
