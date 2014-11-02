@@ -34,11 +34,11 @@ class mongoDBCRUD implements DBCRUD {
 
     /// Function to check if all initial conditions are ok and if collection is non-null, check if it exists already 
     private checkAllOk = function (collection: string): Error {
-        if (this.connectionErr === null && this.dbHandle == null) {
+        if (this.connectionErr === null && this.dbHandle === null) {
             utils.log(utils.getShortfileName(__filename) + "we are in ServerNotReady mode");
             return utils.errors.serverNotReady;
         }
-        else if (collection !== null && this.listOfCollections != null && this.listOfCollections.indexOf(collection) < 0) {
+        else if (collection !== null && this.listOfCollections !== null && this.listOfCollections.indexOf(collection) < 0) {
             utils.log(utils.getShortfileName(__filename) + " collection not found: " + collection);
             return utils.errors.inconsistentDB;
         }

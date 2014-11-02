@@ -213,7 +213,7 @@ class PuzzleSeries implements IPuzzleSeries {
         for (var prop in objInfo) {
             // Copy only the properties that are allowed by write permission
             // Dont copy the "_id" property
-            if (prop != "_id" && (writePermission == "unrestricted" || writePermission[prop])) {
+            if (prop !== "_id" && (writePermission === "unrestricted" || writePermission[prop])) {
                fixedObj[prop] = objInfo[prop];
             }
         }
@@ -228,7 +228,7 @@ class PuzzleSeries implements IPuzzleSeries {
     }
 
     static checkObjForUpdate = function (objInfo, writePermission): boolean {
-        if (writePermission == "unrestricted")
+        if (writePermission === "unrestricted")
             return true;
         for (var prop in objInfo) {
             // Allow only the properties that are allowed by write permission
@@ -264,9 +264,9 @@ class PuzzleSeries implements IPuzzleSeries {
             case "events":
                 if (updateFields.status) {
                     // Make sure the update of the status is valid: notStarted -> started -> ended
-                    if (currentObj.status == "ended" ||
-                        (currentObj.status == "notStarted" && updateFields.status != "started") ||
-                        (currentObj.status == "started" && updateFields.status != "ended")) 
+                    if (currentObj.status === "ended" ||
+                        (currentObj.status === "notStarted" && updateFields.status !== "started") ||
+                        (currentObj.status === "started" && updateFields.status !== "ended")) 
                     {
                         err.message = "Events: status update is invalid";
                         callback(err);
@@ -536,7 +536,7 @@ class PuzzleSeries implements IPuzzleSeries {
                 callback(err);
             }
             else {
-                if (objList && objList.length == 1) {
+                if (objList && objList.length === 1) {
                     // Found the item with the given  team & puzzle id. Just update the state
                     self.crudHandle.updateObj(puzzleStateCollectionName, { "_id": pzStateId }, { "solved": puzzleState }, function (err1: Error, count: number) {
                         if (err1) {

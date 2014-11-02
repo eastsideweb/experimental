@@ -35,8 +35,9 @@ global.config = config(__dirname + '/../config');
 
 var psdb_findSeries = function (done) {
     psdb.findSeries({}, function (err: Error, list: SeriesInfo[]) {
-        if (err)
+        if (err) {
             done(err);
+        }
         else {
             handleToInfoDatabase.should.be.ok;
             assert(list.length === handleToInfoDatabase[global.config.psdb.seriesInfoCollectionName].length);
@@ -242,8 +243,9 @@ describe("series apis test with administrator role", function () {
             "_id": "dummyId"
         };
         series2.addObj("events", eventObj, function (err: Error, objInfo: any /*ISeriesObject*/) {
-            if (err)
+            if (err) {
                 done(err);
+            }
             else {
                 objInfo.name.should.eql(eventObj.name);
                 eventObj.description.should.eql(objInfo.description);
@@ -311,8 +313,9 @@ describe("series apis test with administrator role", function () {
             "_id": "dummyId"
         };
         series.updateObj("events", eventId, eventUpdateObj, function (err: Error, count: number) {
-            if (err)
+            if (err) {
                 done(err);
+            }
             else {
                 series.findObj('events', { "_id": eventId }, {}, function (err: Error, eventList) {
                     if (err) {
@@ -361,4 +364,4 @@ describe("series apis test with administrator role", function () {
 });
 var tests = { "psdb_findSeries": psdb_findSeries };
 
-exports["psdb_findseries"] = psdb_findSeries;
+exports.psdb_findseries = psdb_findSeries;

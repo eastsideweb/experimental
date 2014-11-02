@@ -158,7 +158,7 @@ class fakeDB implements DBCRUD {
                 found: boolean = false;
             utils.log(utils.getShortfileName(__filename) + " found property: " + prop);
             for (var i: number = 0; i < this.handleToDataBase[collection].length && !found; i++) {
-                if (this.handleToDataBase[collection][i][prop] == findMap[prop]) {
+                if (this.handleToDataBase[collection][i][prop] === findMap[prop]) {
                     updateObj = this.handleToDataBase[collection][i];
                     utils.log(utils.getShortfileName(__filename) + "updateObj: found item: " + this.handleToDataBase[collection][i].toString());
                     found = true;
