@@ -115,6 +115,6 @@ module.exports = function (grunt) {
                 },
         }
     });
-    grunt.registerTask('default', ['typescript', 'copy']);
+    grunt.registerTask('default', ['typescript', 'copy', 'dust','concat' ]);
     grunt.registerTask('CT', ['dust', 'concat']);
 };
