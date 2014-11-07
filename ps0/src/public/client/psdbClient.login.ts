@@ -37,7 +37,7 @@ module psdbClient {
 
             jqueryMap.$container.keypress(function (e) {
                 // If enter
-                if (e.which == 13) {
+                if (e.which === 13) {
                     // Disable the submit button
                     $submitBtn.attr("disabled", true);
                     jqueryMap.$container.find('#error').html('');
