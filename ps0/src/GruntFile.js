@@ -68,7 +68,20 @@ module.exports = function (grunt) {
                 //copy index.html
                 src: 'public/index.html',
                 dest: '../Debug/'
-            }
+            },
+	        {
+	            //copy json files from test dir
+	            expand:true,
+	            src: 'test/initTestDB/testpsdbInfo/*.json',
+	            dest: '../Debug/test/initTestDB/testpsdbInfo/'
+
+	        }, {
+	            //copy json files from test dir
+	            expand: true,
+	            src: 'test/initTestDB/testSeriesId1/*.json',
+	            dest: '../Debug/test/initTestDB/testSeriesId1/'
+
+	        }
 
             ]
 	}
