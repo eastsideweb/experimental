@@ -13,11 +13,11 @@
 
 module psdbClient {
     export var config = {
-        listTemplate: 'listTemplate',
-        //seriesTemplate: 'seriesTemplate',
+        listTemplate: 'public/client/templates/listTemplate',
+        //seriesTemplate: 'public/client/templates/seriesTemplate',
         //eventsTemplate: 'eventsTemplate',
-        modalTemplate: 'modalTemplate',
-        loginTemplate: 'loginTemplate',
+        modalTemplate: 'public/client/templates/modalTemplate',
+        loginTemplate: 'public/client/templates/loginTemplate',
         seriesUrl: '/series',
         sessionUrl: '/series/{id}/session',
         eventsUrl: '/events',

@@ -104,7 +104,7 @@ module psdbClient {
         
         //---------------------- BEGIN CALLBACKS ---------------------
         function renderSeriesTemplate(err: any, data: JSON) {
-            if (err != null) {
+            if (err !== null) {
                 var error: IPSDBClientError = { 'title': err.title, 'details': err.details, 'code': null };
                 util.handleError(error, jqueryMap.$modal);
             }

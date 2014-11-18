@@ -32,7 +32,7 @@ module psdbClient {
 
         //---------------------------- DOM METHODS-------------------------------------------------
         function renderEventsTemplate(err : IPSDBClientError, data : JSON) {
-            if (err != null) {
+            if (err !== null) {
                 util.handleError(err, jqueryMap.$modal);
             }
             else {
