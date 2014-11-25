@@ -50,9 +50,17 @@ var errors = {
         name: "UnauthorizedAccess",
         message: "Access to this api not supported for the RoleType"
     },
-    "serverNotReady": {
-        name: "serverNotReady",
-        message:"Connection to the server not established"
+    "serverTimeOut": {
+        name: "serverTimeOut",
+        message:"Connection to the server timed out"
+    },
+    "initNotCalled": {
+        name: "initNotCalled",
+        message: "module not initialized"
+    },
+    "initPending": {
+        name: "initPending",
+        message: "module initialization completion pending"
     }
 };
 var getShortfileName = function (filename: string): string {

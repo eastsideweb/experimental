@@ -32,7 +32,7 @@ router.param('type', function (request, response, next, type) {
     else {
         // Pass on the request to the error handler
         // By pass all other handlers
-        next(new Error('The requested url does not contain a valid type'));
+        next(new Error('The requested url does not contain a valid type:' + type));
     }
 });
 

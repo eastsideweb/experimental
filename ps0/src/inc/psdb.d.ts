@@ -68,6 +68,9 @@ interface ICredentials {
 // Interface that the main PuzzleSeriesDatabase (psdb) object needs to implement.
 // Typically you will get this object through the require call: var psdb: PSDB = require('./psdb');
 interface IPSDB {
+    // Function that initializes the PSDB module
+    // This takes a function callback that will be called when the module is ready.
+    Init(initComplete: (err: Error) => void);
     // A function that returns a list of objects for a given objtype.
     // No authentication needed
     // queryFields - the select clauses to get a subset of SeriesInfo objects

@@ -16,6 +16,7 @@ var request = require('supertest'),
     express = require('express'),
     assert = require('assert'),
     app = require('../app.js'),
+    //psdb = require('../lib/psdb/psdb'),
     agent = request.agent(app);
 
 
@@ -40,6 +41,17 @@ describe('Server REST API', function () {
 
     // Tests involving series (valid type)
     describe('GET /series', function () {
+        // DO we need to make sure psdb is initialized?
+        //before(function (done) {
+        //    psdb.Init(function (err: Error) {
+        //        if (err) {
+        //            done(err);
+        //        }
+        //        else {
+        //            done();
+        //        }
+        //    });
+        //});
         // Get series list
         it('this should return an array of the type series if found valid', function (done) {
             request.get('/series')

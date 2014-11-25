@@ -11,16 +11,14 @@
 // 
 
 // Typical use of this object will be 
-// var dbCRUD = require('DBCRUD').createDBHandle('server', 'dbName');
+// var dbCRUD: DBCRUD;
+// require('DBCRUD').createDBHandle('server', 'dbName', function(err, dbcrud) {});
 interface DBCRUDModule {
+    createDBHandleAsync(server: string, dbName: string, callback: (err: Error, dbcrud: DBCRUD) => void): void;
     createDBHandle(server: string, dbName: string): DBCRUD;
 }
 
 interface DBCRUD {
-
-    // /*Testing purpose*/
-    // Allowed collection strings:
-    //  all SeriesObjectTypes / eventPuzzleStates* 
 
     // Insert a new document in the given collection
     // Allowed objMap cannot have _id. Could have name, description, active, status, teamLead, players[], puzzles[]

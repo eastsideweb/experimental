@@ -8,7 +8,7 @@
 //   HISTORY:
 //     Date            By  Comment
 //     2014 Oct 13th   TJ  Created
-// 
+//     2014 Oct 4th    TJ  Added createDBHandleAsync api and implementation
 /// <reference path="../../inc/ext/node.d.ts"/>
 /// <reference path="../../inc/psdb.d.ts"/>
 /// <reference path="../../inc/crud.d.ts"/>
@@ -21,67 +21,45 @@ import fs = require('fs');
 import assert = require("assert");
 import utils = require('../utils');
 import mongodb = require('mongodb');
+
+var mongodbModule: DBCRUDModule = {
+    createDBHandleAsync: function (server: string, dbName: string, callback: (err: Error, dbcrud: DBCRUD) => void) {
+        var uri = server + dbName;
+        mongodb.MongoClient.connect(uri, function (err: Error, db: mongodb.Db) {
+            if (err === null) {
+                utils.log(utils.getShortfileName(__filename) + ": mongoDBCRUD: connected to database: " + dbName + " on server " + server);
+                callback(null, new mongoDBCRUD(db));
+            }
+            else {
+                utils.log(utils.getShortfileName(__filename) + ": mongoDBCRUD: connect to database (" + dbName + " ) on server " +
+                    server + " failed: " + err.message);
+                callback(err, null);
+            }
+        });
+    },
+    createDBHandle: function (server: string, dbName: string) {
+        return null;
+    }
+
+};
 class mongoDBCRUD implements DBCRUD {
 
-    private server: string;
-    private dbName: string;
-    private mongoClient: mongodb.MongoClient;
     private dbHandle: mongodb.Db;
-    public handleToDataBase: any;
-    private connectionErr: Error;
     private listOfCollections: Array<string>;
 
 
     /// Function to check if all initial conditions are ok and if collection is non-null, check if it exists already 
     private checkAllOk = function (collection: string): Error {
-        if (this.connectionErr === null && this.dbHandle === null) {
-            utils.log(utils.getShortfileName(__filename) + "we are in ServerNotReady mode");
-            return utils.errors.serverNotReady;
-        }
-        else if (collection !== null && this.listOfCollections !== null && this.listOfCollections.indexOf(collection) < 0) {
-            utils.log(utils.getShortfileName(__filename) + " collection not found: " + collection);
+        if (this.dbHandle === null) {
+            utils.log(utils.getShortfileName(__filename) + "dbHandle is null");
             return utils.errors.inconsistentDB;
         }
         else {
-            utils.log(utils.getShortfileName(__filename) + " checkAllOK returning success for collection: " + collection);
             return null;
         }
     };
-    constructor(server: string, dbName: string) {
-        var self = this, uri;
-        this.server = server;
-        this.dbName = dbName;
-        this.dbHandle = null;
-        this.connectionErr = null;
-        utils.log(utils.getShortfileName(__filename)  + "server = " + server + "dbName " + dbName);
-        uri = server + self.dbName;
-        // Create a dbHandle to the database on the server
-        mongodb.MongoClient.connect(uri, function (err: Error, db: mongodb.Db) {
-            if (err === null) {
-                // save the dbhandle
-                utils.log(utils.getShortfileName(__filename)  + ": mongoDBCRUD: connected to database: " + self.dbName);
-                self.dbHandle = db;
-                // We will cache the existing collectionNames to begin with, so we don't add a new collection to the database, through the CRUD apis
-                db.collectionNames("", { "namesOnly": true }, function (err1: Error, result: Array<string>) {
-                    if (err1 === null) {
-                        //Save the result
-                        self.listOfCollections = result;
-                    }
-                    else {
-                        utils.log(utils.getShortfileName(__filename)  + ": mongoDBCRUD: failed to get collections array: " + err1.message);
-                        // Review: should we fail if error is returned?
-                        //self.connectionErr = err1;
-                        //self.dbHandle = null;
-                    }
-                });
-            }
-            else {
-                utils.log(utils.getShortfileName(__filename) + ": mongoDBCRUD: connect to database failed: " + err.message);
-                self.connectionErr = err;
-                self.dbHandle = null;
-            }
-        });
-
+    constructor(dbHandle: mongodb.Db) {
+        this.dbHandle = dbHandle;
     }
 
     // Insert a new document in the given collection
@@ -93,7 +71,22 @@ class mongoDBCRUD implements DBCRUD {
             return;
         }
         // collection exists. call insertObj on the collection object
-        this.dbHandle.collection(collection).insert(objMap, callback);
+        this.dbHandle.collection(collection).insert(objMap, function (err1: Error, result: any) {
+            if (err1 !== null) {
+                callback(err1, null);
+            }
+            else {
+                assert.equal(result.length, 1);
+                if (result.length !== 1) {
+                    utils.log("Returning inconsistentDB error out of insertOb");
+                    callback(utils.errors.inconsistentDB, null);
+                }
+                else {
+                    callback(null, result[0]);
+                }
+
+            }
+        });
     }
 
     // Find objects from the given collection
@@ -135,7 +128,7 @@ class mongoDBCRUD implements DBCRUD {
             callback(checkerror, null);
             return;
         }
-        this.dbHandle.collection(collection).update(findMap, setMap, { safe: true, upsert: false, multi: false }, function (err1, result: any) {
+        this.dbHandle.collection(collection).update(findMap, { $set: setMap }, { safe: true, upsert: false, multi: false, fullResult: true }, function (err1, result: any) {
             if (err1 !== null) {
                 callback(err1, 0);
             }
@@ -165,4 +158,4 @@ class mongoDBCRUD implements DBCRUD {
     }
 }
 
-export = mongoDBCRUD;
+export = mongodbModule;

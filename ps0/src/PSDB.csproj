@@ -45,7 +45,9 @@
     <None Include="public\client\templates\listTemplate.tl" />
     <TypeScriptCompile Include="public\client\psdbClient.login.ts" />
     <Content Include="public\index.html" />
-    <Content Include="test\initTestDB\testSeriesId1\teams.json" />
+    <Content Include="test\initTestDB\testSeriesId1\teams.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="test\test.html" />
     <Content Include="web.config" />
     <Content Include="www">
@@ -111,14 +113,30 @@
     <Content Include="lib\fakedb\SeriesDB_testSeriesId2.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="test\initTestDB\testpsdbInfo\psdbSeriesInfo.json" />
-    <Content Include="test\initTestDB\testpsdbInfo\psdbUsersInfo.json" />
-    <Content Include="test\initTestDB\testSeriesId1\puzzles.json" />
-    <Content Include="test\initTestDB\testSeriesId1\annotations.json" />
-    <Content Include="test\initTestDB\testSeriesId1\events.json" />
-    <Content Include="test\initTestDB\testSeriesId1\instructors.json" />
-    <Content Include="test\initTestDB\testSeriesId1\players.json" />
-    <Content Include="test\initTestDB\testSeriesId1\puzzleStates_eventId1.json" />
+    <Content Include="test\initTestDB\testpsdbInfo\psdbSeriesInfo.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="test\initTestDB\testpsdbInfo\psdbUsersInfo.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="test\initTestDB\testSeriesId1\puzzles.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="test\initTestDB\testSeriesId1\annotations.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="test\initTestDB\testSeriesId1\events.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="test\initTestDB\testSeriesId1\instructors.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="test\initTestDB\testSeriesId1\players.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="test\initTestDB\testSeriesId1\puzzleStates_eventId1.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="test\initTestDB\testSeriesId1\initDBtestSeriesId1.bat" />
     <Content Include="test\initTestDB\testpsdbInfo\initDBtestpsdbInfo.bat" />
     <None Include="web.Debug.config">
@@ -183,6 +201,9 @@ xcopy "$(TargetDir)lib\schema\*" "$(SolutionDir)$(Configuration)\public\schema\"
 xcopy "$(SolutionDir)src\public\index.html" "$(SolutionDir)$(Configuration)\public\" /F /I /Y
 xcopy "$(SolutionDir)src\public\client\styles\style.css" "$(SolutionDir)$(Configuration)\public\client\styles\" /F /I /Y
 xcopy "$(SolutionDir)src\public\client\img\*" "$(SolutionDir)$(Configuration)\public\client\img\" /F /I /Y
-xcopy "$(SolutionDir)src\public\client\lib\*" "$(SolutionDir)$(Configuration)\public\client\lib\" /F /I /Y</PostBuildEvent>
+xcopy "$(SolutionDir)src\public\client\lib\*" "$(SolutionDir)$(Configuration)\public\client\lib\" /F /I /Y
+xcopy "$(TargetDir)test\initTestDB\testSeriesId1\*" "$(SolutionDir)$(Configuration)\test\initTestDB\SeriesDB_testSeriesId1\" /F /I /Y
+xcopy "$(TargetDir)test\initTestDB\testpsdbInfo\*" "$(SolutionDir)$(Configuration)\test\initTestDB\testpsdbInfo\" /F /I /Y
+</PostBuildEvent>
   </PropertyGroup>
 </Project>

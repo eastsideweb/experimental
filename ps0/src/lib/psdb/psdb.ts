@@ -57,6 +57,10 @@ class Token implements IToken {
 
 
 var infoDBcrud: DBCRUD,
+    initError: Error,
+    initCalled,
+    initCallbackArray: Array<any> = [],
+    seriesInfoMap,
     roleTypes = {
         'administrator': 'administrator',
         'instructor': 'instructor',
@@ -68,24 +72,197 @@ var infoDBcrud: DBCRUD,
 //----------- Begin Initialization
 
 console.log("Started psdb module in " + env + " ... ");
+initError = null;
+initCalled = false;
+infoDBcrud = null;
+seriesInfoMap = {};
 
-infoDBcrud = crudmodule.createDBHandle(global.config.psdb.serverName, global.config.psdb.infoDBName);
 
 //----------- End Initialization
 
 var psdb: IPSDB = {
 
     // --------------Begin private methods------------
+    checkAllOk: function (seriesId?: number) {
+        if (!initCalled) {
+            // Return initNotCalled error
+            return utils.errors.initNotCalled;
+        }
+        else if (initError !== null) {
+            return initError;
+        }
+        else if (infoDBcrud === null) {
+            // We are waiting for the initialization to complete
+            return utils.errors.initPending;
+        }
+        else if (seriesInfoMap === null) {
+            // we don't have the seriesInfoMap cached - surprizing!
+            //console.log("Returning inconsistentDB from checkAllOk 1");
+            return utils.errors.inconsistentDB;
+        }
+        else if (seriesId && !seriesInfoMap[seriesId]) {
+            return utils.errors.invalidSeriesID;
+        }
+        else if (seriesId && !seriesInfoMap[seriesId].dbHandle) {
+            // dbHandle to the series database expected to be set already.
+            //console.log("Returning inconsistentDB from checkAllOk 2");
+            return utils.errors.inconsistentDB;
+        }
+        else {
+            // All ok!
+            return null;
+        }
+    },
+    getSeriesTokenInternal: function (seriesId: string, role: string, credentials: ICredentials, options: any, callback: (err: Error, token: string) => void) {
+        var checkErr = this.checkAllOk(seriesId);
+        if (checkErr !== null) {
+            console.log("returning error out of getSeriesTOkenInternal: " + JSON.stringify(checkErr));
+            setTimeout(function () {
+                callback(checkErr, null);
+            }, 100);
+            return;
+        }
+        // check if credentials are valid and the given roletype is allowed for this username
+        // Administrator user data is in the infoDB  whereas Instructor and player user data is within the specific db for the series
+        // Check accordingly
+        var userCrud, collectionName;
+        switch (role) {
+            case "administrator":
+                userCrud = infoDBcrud;
+                collectionName = global.config.psdb.userInfoCollectionName;
+                break;
+            case "instructor":
+                userCrud = seriesInfoMap[seriesId].dbHandle;
+                collectionName = global.config.psdb.instructorsCollectionName;
+                break;
+            case "player":
+                userCrud = seriesInfoMap[seriesId].dbHandle;
+                collectionName = global.config.psdb.playersCollectionName;
+        }
+        userCrud.findObj(collectionName, { "name": credentials.userName }, { roleType: 1, password: 1 },
+            function (innerErr1: Error, userList: any[]) {
+
+                if (innerErr1) {
+                    // Got an error from the CRUD call, pass it on..
+                    callback(innerErr1, null);
+                    return;
+                }
+                else if (userList.length === 0 ||
+                    (userList[0].password && userList[0].password !== credentials.password)) {
+                    // Username and/or password is not valid
+                    callback(utils.errors.invalidCredentials, null);
+                    return;
+                }
+                else {
+                    //console.log(utils.getShortfileName(__filename) + " userList[0] = ");
+                    //for (var pr in userList[0]) {
+                    //    if (userList[0].hasOwnProperty(pr)) {
+                    //        console.log(pr + " : " + userList[0][pr]);
+                    //    }
+                    //}
+                    if (userList[0].roleType.indexOf(role) < 0) {
+                        //given role is not allowed for this user
+                        callback(utils.errors.invalidRole, null);
+                        return;
+                    }
+                    else {
+                        // Instantiate a token object and pass it on to puzzleSeries constructor, alongwith the name of the db
+                        var seriesToken = new Token(seriesId, seriesInfoMap[seriesId].database, role, credentials);
+                        // Save the IToken object in the tokenMap and set the crudHandle to null, we will create it
+                        // when needed
+                        tokenMap[seriesToken.tokenString] = { "token": seriesToken, "crudHandle": seriesInfoMap[seriesId].dbHandle };
+                        utils.log(utils.getShortfileName(__filename) + " returning token " + seriesToken.tokenString);
+                        callback(null, seriesToken.tokenString);
+                    }
+                }
+            });
+        return;
+    },
+    callInitCompleteCallback: function (err: Error) {
+        var item;
+        while ( item = initCallbackArray.shift() ){
+            item(err);
+        }
+    },
     // --------------End private methods--------------
 
     // -------------- Begin PSDB interface  methods --------------
+
+    Init(initComplete: (err: Error) => void) {
+    var self = this;
+    console.log("******* psdb module init called ***********");
+        if (initCalled === true) {
+            // Init is called one more time. Check if all is ok - 
+            var checkErr = this.checkAllOk();
+            if (checkErr && checkErr === utils.errors.initPending) {
+                //Add the callback function to callback array and return
+                initCallbackArray.push(initComplete);
+                return;
+            }
+            else if (checkErr) {
+                initComplete(checkErr);
+                return;
+            }
+            else {
+                initComplete(null);
+                return;
+            }
+        }
+        else {
+            initCalled = true;
+            utils.log("psdb:Init() called with " + global.config.psdb.serverName + " " + global.config.psdb.infoDBName);
+            initCallbackArray.push(initComplete);
+            crudmodule.createDBHandleAsync(global.config.psdb.serverName, global.config.psdb.infoDBName, function (err: Error, dbcrud: DBCRUD) {
+                utils.log("psdb:createDBHandleAsync returned with " + err);
+
+                if (err === null) {
+                    //Initialization was successful
+                    infoDBcrud = dbcrud;
+                    initError = null;
+                    // Now cache the psdbseriesInfo database entries 
+                    infoDBcrud.findObj(global.config.psdb.seriesInfoCollectionName, {}, {}, function (innerErr2: Error, seriesList: Array<any>) {
+                        if (innerErr2 !== null) {
+                            // error getting to the seriesInfo.
+                            utils.log("findObj failed for seriesList with : " + innerErr2.message);
+                            self.callInitCompleteCallback(innerErr2);
+                        }
+                        else {
+                            // We have the seriesInfo, let's cache it
+                            var seriesCount = seriesList.length;
+                            for (var i = 0; i < seriesCount; i++) {
+                                utils.log("got serisInfo for: " + seriesList[i]._id + " **** " + seriesList[i]);
+                                seriesInfoMap[seriesList[i]._id] = seriesList[i];
+                            }
+                            utils.log("Cached serisInfo: " + JSON.stringify(seriesInfoMap));
+                            self.callInitCompleteCallback(null);
+                        }
+                    });
+                }
+                else {
+                    // Error during initialization
+                    infoDBcrud = null;
+                    initError = err;
+                    self.callInitCompleteCallback(err);
+                }
+            });
+        }
+    },
     // A function that returns a list of objects for a given objtype.
     // No authentication needed
     // queryFields - the select clauses to get a subset of SeriesInfo objects
     // REVIEW: Removing this projection argument cause we want keep the SeriesInfo type specification. 
     // fieldsReturned - the projection that identifies 
     findSeries: function (queryFields: any, /* fieldsReturned: any, */callback: (err: Error, list: Array<SeriesInfo>) => void) {
+
+        var checkErr = this.checkAllOk();
+        if (checkErr !== null) {
+            setTimeout(function () {
+                callback(checkErr, null);
+            }, 100);
+            return;
+        }
         infoDBcrud.findObj(global.config.psdb.seriesInfoCollectionName, queryFields, {}, function (innerErr: Error, seriesList) {
+            utils.log("findObj returning: " + JSON.stringify(seriesList));
             callback(innerErr, seriesList);
         });
     },
@@ -98,85 +275,53 @@ var psdb: IPSDB = {
     //      "InvalidRoleType"           "Invalid role"
     //      "InvalidCredentials"        "Invalid credentials"
     //      "RoleNotSupportedForUser"   "User not authorized for role" 
-    getSeriesToken: function (id: string, role: string, credentials: ICredentials, options: any, callback: (err: Error, token: string) => void) {
+    getSeriesToken: function (seriesId: string, role: string, credentials: ICredentials, options: any, callback: (err: Error, token: string) => void) {
+        var self = this;
+        var checkErr = this.checkAllOk();
+        if (checkErr !== null) {
+            setTimeout(function () {
+                callback(checkErr, null);
+            }, 100);
+            return;
+        }
+
         //TODO: check if a puzzleSeries object exists for this combination of seriesId, role and credentials and hand out the same token (to avoid DOS attack)
 
         // Check if seriesId is valid
-        infoDBcrud.findObj(global.config.psdb.seriesInfoCollectionName, { "_id": id }, { "name": 1, "dbName": 1 }, function (innerErr2: Error, seriesList: any[]) {
-            if (innerErr2) {
-                callback(innerErr2, null);
-                return;
-            }
-            else if (seriesList.length === 0) {
-                // No series with given id was found
-                callback(utils.errors.invalidSeriesID, null);
-                return;
-            }
-            else if (!seriesList[0].database) {
-                // database not found - return error
-                callback(utils.errors.inconsistentDB, null);
-                return;
-            }
-            else {
-                // check if credentials are valid and the given roletype is allowed for this username
-                // Administrator user data is in the infoDB  whereas Instructor and player user data is within the specific db for the series
-                // Check accordingly
-                var userCrud, collectionName;
-                switch (role) {
-                    case "administrator":
-                        userCrud = infoDBcrud;
-                        collectionName = global.config.psdb.userInfoCollectionName;
-                        break;
-                    case "instructor":
-                        userCrud = crudmodule.createDBHandle(global.config.psdb.serverName, seriesList[0].database);
-                        collectionName = global.config.psdb.instructorsCollectionName;
-                        break;
-                    case "player":
-                        userCrud = crudmodule.createDBHandle(global.config.psdb.serverName, seriesList[0].database);
-                        collectionName = global.config.psdb.playersCollectionName;
-                }
-                userCrud.findObj(collectionName, { "name": credentials.userName }, { roleType: 1, password: 1 },
-                    function (innerErr1: Error, userList: any[]) {
+        if (!seriesInfoMap[seriesId]) {
+            // No series with given id was found
+            utils.log("invalid seriesId requested: " + seriesId);
+            callback(utils.errors.invalidSeriesID, null);
+            return;
+        }
+        if (!seriesInfoMap[seriesId].database) {
+            // database not found - return error
+            callback(utils.errors.inconsistentDB, null);
+            return;
+        }
 
-                        if (innerErr1) {
-                            // Got an error from the CRUD call, pass it on..
-                            callback(innerErr1, null);
-                            return;
-                        }
-                        else if (userList.length === 0 ||
-                            (userList[0].password && userList[0].password !== credentials.password)) {
-                            // Username and/or password is not valid
-                            callback(utils.errors.invalidCredentials, null);
-                            return;
-                        }
-                        else {
-                            //console.log(utils.getShortfileName(__filename) + " userList[0] = ");
-                            //for (var pr in userList[0]) {
-                            //    if (userList[0].hasOwnProperty(pr)) {
-                            //        console.log(pr + " : " + userList[0][pr]);
-                            //    }
-                            //}
-                            if (userList[0].roleType.indexOf(role) < 0) {
-                                //given role is not allowed for this user
-                                callback(utils.errors.invalidRole, null);
-                                return;
-                            }
-                            else {
-                                // Instantiate a token object and pass it on to puzzleSeries constructor, alongwith the name of the db
-                                var seriesToken = new Token(id, seriesList[0].database, role, credentials);
-                                // Save the IToken object in the tokenMap and set the crudHandle to null, we will create it
-                                // when needed
-                                tokenMap[seriesToken.tokenString] = { "token": seriesToken, "crudHandle": null };
-                                utils.log(utils.getShortfileName(__filename) + " returning token " + seriesToken.tokenString);
-                                callback(null, seriesToken.tokenString);
-                            }
-                        }
-                    });
-                return;
-            }
-        });
-        return;
+        if (seriesInfoMap[seriesId].dbHandle) {
+            // We are ready to check credentials and create and hand out the requested token
+            //console.log("Found dbHandle for " + seriesId + "to be: " + seriesInfoMap[seriesId].dbHandle);
+            self.getSeriesTokenInternal(seriesId, role, credentials, options, callback);
+            return;
+        }
+        else {
+            //We need to get the dbHandle and save it in the seriesInfoMap and then call the callback.
+            crudmodule.createDBHandleAsync(global.config.psdb.serverName, seriesInfoMap[seriesId].database, function (innerErr3: Error, dbcrud: DBCRUD) {
+                if (innerErr3 !== null) {
+                    callback(innerErr3, null);
+                }
+                else {
+                    seriesInfoMap[seriesId].dbHandle = dbcrud;
+                    //console.log("Setting dbHandle to: " + dbcrud);
+                    self.getSeriesTokenInternal(seriesId, role, credentials, options, callback);
+                }
+            });
+            return;
+        }
     },
+
 
     // Function to release a token that was previously obtained using getSeriesToken api
     // Possible errors: 
@@ -201,8 +346,7 @@ var psdb: IPSDB = {
         if (tokenMap[token]) {
             if (tokenMap[token].token && tokenMap[token].token.isValid()) {
                 if (tokenMap[token].crudHandle === null) {
-                    // Need to get a handle to the database first
-                    tokenMap[token].crudHandle = crudmodule.createDBHandle(global.config.psdb.serverName, tokenMap[token].token.database);
+                    utils.log(" Error: dbHandle to the series database is null in the request for a series object");
                 }
                 return new PuzzleSeries(tokenMap[token].token, tokenMap[token].crudHandle);
             }

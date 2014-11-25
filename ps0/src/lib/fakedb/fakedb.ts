@@ -19,6 +19,16 @@
 import fs = require('fs');
 import assert = require("assert");
 import utils = require('../utils');
+var fakedbModule: DBCRUDModule = {
+    createDBHandleAsync: function (server: string, dbName: string, callback: (err: Error, dbcrud: DBCRUD) => void) {
+        utils.log("fakedb: createDBHandleAsync called");
+        setTimeout(callback(null, new fakeDB(server, dbName)), 100);
+    },
+    createDBHandle: function (server: string, dbName: string) {
+        return new fakeDB(server, dbName);
+    }
+
+}
 class fakeDB implements DBCRUD {
 
     private server: string;
@@ -196,5 +206,5 @@ class fakeDB implements DBCRUD {
     }
 }
 
-export = fakeDB;
+export = fakedbModule;
  

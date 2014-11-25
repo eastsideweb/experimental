@@ -29,7 +29,7 @@ import connect = require('connect');
 
 import config = require('./lib/config');
 global.config = config('config');
-
+import psdb = require('./lib/psdb/psdb');
 var app = express();
 
 // Use the connect parser to parse body params
@@ -58,6 +58,18 @@ app.set('title', 'Puzzle Orchestration');
 // Set the directory public to serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
+var startServer = function (err: Error) {
+    if (err !== null) {
+        console.log('psdb module initialization failed with' + err.message);
+    }
+    else if (!global.config.test) {
+        // We are not in test mode, start listening on the port
+        app.set('port', process.env.PORT || 3000);
+        var server = app.listen(app.get('port'), function () {
+            console.log('Express server listening on port ' + server.address().port);
+        });
+    }
+}
 // Set routing handlers for all Rest API requests
 var routes = require('./routes')(app);
 
@@ -77,11 +89,15 @@ if (app.get('NODE_ENV') === 'test') {
 
 // Production error handler
 // No stacktraces leaked to user
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
+    console.log("///////APP reporting error: " + err.message);
     res.status(err.status || 500).json({
             'title': err.message,
             'details': {}
     });
 });
+
+// Initialize the psdb module and start listening once it is done initializing
+psdb.Init(startServer);
 
 module.exports = app;

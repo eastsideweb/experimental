@@ -1,8 +1,8 @@
 {
 "psdbSeriesInfo" :
 	[
-	{ "name": "Test Series1", "_id": "testSeriesId1", "description": "description for test series 1", "database": "SeriesDB_testSeriesId1"},
-	{ "name": "Test Series2", "_id": "testSeriesId2", "description": "description for test series 2", "database":  "SeriesDB_testSeriesId2"}
+	{ "name": "Fake Test Series1", "_id": "testSeriesId1", "description": "description for test series 1", "database": "SeriesDB_testSeriesId1"},
+	{ "name": "Fake Test Series2", "_id": "testSeriesId2", "description": "description for test series 2", "database":  "SeriesDB_testSeriesId2"}
 	],
 "psdbUsersInfo" :
 	[

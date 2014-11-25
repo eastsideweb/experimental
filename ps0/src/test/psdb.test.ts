@@ -18,10 +18,12 @@
 /// <reference path="../inc/psdb.d.ts"/>
 /// <reference path="../inc/crud.d.ts"/>
 // tests for psdb module apis
+import fs = require('fs');
 import assert = require("assert");
-import psdb = require('../lib/psdb/psdb');
 import config = require("../lib/config");
+global.config = config(__dirname + '/../config');
 import utils = require("../lib/utils");
+import psdb = require('../lib/psdb/psdb');
 import series = require("../lib/psdb/series");
 import crudmodule = require('../lib/psdb/crudmodule');
 var should = require("should");
@@ -31,7 +33,6 @@ var should = require("should");
 // we will first test the findobj api on the first series in the database and then use create, update and remove apis to build up 
 // the second test series in the database 
 
-global.config = config(__dirname + '/../config');
 
 var psdb_findSeries = function (done) {
     psdb.findSeries({}, function (err: Error, list: SeriesInfo[]) {
@@ -46,13 +47,39 @@ var psdb_findSeries = function (done) {
     });
 };
 
-var handleToInfoDatabase, infoDBCrud;
-infoDBCrud = crudmodule.createDBHandle(global.config.psdb.serverName, global.config.psdb.infoDBName);
-handleToInfoDatabase = infoDBCrud.handleToDataBase ? infoDBCrud.handleToDataBase : null;
+var psdb_init = function (done) {
+    psdb.Init(function (err) {
+        done(err);
+    });
+};
+
+var setupHandleToDatabase = function (dbName: string, collections: Array<string>) {
+    var testfileName: string, testdirName: string = "./test/initTestDB/" + dbName + "/";
+    var retVal = {};
+    utils.log("reading db: from " + testdirName);
+    for (var i = 0; i < collections.length; i++) {
+        testfileName = testdirName + collections[i] + ".json";
+        utils.log("reading collection: " + collections[i] + " from " + testfileName);
+        if (fs.existsSync(testfileName)) {
+            retVal[collections[i]] = JSON.parse(fs.readFileSync(testfileName, 'utf8'));
+            utils.log(retVal[collections[i]].length);
+        }
+        else {
+            utils.log("file not found " + testfileName);
+        }
+    }
+    return retVal;
+}
+var handleToInfoDatabase = setupHandleToDatabase("testpsdbInfo", [global.config.psdb.seriesInfoCollectionName, global.config.psdb.userInfoCollectionName ]);
 
 describe("psdb apis tests", function () {
+    before(function (done) {
+        psdb_init(done);
+    });
+
     var savedToken, savedSeries, seriesId1, credentials;
     it("psdb findseries api", psdb_findSeries);
+
     it("psdb getseriesToken api - invalid seriesID", function (done) {        
         psdb.getSeriesToken("wrongSeriesId", "administrator", null, {}, function (err: Error, token: string) {
             err.should.ok;
@@ -108,7 +135,11 @@ describe("psdb apis tests", function () {
     });
 });
 describe("series apis test with administrator role", function () {
-    var seriesToken, seriesToken2, seriesId1, seriesId2, credentials, seriesCRUD1, seriesCRUD2, handleToSeriesDatabase;
+    var seriesToken, seriesToken2, seriesId1, seriesId2, credentials, handleToSeriesDatabase;
+    before(function (done) {
+        psdb_init(done);
+    });
+
     it("getSeriesToken", function (done) {
         //*** WARNING: assuming order in the array in the seriesInfoCollectionName
         seriesId1 = handleToInfoDatabase[global.config.psdb.seriesInfoCollectionName][0]._id;
@@ -117,9 +148,8 @@ describe("series apis test with administrator role", function () {
             "userName": handleToInfoDatabase[global.config.psdb.userInfoCollectionName][0].name,
             "password": handleToInfoDatabase[global.config.psdb.userInfoCollectionName][0].password
         };
-        seriesCRUD1 = crudmodule.createDBHandle(global.config.psdb.serverName, handleToInfoDatabase[global.config.psdb.seriesInfoCollectionName][0].database);
-        seriesCRUD2 = crudmodule.createDBHandle(global.config.psdb.serverName, handleToInfoDatabase[global.config.psdb.seriesInfoCollectionName][1].database);
-        handleToSeriesDatabase = seriesCRUD1.handleToDataBase;
+        handleToSeriesDatabase = setupHandleToDatabase(handleToInfoDatabase[global.config.psdb.seriesInfoCollectionName][0].database, [global.config.psdb.eventsCollectionName, global.config.psdb.puzzlesCollectionName, global.config.psdb.playersCollectionName,
+            global.config.psdb.teamsCollectionName, global.config.psdb.instructorsCollectionName]);
         handleToSeriesDatabase.should.be.ok;
         psdb.getSeriesToken(seriesId1, "administrator",
             credentials, {}, function (err: Error, token: string) {
@@ -153,7 +183,7 @@ describe("series apis test with administrator role", function () {
             }
             else {
                 eventList.should.have.length(handleToSeriesDatabase[global.config.psdb.eventsCollectionName].length);
-                if (eventList.length === 1) {
+            if (eventList.length === 1) {
                     eventList[0].name.should.eql(handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0].name);
                 }
                 series.findObj('players', {}, {}, function (innerErr1: Error, playerList) {
@@ -221,8 +251,9 @@ describe("series apis test with administrator role", function () {
         });
     });
     it("series addObj apis - valid and invalid objectTypes", function (done) {
-        var series2, eventObj, teamObj, playerObj, puzzleStateCollectionName, instructorObj, puzzleStateObj;
+        var series2, eventObj, teamObj, playerObj, puzzleStateCollectionName, handleToSeriesDatabaseWithPuzzleStateCollection, instructorObj, puzzleStateObj;
         puzzleStateCollectionName = global.config.psdb.puzzleStatesCollectionNamePrefix + handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0]._id;
+        handleToSeriesDatabaseWithPuzzleStateCollection = setupHandleToDatabase(handleToInfoDatabase[global.config.psdb.seriesInfoCollectionName][0].database, [puzzleStateCollectionName]);
         series2 = psdb.series(seriesToken2);
         series2.should.be.ok;
         eventObj = {
@@ -237,8 +268,8 @@ describe("series apis test with administrator role", function () {
             "_id": "dummyId"
         };
         puzzleStateObj = {
-            "puzzleId": handleToSeriesDatabase[puzzleStateCollectionName][0].puzzleId,
-            "teamId": handleToSeriesDatabase[puzzleStateCollectionName][0].teamId,
+            "puzzleId": handleToSeriesDatabaseWithPuzzleStateCollection[puzzleStateCollectionName][0].puzzleId,
+            "teamId": handleToSeriesDatabaseWithPuzzleStateCollection[puzzleStateCollectionName][0].teamId,
             "solved": false,
             "_id": "dummyId"
         };
@@ -247,6 +278,7 @@ describe("series apis test with administrator role", function () {
                 done(err);
             }
             else {
+                utils.log("***********addObj returned - " + JSON.stringify(objInfo));
                 objInfo.name.should.eql(eventObj.name);
                 eventObj.description.should.eql(objInfo.description);
                 eventObj._id.should.not.eql(objInfo._id);
@@ -293,8 +325,9 @@ describe("series apis test with administrator role", function () {
     });
     it("series updateObj apis - valid updates", function (done) {
         var series, eventUpdateObj, newEventDescription = "new Event Description",
-            newteamLeadId = "dummyLeadId", eventId, teamId, teamUpdateObj, puzzleStateCollectionName, puzzleStateObj;
+            newteamLeadId = "dummyLeadId", eventId, teamId, teamUpdateObj, puzzleStateCollectionName, handleToSeriesDatabaseWithPuzzleStateCollection, puzzleStateObj;
         puzzleStateCollectionName = global.config.psdb.puzzleStatesCollectionNamePrefix + handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0]._id;
+        handleToSeriesDatabaseWithPuzzleStateCollection = setupHandleToDatabase(handleToInfoDatabase[global.config.psdb.seriesInfoCollectionName][0].database, [puzzleStateCollectionName]);
         series = psdb.series(seriesToken);
         series.should.be.ok;
         eventId = handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0]._id;
@@ -307,8 +340,8 @@ describe("series apis test with administrator role", function () {
             "teamLeadId": newteamLeadId,
         };
         puzzleStateObj = {
-            "puzzleId": handleToSeriesDatabase[puzzleStateCollectionName][0].puzzleId,
-            "teamId": handleToSeriesDatabase[puzzleStateCollectionName][0].teamId,
+            "puzzleId": handleToSeriesDatabaseWithPuzzleStateCollection[puzzleStateCollectionName][0].puzzleId,
+            "teamId": handleToSeriesDatabaseWithPuzzleStateCollection[puzzleStateCollectionName][0].teamId,
             "solved": false,
             "_id": "dummyId"
         };
@@ -325,6 +358,7 @@ describe("series apis test with administrator role", function () {
 
                         eventList.length.should.eql(1);
                         eventList[0].description.should.eql(newEventDescription);
+                        eventList[0].name.should.eql(handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0].name);
                         done();
 
                     }
@@ -335,8 +369,9 @@ describe("series apis test with administrator role", function () {
 
     it("series updateObj apis - invalid updates", function (done) {
         var series, eventUpdateObj,
-            newteamLeadId = "dummyLeadId", eventId, teamId, teamUpdateObj, puzzleStateCollectionName, puzzleStateObj;
+            newteamLeadId = "dummyLeadId", eventId, teamId, teamUpdateObj, puzzleStateCollectionName, handleToSeriesDatabaseWithPuzzleStateCollection, puzzleStateObj;
         puzzleStateCollectionName = global.config.psdb.puzzleStatesCollectionNamePrefix + handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0]._id;
+        handleToSeriesDatabaseWithPuzzleStateCollection = setupHandleToDatabase(handleToInfoDatabase[global.config.psdb.seriesInfoCollectionName][0].database, [puzzleStateCollectionName]);
         series = psdb.series(seriesToken);
         series.should.be.ok;
         eventId = handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0]._id;
@@ -348,8 +383,8 @@ describe("series apis test with administrator role", function () {
             "teamLeadId": newteamLeadId,
         };
         puzzleStateObj = {
-            "puzzleId": handleToSeriesDatabase[puzzleStateCollectionName][0].puzzleId,
-            "teamId": handleToSeriesDatabase[puzzleStateCollectionName][0].teamId,
+            "puzzleId": handleToSeriesDatabaseWithPuzzleStateCollection[puzzleStateCollectionName][0].puzzleId,
+            "teamId": handleToSeriesDatabaseWithPuzzleStateCollection[puzzleStateCollectionName][0].teamId,
             "solved": false,
             "_id": "dummyId"
         };

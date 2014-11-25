@@ -16,21 +16,29 @@
 // Main module that PSDB module interfaces with to get the low level CRUD functionality - it will instantiate appropriate DBCRUD module 
 // depending on the mode (debug vs non-debug)
 
-import fakedb = require('../fakedb/fakedb');
-import mongoDBCRUD = require('./mongodbcrud');
+import fakedbModule = require('../fakedb/fakedb');
+import mongodbModule = require('./mongodbcrud');
 "use strict"
 
 var dbcrudmodule: DBCRUDModule = {
-    createDBHandle: function (server: string, dbName: string) {
-        var retval;
+    createDBHandleAsync: function (server: string, dbName: string, callback) {
         if (global.config.psdb.useFakeDB) {
             // useFakeDB is set, return the fakedb module
-            retval = new fakedb(global.config.psdb.fakeserver, dbName);
+            fakedbModule.createDBHandleAsync(global.config.psdb.fakeserver, dbName, callback);
         }
         else {
-            retval = new mongoDBCRUD(server, dbName);
+            mongodbModule.createDBHandleAsync(server, dbName, callback);
         }
-        return retval;
+        return;
+    },
+    createDBHandle: function (server: string, dbName: string): DBCRUD {
+        if (global.config.psdb.useFakeDB) {
+            // useFakeDB is set, return the fakedb module
+            return fakedbModule.createDBHandle(global.config.psdb.fakeserver, dbName);
+        }
+        else {
+            return mongodbModule.createDBHandle(server, dbName);
+        }
     }
 }
 export = dbcrudmodule;
