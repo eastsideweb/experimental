@@ -102,7 +102,7 @@ module psdbClient {
             $.ajax({
                 type: type,
                 url: url,
-                data: JSON.stringify(data),
+                data: data === null ? null : JSON.stringify(data),
                 dataType: 'json',
                 headers: { 'token': requestParams.session },
                 contentType: 'application/json',
