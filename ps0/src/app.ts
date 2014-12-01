@@ -90,7 +90,7 @@ if (app.get('NODE_ENV') === 'test') {
 // Production error handler
 // No stacktraces leaked to user
 app.use(function (err, req, res, next) {
-    console.log("///////APP reporting error: " + err.message);
+    console.log("///////APP reporting error: " + err.message + " for url: " + req.url);
     res.status(err.status || 500).json({
             'title': err.message,
             'details': {}

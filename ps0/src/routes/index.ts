@@ -21,7 +21,6 @@ import validator = require('../lib/validator');
 
 import psdb = require('../lib/psdb/psdb');
 
-
 /// Validations of requests
 // Checks if it is a valid string type
 router.param('type', function (request, response, next, type) {
@@ -129,7 +128,7 @@ router.all('/:type*', function (request, response, next) {
         next();
     }
     else {
-        next(new Error('This is an invalid token, please provide a valid session token'));
+        next(new Error('This is an invalid token ( ' + token +' ) please provide a valid session token') );
     }
 });
 
@@ -137,18 +136,18 @@ router.all('/:type*', function (request, response, next) {
 // Also performs search on entities if query params are present
 // Request: GET should contain a valid type, (and valid query string)
 // Response: list of the requested type
-router.get('/:type', function (request, response) {
+router.get('/:type', function (request, response,next) {
     var token = request.headers['token'];
     var query = (request.query !== null) ? request.query : {};
-    response.json(200, {});
-    //var series = psdb.(query, function (err, seriesList) {
-    //    if (err) {
-    //        next(err);
-    //    }
-    //    else {
-    //        response.json(seriesList);
-    //    }
-    //});
+    var series = psdb.series(token);
+    series.findObj(request.params.type, query, {}, function (err: Error, list: any[]) {
+        if (err) {
+            next(err);
+        }
+        else {
+            response.json(list);
+        }
+    });
 });
 
 // Handles the request for getting a details of requested type
