@@ -1,0 +1,152 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{7e995bed-3dbd-4b93-8083-a4c684e317aa}</ProjectGuid>
+    <ProjectHome />
+    <ProjectView>ShowAllFiles</ProjectView>
+    <StartupFile>server.js</StartupFile>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
+    <TypeScriptSourceMap>true</TypeScriptSourceMap>
+    <TypeScriptModuleKind>CommonJS</TypeScriptModuleKind>
+    <EnableTypeScript>true</EnableTypeScript>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <NodejsPort>3000</NodejsPort>
+    <StartWebBrowser>True</StartWebBrowser>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <ItemGroup>
+    <Content Include="bin\lib\fakedb\psdbInfo.json" />
+    <Content Include="bin\lib\fakedb\SeriesDB_testSeriesId1.json" />
+    <Content Include="bin\lib\fakedb\SeriesDB_testSeriesId2.json" />
+    <Content Include="bin\lib\schema\annotations.json" />
+    <Content Include="bin\lib\schema\events.json" />
+    <Content Include="bin\lib\schema\instructors.json" />
+    <Content Include="bin\lib\schema\players.json" />
+    <Content Include="bin\lib\schema\puzzles.json" />
+    <Content Include="bin\lib\schema\puzzleStates.json" />
+    <Content Include="bin\lib\schema\series.json" />
+    <Content Include="bin\lib\schema\seriesList.json" />
+    <Content Include="bin\lib\schema\teams.json" />
+    <Content Include="config.json" />
+    <Content Include="config.test.json" />
+    <Content Include="lib\fakedb\psdbInfo.json" />
+    <Content Include="lib\fakedb\SeriesDB_testSeriesId2.json" />
+    <Content Include="package.json" />
+    <TypeScriptCompile Include="app.ts" />
+    <TypeScriptCompile Include="inc\ext\mongodb.d.ts" />
+    <TypeScriptCompile Include="lib\psdb\mongodbcrud.ts" />
+    <TypeScriptCompile Include="public\client\inc\jquery.d.ts" />
+    <TypeScriptCompile Include="public\client\psdbClient.config.ts" />
+    <TypeScriptCompile Include="public\client\psdbClient.login.ts" />
+    <TypeScriptCompile Include="public\client\psdbClient.series.ts" />
+    <TypeScriptCompile Include="public\client\psdbClient.shell.ts" />
+    <TypeScriptCompile Include="public\client\psdbClient.ts" />
+    <TypeScriptCompile Include="public\client\psdbClient.util.ts" />
+    <TypeScriptCompile Include="routes.ts" />
+    <Compile Include="public\client\lib\dust-full.min.js" />
+    <Compile Include="public\client\lib\jquery-2.1.1.min.js" />
+    <Compile Include="public\client\lib\jquery.event.gevent-0.2.0.js" />
+    <Compile Include="public\client\lib\jquery.event.ue-0.3.3.js" />
+    <Compile Include="public\client\templates\templates.js" />
+    <Compile Include="server.js" />
+    <Content Include="bin\config.json" />
+    <Content Include="bin\config.test.json" />
+    <Content Include="bin\package.json" />
+    <TypeScriptCompile Include="inc\crud.d.ts" />
+    <TypeScriptCompile Include="inc\psdb.d.ts" />
+    <TypeScriptCompile Include="lib\config.ts" />
+    <TypeScriptCompile Include="lib\utils.ts" />
+    <TypeScriptCompile Include="lib\validator.ts" />
+    <Content Include="public\client\img\close.png" />
+    <Content Include="public\client\img\preloader.gif" />
+    <Content Include="public\client\styles\style.css" />
+    <Content Include="public\client\templates\listTemplate.tl" />
+    <Content Include="public\client\templates\loginTemplate.tl" />
+    <Content Include="public\client\templates\modalTemplate.tl" />
+    <Content Include="public\index.html" />
+    <TypeScriptCompile Include="routes\index.ts" />
+    <Content Include="test\test.html" />
+    <TypeScriptCompile Include="test\index.test.ts" />
+    <TypeScriptCompile Include="test\psdb.test.ts">
+      <TestFramework>Default</TestFramework>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="inc\ext\connect.d.ts" />
+    <TypeScriptCompile Include="inc\ext\express.d.ts" />
+    <TypeScriptCompile Include="inc\ext\mocha.d.ts" />
+    <TypeScriptCompile Include="inc\ext\node.d.ts" />
+    <TypeScriptCompile Include="inc\ext\should.d.ts" />
+    <Content Include="lib\fakedb\SeriesDB_testSeriesId1.json" />
+    <TypeScriptCompile Include="lib\fakedb\fakedb.ts" />
+    <TypeScriptCompile Include="lib\psdb\crudmodule.ts" />
+    <TypeScriptCompile Include="lib\psdb\psdb.ts" />
+    <TypeScriptCompile Include="lib\psdb\series.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="bin" />
+    <Folder Include="bin\lib" />
+    <Folder Include="bin\lib\fakedb" />
+    <Folder Include="bin\lib\schema\" />
+    <Folder Include="inc" />
+    <Folder Include="inc\ext" />
+    <Folder Include="lib" />
+    <Folder Include="lib\fakedb" />
+    <Folder Include="lib\psdb" />
+    <Folder Include="public" />
+    <Folder Include="public\client\" />
+    <Folder Include="public\client\img\" />
+    <Folder Include="public\client\inc\" />
+    <Folder Include="public\client\lib\" />
+    <Folder Include="public\client\styles\" />
+    <Folder Include="public\client\templates\" />
+    <Folder Include="routes" />
+    <Folder Include="Scripts" />
+    <Folder Include="Scripts\typings" />
+    <Folder Include="test" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsTools.targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>False</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:48022/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>True</UseCustomServer>
+          <CustomServerUrl>http://localhost:1337</CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}" User="">
+        <WebProjectProperties>
+          <StartPageUrl>
+          </StartPageUrl>
+          <StartAction>CurrentPage</StartAction>
+          <AspNetDebugging>True</AspNetDebugging>
+          <SilverlightDebugging>False</SilverlightDebugging>
+          <NativeDebugging>False</NativeDebugging>
+          <SQLDebugging>False</SQLDebugging>
+          <ExternalProgram>
+          </ExternalProgram>
+          <StartExternalURL>
+          </StartExternalURL>
+          <StartCmdLineArguments>
+          </StartCmdLineArguments>
+          <StartWorkingDirectory>
+          </StartWorkingDirectory>
+          <EnableENC>False</EnableENC>
+          <AlwaysStartWebServerOnDebug>False</AlwaysStartWebServerOnDebug>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>
