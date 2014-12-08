@@ -9,13 +9,17 @@
         <tr>
           <td>
             <label class="loginText">Username</label>
-            <input id="username" name="username" value="" type="text" autocomplete="on" placeholder="Username" />
+            <input id="username" name="username" value="" type="text" autocomplete="on" placeholder="Tanuja" />
           </td>
         </tr>
         <tr>
           <td>
-            <label class="loginText">Role Type</label>
-            <input id="roleType" name="roleType" value="" type="text" autocomplete="on" placeholder="Role Type" />
+            <label class="loginText">Role Type</label><br/>
+            <input id="roleType" name="roleType" value="administrator" type="radio" checked/> administrator
+            <br/>
+            <input id="roleType" name="roleType" value="instructor" type="radio" /> instructor
+            <br/>
+            <input id="roleType" name="roleType" value="player" type="radio" /> player
           </td>
         </tr>
         <tr>
