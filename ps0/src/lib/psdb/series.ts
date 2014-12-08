@@ -189,7 +189,8 @@ class PuzzleSeries implements IPuzzleSeries {
         var objType;
         if (PuzzleSeries.initDone)
             return;
-        PuzzleSeries.jsonValidator = new validator(["annotations", "events", "instructors", "players", "puzzleStates", "series","teams"]);
+        PuzzleSeries.jsonValidator = new validator(["annotations", "events", "instructors", "players", "puzzleStates", "series", "teams"]);
+        PuzzleSeries.initDone = true;
     };
 
     static checkObjType = function (objType: string /*SeriesObjectType*/) {

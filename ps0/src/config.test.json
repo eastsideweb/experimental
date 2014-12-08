@@ -1,6 +1,6 @@
 {
 "Debug": true,
-"test": true,
+"test": false,
 "printLog": true,
 "psdb": {
     "useFakeDB":  false,

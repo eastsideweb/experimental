@@ -37,6 +37,15 @@
     <Content Include="config.test.json" />
     <Content Include="lib\fakedb\psdbInfo.json" />
     <Content Include="lib\fakedb\SeriesDB_testSeriesId2.json" />
+    <Content Include="lib\schema\annotations.json" />
+    <Content Include="lib\schema\events.json" />
+    <Content Include="lib\schema\instructors.json" />
+    <Content Include="lib\schema\players.json" />
+    <Content Include="lib\schema\puzzles.json" />
+    <Content Include="lib\schema\puzzleStates.json" />
+    <Content Include="lib\schema\series.json" />
+    <Content Include="lib\schema\seriesList.json" />
+    <Content Include="lib\schema\teams.json" />
     <Content Include="package.json" />
     <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="inc\ext\mongodb.d.ts" />
@@ -97,6 +106,7 @@
     <Folder Include="lib" />
     <Folder Include="lib\fakedb" />
     <Folder Include="lib\psdb" />
+    <Folder Include="lib\schema\" />
     <Folder Include="public" />
     <Folder Include="public\client\" />
     <Folder Include="public\client\img\" />
