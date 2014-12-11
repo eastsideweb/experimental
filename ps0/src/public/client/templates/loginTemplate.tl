@@ -9,7 +9,7 @@
         <tr>
           <td>
             <label class="loginText">Username</label>
-            <input id="username" name="username" value="" type="text" autocomplete="on" placeholder="Tanuja" />
+            <input id="username" name="username" value="" type="text" autocomplete="on" placeholder="UserName" />
           </td>
         </tr>
         <tr>

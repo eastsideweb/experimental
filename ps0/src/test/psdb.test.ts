@@ -329,7 +329,7 @@ describe("series apis test with administrator role", function () {
     });
     it("series updateObj apis - valid updates", function (done) {
         var series, eventUpdateObj, newEventDescription = "new Event Description",
-            newteamLeadId = "dummyLeadId", eventId, teamId, teamUpdateObj, puzzleStateCollectionName, puzzleStateObj;
+            newteamLeadId = "dummyLeadId", eventId, teamId, teamUpdateObj, puzzleStateCollectionName, puzzleStateObj, oldEventDescription, oldeventObj;
         puzzleStateCollectionName = global.config.psdb.puzzleStatesCollectionNamePrefix + handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0]._id;
         setupHandleToDatabase(handleToInfoDatabase[global.config.psdb.seriesInfoCollectionName][0].database, [puzzleStateCollectionName], handleToSeriesDatabase);
         series = psdb.series(seriesToken);
@@ -338,7 +338,6 @@ describe("series apis test with administrator role", function () {
         teamId = handleToSeriesDatabase[global.config.psdb.teamsCollectionName][0]._id;
         eventUpdateObj = {
             "description": newEventDescription,
-            "status": "started"
         };
         teamUpdateObj = {
             "teamLeadId": newteamLeadId,
@@ -349,22 +348,37 @@ describe("series apis test with administrator role", function () {
             "solved": false,
             "_id": "dummyId"
         };
+
+        oldEventDescription = handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0].description;
+        oldeventObj = {
+            "description": oldEventDescription,
+        };
         series.updateObj("events", eventId, eventUpdateObj, function (err: Error, count: number) {
             if (err) {
                 done(err);
             }
             else {
-                series.findObj('events', { "_id": eventId }, {}, function (err: Error, eventList) {
-                    if (err) {
-                        done(err);
+                (count === 1).should.be.ok;
+                series.findObj('events', { "_id": eventId }, {}, function (err1: Error, eventList) {
+                    if (err1) {
+                        done(err1);
                     }
                     else {
 
                         eventList.length.should.eql(1);
                         eventList[0].description.should.eql(newEventDescription);
                         eventList[0].name.should.eql(handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0].name);
-                        done();
 
+                        // Reset the eventObj to its original state
+                        series.updateObj('events', eventId, oldeventObj, function (err2: Error, count2: number) {
+                            if (err2) {
+                                done(err2);
+                            }
+                            else {
+                                (count2 === 1).should.be.ok;
+                                done();
+                            }
+                        });
                     }
                 });
             }
