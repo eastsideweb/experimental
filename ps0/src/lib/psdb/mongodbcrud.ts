@@ -17,7 +17,6 @@
 // Implementation of DBCRUD module that uses a backing database on a mongodb server
 
 
-import fs = require('fs');
 import assert = require("assert");
 import utils = require('../utils');
 import mongodb = require('mongodb');

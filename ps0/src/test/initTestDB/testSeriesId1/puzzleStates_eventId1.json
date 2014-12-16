@@ -1,4 +1,6 @@
 [
-{ "name": "Test Series1", "_id": "testSeriesId1", "description": "description for test series 1", "database": "SeriesDB_testSeriesId1" },
-{ "name": "Test Series2", "_id": "testSeriesId2", "description": "description for test series 2", "database": "SeriesDB_testSeriesId2" }
+{ "_id":  "pzst_teamId1_puzzleId1","teamId":  "teamId1","puzzleId":  "puzzleId1","solved":  false },
+{ "_id":  "pzst_teamId1_puzzleId2","teamId":  "teamId1","puzzleId":  "puzzleId2","solved":  false },
+{ "_id":  "pzst_teamId2_puzzleId1","teamId":  "teamId2","puzzleId":  "puzzleId1","solved":  false },
+{ "_id":  "pzst_teamId2_puzzleId2","teamId":  "teamId2","puzzleId":  "puzzleId2","solved":  false }
 ]
