@@ -67,7 +67,7 @@ var infoDBcrud: DBCRUD,
         'player': 'player'
     },
     tokenMap = {}, // Map of token string to the corresponding IToken object and the crudHandle to the series database
-    env = process.env.NODE_ENV || "ENV_NOT_FOUND";
+    env = process.env.BUILD_ENV || "ENV_NOT_FOUND";
 
 //----------- Begin Initialization
 

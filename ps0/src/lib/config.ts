@@ -15,8 +15,8 @@
 var fs = require('fs');
 
 // Function to read configuration object from  file "filename.json". 
-// In addition, it looks for a file, if any, by name "filename.NODE_ENV.json" for any overriding
-// configurations. The object from "filename.NODE_ENV.json" is merged into the config object
+// In addition, it looks for a file, if any, by name "filename.BUILD_ENV.json" for any overriding
+// configurations. The object from "filename.BUILD_ENV.json" is merged into the config object
 var readConfig = function (filename: string) {
     var config = {}, env, configfilename, filenameEnv, configEnv;
     //Check if file exists
@@ -27,7 +27,7 @@ var readConfig = function (filename: string) {
     }
 
     config = JSON.parse(fs.readFileSync(configfilename, 'utf8'));
-    env = process.env.NODE_ENV;
+    env = process.env.BUILD_ENV;
     if (env !== undefined) {
         console.log('running in env: ' + env);
         filenameEnv = filename + '.' + env + '.json';
