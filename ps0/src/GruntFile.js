@@ -84,7 +84,22 @@ module.exports = function (grunt) {
 	        }
 
             ]
-	}
+            },
+            deployCopy: {
+                files: [
+                    {
+                        //copy files from lib/
+                        expand: true,
+                        cwd: '../Debug/',
+                        src: ['lib/fakedb/*.js', 'lib/fakedb/*.json', 'lib/psdb/*.js', 'lib/*.js', 
+                            'public/client/styles/* ', 'public/client/img/*', 'public/client/lib/*.js', 'public/schema/*.json', 'public/client/templates/*.js', 
+                            'public/*', 'public/client/*.js',
+                            'routes/*.js', '*.js', '*config*.json', 'package.json'],
+                        dest: '../../../psdbRoot/'
+                    }
+                ]
+            }
+
         },
         //compiles ts files to .js files in the debug directory
         typescript: {
@@ -126,8 +141,9 @@ module.exports = function (grunt) {
 		        src: ['public/client/templates/*.js'],
 		        dest: '../debug/public/client/templates/templates.js'   
                 },
-        }
+        },
     });
-    grunt.registerTask('default', ['typescript', 'copy', 'dust','concat' ]);
+    grunt.registerTask('default', ['typescript', 'copy:debugCopy', 'dust','concat' ]);
     grunt.registerTask('CT', ['dust', 'concat']);
+    grunt.registerTask('deploy', ['copy:deployCopy']);
 };
