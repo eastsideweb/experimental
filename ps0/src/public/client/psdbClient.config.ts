@@ -21,6 +21,7 @@ module psdbClient {
         seriesUrl: '/series',
         sessionUrl: '/series/{id}/session',
         eventsUrl: '/events',
+        releaseTokenUrl: '/series/{id}/session/{token}',
         timeout:8000
     };
 }

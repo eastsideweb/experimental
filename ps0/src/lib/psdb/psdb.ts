@@ -262,7 +262,7 @@ var psdb: IPSDB = {
             return;
         }
         infoDBcrud.findObj(global.config.psdb.seriesInfoCollectionName, queryFields, {}, function (innerErr: Error, seriesList) {
-            utils.log("findObj returning: " + JSON.stringify(seriesList));
+//            utils.log("findObj returning: " + JSON.stringify(seriesList));
             callback(innerErr, seriesList);
         });
     },
@@ -330,6 +330,7 @@ var psdb: IPSDB = {
         // Make sure the given token is still valid
         if (tokenMap[token] && tokenMap[token].token && tokenMap[token].token.isValid()) {
             delete tokenMap[token];
+            utils.log("Token released: " + token);
             callback(null);
         }
         else {

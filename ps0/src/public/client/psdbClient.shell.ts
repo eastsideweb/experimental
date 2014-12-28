@@ -24,10 +24,11 @@ module psdbClient {
 
             // Initialize dependant modules
             login.initModule(jqueryMap.$modal);
-            series.initModule(jqueryMap.$content, jqueryMap.$modal);
+            series.initModule(jqueryMap.$content, jqueryMap.$modal, jqueryMap.$signoutButton);
 
             // Subscribe for login events
             $.gevent.subscribe(jqueryMap.$acct, 'psdbClient-login', onSeriesLogin);
+            $.gevent.subscribe(jqueryMap.$acct, 'psdbClient-logout', onSeriesLogout);
 
             // Call series
             psdbClient.util.getRequestAsync(config.seriesUrl, renderSeriesTemplate);
@@ -44,9 +45,9 @@ module psdbClient {
                 $acct: null,
                 $header: null,
                 $modal: null,
-                $content: null
-            },
-            session;
+                $content: null,
+                $signoutButton: null
+            };
         //----------------- END MODULE SCOPE VARIABLES ---------------
 
 
@@ -63,7 +64,8 @@ module psdbClient {
                 $acct: $container.find('.psdbClient-shell-head-acct'),
                 $header: $container.find('.psdbClient-shell-head'),
                 $modal: $container.find('.psdbClient-shell-modal'),
-                $content: $container.find('.psdbClient-shell-main-content')
+                $content: $container.find('.psdbClient-shell-main-content'),
+                $signoutButton: $container.find('#signoutButton')
             };
         };
         // End DOM method /setJqueryMap/
@@ -103,7 +105,8 @@ module psdbClient {
         //-------------------- END EVENT HANDLERS --------------------
         
         //---------------------- BEGIN CALLBACKS ---------------------
-        function renderSeriesTemplate(err: any, data: JSON) {
+    function renderSeriesTemplate(err: any, data: JSON) {
+
             if (err !== null) {
                 var error: IPSDBClientError = { 'title': err.title, 'details': err.details, 'code': null };
                 util.handleError(error, jqueryMap.$modal);
@@ -111,6 +114,7 @@ module psdbClient {
             else {
                 util.renderTemplate(config.listTemplate, { items: data }, jqueryMap.$content);
                 jqueryMap.$content.find('a').on('utap.utap', onTapSeries);
+                jqueryMap.$signoutButton.hide();
             }
         }
     //----------------------- END CALLBACKS ----------------------

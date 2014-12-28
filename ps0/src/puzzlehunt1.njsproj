@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{7e995bed-3dbd-4b93-8083-a4c684e317aa}</ProjectGuid>
     <ProjectHome />
-    <ProjectView>ShowAllFiles</ProjectView>
+    <ProjectView>ProjectFiles</ProjectView>
     <StartupFile>server.js</StartupFile>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -34,6 +34,7 @@
     <Content Include="bin\lib\schema\seriesList.json" />
     <Content Include="bin\lib\schema\teams.json" />
     <Content Include="config.json" />
+    <Content Include="config.production.json" />
     <Content Include="config.test.json" />
     <Content Include="lib\fakedb\psdbInfo.json" />
     <Content Include="lib\fakedb\SeriesDB_testSeriesId2.json" />
@@ -62,7 +63,6 @@
     <Compile Include="public\client\lib\jquery-2.1.1.min.js" />
     <Compile Include="public\client\lib\jquery.event.gevent-0.2.0.js" />
     <Compile Include="public\client\lib\jquery.event.ue-0.3.3.js" />
-    <Compile Include="public\client\templates\templates.js" />
     <Compile Include="server.js" />
     <Content Include="bin\config.json" />
     <Content Include="bin\config.test.json" />

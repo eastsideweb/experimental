@@ -107,7 +107,19 @@ module psdbClient {
                     inputObject[item.name] = item.value;
                 });
             var requestParams: IRequestParameters = { isAsync:false, loadPreloader:false };
-            psdbClient.util.postRequest(config.sessionUrl.replace('{id}', seriesId), inputObject, onLogin);
+            psdbClient.util.postRequest(config.sessionUrl.replace('{id}', seriesId), inputObject,
+                function (err: IPSDBClientError, data) {
+                    if (err || data === null) {
+                        jqueryMap.$container.find('#continueButton').removeAttr('disabled');
+                        jqueryMap.$container.find('#error').html(err.title);
+                    }
+                    else {
+                        clearModal();
+                        // Append data with seriesId, since it is not part of the response
+                        data['seriesId'] = seriesId;
+                        publishLogin(data);
+                    }
+            });
         }
         //------------------- END UTILITY METHODS--------------------------------------------
 
