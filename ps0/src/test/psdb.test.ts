@@ -385,7 +385,7 @@ describe("series apis test with administrator role", function () {
         });
     });
 
-    it("series updateObj apis - invalid updates", function (done) {
+    it.skip("series updateObj apis - invalid updates", function (done) {
         var series, eventUpdateObj,
             newteamLeadId = "dummyLeadId", eventId, teamId, teamUpdateObj, puzzleStateCollectionName, puzzleStateObj;
         puzzleStateCollectionName = global.config.psdb.puzzleStatesCollectionNamePrefix + handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0]._id;

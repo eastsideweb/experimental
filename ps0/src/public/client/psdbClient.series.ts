@@ -10,6 +10,7 @@
 //     2014 July 01    NSA  Created
 // 
 // Handles all the series related functionality for PSDB client
+/// <reference path="inc/jqueryui.d.ts"/>
 
 module psdbClient {
     export module series {
@@ -21,8 +22,9 @@ module psdbClient {
         }
 
         export function loadSeries(sessionData : any) {
-            session = sessionData.token;
-            seriesId = sessionData.seriesId;
+            stateMap.session = sessionData.token;
+            stateMap.seriesId = sessionData.seriesId;
+            stateMap.roleType = sessionData.roleType;
             // Load the list of nested lists available on this series
             util.renderTemplate(config.listTemplate, { items: objList }, jqueryMap.$content);
             jqueryMap.$content.find('a').on('utap.utap', onTapObject);
@@ -33,7 +35,7 @@ module psdbClient {
 
         //--------------------------END PUBLIC METHODS--------------------------------------------
 
-        var session, seriesId,
+        var stateMap = { session: null, seriesId: null, roleType: null, objType: null },
             jqueryMap = { $content: null, $modal: null, $signoutButton: null },
             objList = [
                 { _id: "events", name: "Events", description: "List of events", url: "/events" },
@@ -54,12 +56,12 @@ module psdbClient {
         }
 
         function onTapObject(event) {
-            var objType = $(this).attr('id');
+            stateMap.objType = $(this).attr('id');
             //remove the utap event from existing elements
             jqueryMap.$content.find('a').off('utap.utap', onTapObject);
             //get the list of the given object type for this series
-            var reqParams: IRequestParameters = { session: session, loadPreloader: true };
-            util.getRequestAsync('/' + objType, renderObjectList, reqParams);
+            var reqParams: IRequestParameters = { session: stateMap.session, loadPreloader: true };
+            util.getRequestAsync('/' + stateMap.objType, renderObjectList, reqParams);
             return false;
         };
 
@@ -69,7 +71,35 @@ module psdbClient {
                 util.handleError(error, jqueryMap.$modal);
             }
             else {
-                util.renderTemplate(config.listTemplate, { items: result }, jqueryMap.$content);
+                util.renderTemplate(config.objlistTemplate, { items: result }, jqueryMap.$content);
+                jqueryMap.$content.find('#objlist').selectable({
+                    stop: function () {
+                        var selectedItems, countSelect;
+                        selectedItems = jqueryMap.$content.find('li').filter(function () {
+                            return $(this).hasClass('ui-selected');
+                        });
+                        countSelect = selectedItems.length;
+                        //alert('count = ' + countSelect);
+                        var buttons = jqueryMap.$content.find('.button-small');
+                        var button: JQuery = $('#signoutButton');
+                        // Disable appropriate buttons
+                        switch (countSelect) {
+                            case 0:
+                                // Disable all buttons
+                                jqueryMap.$content.find('.button-small').prop('disabled', true);
+                                jqueryMap.$content.find('#addButton').prop('disabled', false);
+                                break;
+                            case 1:
+                                //jqueryMap.$content.find('.button-small').css('color', '#00ff00');
+                                jqueryMap.$content.find('.button-small').prop('disabled', false);
+                                break;
+                            default:
+                                jqueryMap.$content.find('.button-small').prop('disabled', false);
+                                jqueryMap.$content.find('#editButton').prop('disabled', true);
+                                break;
+                        }
+                    }
+                });
             }
         }
 
@@ -79,13 +109,25 @@ module psdbClient {
             jqueryMap.$signoutButton.off('click', onLogout);
 
             // We should release the session token we have
-            var reqParams: IRequestParameters = { session: session, loadPreloader: true };
-            util.deleteRequestAsync(config.releaseTokenUrl.replace('{id}', seriesId).replace('{token}', session), publishLogout, reqParams);
+            var reqParams: IRequestParameters = { session: stateMap.session, loadPreloader: true };
+            util.deleteRequestAsync(config.releaseTokenUrl.replace('{id}', stateMap.seriesId).replace('{token}', stateMap.session), publishLogout, reqParams);
             return false;
         }
         function publishLogout(err: any, result) {
+            // Reset the state variables - 
+            resetStateMap();
             $.gevent.publish('psdbClient-logout', null);
         }
         //----------------------------END DOM METHODS----------------------------------------------------
+
+        //----------------------------START HELPER METHODS----------------------------------------------------
+        function resetStateMap() {
+            stateMap.session = null;
+            stateMap.seriesId = null;
+            stateMap.roleType = null;
+            stateMap.objType = null;
+        }
+        //----------------------------END HELPER METHODS----------------------------------------------------
+
     }
 }

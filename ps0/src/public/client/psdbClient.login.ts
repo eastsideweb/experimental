@@ -101,11 +101,12 @@ module psdbClient {
         function getSessionToken(seriesId : string) {
             //var a = $('#loginForm').serialize();
             var input = $('#loginForm :input').serializeArray();
-            var inputObject = {};
+            var inputObject:any = {};
             $.each(input,
                 function (index: any, item:any) {
                     inputObject[item.name] = item.value;
                 });
+
             var requestParams: IRequestParameters = { isAsync:false, loadPreloader:false };
             psdbClient.util.postRequest(config.sessionUrl.replace('{id}', seriesId), inputObject,
                 function (err: IPSDBClientError, data) {
@@ -117,6 +118,7 @@ module psdbClient {
                         clearModal();
                         // Append data with seriesId, since it is not part of the response
                         data['seriesId'] = seriesId;
+                        data['roleType'] = inputObject.roleType;
                         publishLogin(data);
                     }
             });
