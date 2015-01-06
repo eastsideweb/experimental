@@ -141,9 +141,6 @@ describe("series apis test with administrator role", function () {
     var seriesToken, seriesToken2, seriesId1, seriesId2, credentials, handleToSeriesDatabase;
     before(function (done) {
         psdb_init(done);
-    });
-
-    it("getSeriesToken", function (done) {
         //*** WARNING: assuming order in the array in the seriesInfoCollectionName
         seriesId1 = handleToInfoDatabase[global.config.psdb.seriesInfoCollectionName][0]._id;
         seriesId2 = handleToInfoDatabase[global.config.psdb.seriesInfoCollectionName][1]._id;
@@ -385,7 +382,7 @@ describe("series apis test with administrator role", function () {
         });
     });
 
-    it.skip("series updateObj apis - invalid updates", function (done) {
+    it("series updateObj apis - invalid updates", function (done) {
         var series, eventUpdateObj,
             newteamLeadId = "dummyLeadId", eventId, teamId, teamUpdateObj, puzzleStateCollectionName, puzzleStateObj;
         puzzleStateCollectionName = global.config.psdb.puzzleStatesCollectionNamePrefix + handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0]._id;
@@ -395,7 +392,7 @@ describe("series apis test with administrator role", function () {
         eventId = handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0]._id;
         teamId = handleToSeriesDatabase[global.config.psdb.teamsCollectionName][0]._id;
         eventUpdateObj = {
-            "status": "started"
+            "status": "ended"
         };
         teamUpdateObj = {
             "teamLeadId": newteamLeadId,
