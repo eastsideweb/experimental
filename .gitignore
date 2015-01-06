@@ -32,3 +32,4 @@ ps0/src/public/client/templates/loginTemplate.js
 ps0/src/public/client/templates/modalTemplate.js
 ps0/src/npm-debug.log
 *.js
+ps0/src/.ntvs_analysis.dat
