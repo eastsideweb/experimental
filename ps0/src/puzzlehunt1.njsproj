@@ -52,6 +52,7 @@
     <TypeScriptCompile Include="inc\ext\mongodb.d.ts" />
     <TypeScriptCompile Include="lib\psdb\mongodbcrud.ts" />
     <TypeScriptCompile Include="public\client\inc\jquery.d.ts" />
+    <TypeScriptCompile Include="public\client\inc\jqueryui.d.ts" />
     <TypeScriptCompile Include="public\client\psdbClient.config.ts" />
     <TypeScriptCompile Include="public\client\psdbClient.login.ts" />
     <TypeScriptCompile Include="public\client\psdbClient.series.ts" />
@@ -78,6 +79,7 @@
     <Content Include="public\client\templates\listTemplate.tl" />
     <Content Include="public\client\templates\loginTemplate.tl" />
     <Content Include="public\client\templates\modalTemplate.tl" />
+    <Content Include="public\client\templates\objlistTemplate.tl" />
     <Content Include="public\index.html" />
     <TypeScriptCompile Include="routes\index.ts" />
     <Content Include="test\test.html" />
