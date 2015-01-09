@@ -52,6 +52,8 @@
     <TypeScriptCompile Include="inc\ext\mongodb.d.ts" />
     <TypeScriptCompile Include="lib\psdb\mongodbcrud.ts" />
     <TypeScriptCompile Include="public\client\inc\jquery.d.ts" />
+    <TypeScriptCompile Include="public\client\inc\jqueryui.d.ts" />
+    <TypeScriptCompile Include="public\client\inc\jqueryuriAnchor.d.ts" />
     <TypeScriptCompile Include="public\client\psdbClient.config.ts" />
     <TypeScriptCompile Include="public\client\psdbClient.login.ts" />
     <TypeScriptCompile Include="public\client\psdbClient.series.ts" />
@@ -61,8 +63,10 @@
     <TypeScriptCompile Include="routes.ts" />
     <Compile Include="public\client\lib\dust-full.min.js" />
     <Compile Include="public\client\lib\jquery-2.1.1.min.js" />
+    <Compile Include="public\client\lib\jquery-ui.min.js" />
     <Compile Include="public\client\lib\jquery.event.gevent-0.2.0.js" />
     <Compile Include="public\client\lib\jquery.event.ue-0.3.3.js" />
+    <Compile Include="public\client\lib\jquery.uriAnchor-1.1.3.js" />
     <Compile Include="server.js" />
     <Content Include="bin\config.json" />
     <Content Include="bin\config.test.json" />
@@ -76,6 +80,7 @@
     <Content Include="public\client\img\preloader.gif" />
     <Content Include="public\client\styles\style.css" />
     <Content Include="public\client\templates\listTemplate.tl" />
+    <Content Include="public\client\templates\objlistTemplate.tl" />
     <Content Include="public\client\templates\loginTemplate.tl" />
     <Content Include="public\client\templates\modalTemplate.tl" />
     <Content Include="public\index.html" />
