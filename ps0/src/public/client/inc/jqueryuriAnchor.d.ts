@@ -6,7 +6,7 @@ interface uriAnchor {
     getVarType(data): string;
     makeAnchorMap(): any;
     makeAnchorString(anchor_map_in, option_map_in?  ): any;
-    setAnchor(anchor_map, option_map, replace_flag): void;
+    setAnchor(anchor_map, option_map?, replace_flag?): void;
 }
 interface JQueryStatic {
     uriAnchor: uriAnchor;

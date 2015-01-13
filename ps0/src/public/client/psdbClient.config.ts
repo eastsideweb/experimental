@@ -15,7 +15,8 @@ module psdbClient {
     export var config = {
         listTemplate: 'public/client/templates/listTemplate',
         objlistTemplate: 'public/client/templates/objlistTemplate',
-        //eventsTemplate: 'eventsTemplate',
+        objtypeTemplate: 'public/client/templates/objtypeTemplate',
+        objectTemplate: 'public/client/templates/objectTemplate',
         modalTemplate: 'public/client/templates/modalTemplate',
         loginTemplate: 'public/client/templates/loginTemplate',
         seriesUrl: '/series',

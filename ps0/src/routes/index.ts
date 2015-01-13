@@ -155,8 +155,18 @@ router.get('/:type', function (request, response,next) {
 // Retrieves details of the particular type
 // Reequest: GET should contain a valid id of the requested type
 // Response: json object containing the details of the requested type
-router.get('/:type/:id', function (request, response) {
-    response.json(200, {});
+router.get('/:type/:id', function (request, response,next) {
+    var token = request.headers['token'];
+//    var query = (request.query !== null) ? request.query : {};
+    var series = psdb.series(token);
+    series.findObj(request.params.type, {"_id": request.params.id}, {}, function (err: Error, list: any[]) {
+        if (err) {
+            next(err);
+        }
+        else {
+            response.json(list);
+        }
+    });
 });
 
 // Handles the request for get the status of the requested type

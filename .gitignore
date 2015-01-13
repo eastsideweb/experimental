@@ -27,9 +27,7 @@ ps0/src/routes.js
 ps0/packages.config
 ps0/packages/*
 ps0/src/packages/*
-ps0/src/public/client/templates/listTemplate.js
-ps0/src/public/client/templates/loginTemplate.js
-ps0/src/public/client/templates/modalTemplate.js
+ps0/src/public/client/templates/*Template.js
+ps0/src/public/client/*.js
 ps0/src/npm-debug.log
-*.js
 ps0/src/.ntvs_analysis.dat

@@ -7,14 +7,15 @@
 //   HISTORY:
 //     Date            By  Comment
 //     2014 July 01    NSA  Created
-// 
+//     2014 Dec 20     TJ   Added logout functionality
+//
 // Authorization class for PSDB client
 
 module psdbClient {
     export module login {
 
         //------------------ PUBLIC METHODS-------------------------------
-        export function initializeSession(seriesId) {
+        export function initializeSession(seriesId, seriesParams? : any) {
             // Render login in template
             util.renderTemplate(config.loginTemplate, null, jqueryMap.$container);
 
@@ -23,6 +24,7 @@ module psdbClient {
 
             jqueryMap.$container.find('a.btn_close').one('utap.utap', function () {
                 clearModal();
+                $.uriAnchor.setAnchor({});
                 return false;
             });
 
@@ -31,7 +33,7 @@ module psdbClient {
                 // Disable the submit button
                 $submitBtn.attr("disabled", true);
                 jqueryMap.$container.find('#error').html('');
-                getSessionToken(seriesId);
+                getSessionToken(seriesId, seriesParams ? seriesParams : null);
                 return false;
             });
 
@@ -41,7 +43,7 @@ module psdbClient {
                     // Disable the submit button
                     $submitBtn.attr("disabled", true);
                     jqueryMap.$container.find('#error').html('');
-                    getSessionToken(seriesId);
+                    getSessionToken(seriesId, seriesParams ? seriesParams : null);
                     return false;
                 }
             });
@@ -98,7 +100,7 @@ module psdbClient {
         //----------------------END DOM METHODS-------------------------------------------------
 
         //------------------ UTILITY METHODS------------------------------------
-        function getSessionToken(seriesId : string) {
+        function getSessionToken(seriesId : string, seriesParams: any) {
             //var a = $('#loginForm').serialize();
             var input = $('#loginForm :input').serializeArray();
             var inputObject:any = {};
@@ -116,9 +118,10 @@ module psdbClient {
                     }
                     else {
                         clearModal();
-                        // Append data with seriesId, since it is not part of the response
+                        // Append data with seriesId and roleType, since it is not part of the response
                         data['seriesId'] = seriesId;
                         data['roleType'] = inputObject.roleType;
+                        data['seriesParams'] = seriesParams;
                         publishLogin(data);
                     }
             });

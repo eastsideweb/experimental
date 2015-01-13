@@ -23,8 +23,9 @@ module psdbClient {
         // templateName: the template name to be loaded
         // data: JSON data to be populated in the template
         // $container: the Jquery container to append the rendered template output        
-        export function renderTemplate(templateName: string, data: any, $container: JQuery) {
+        export function renderTemplate(templateName: string, data: any, $container: JQuery, rendercallback? :(inhtml: string) => string) {
             dust.render(templateName, data, function (err, out) {
+                var html = rendercallback ? rendercallback(out) : out;
                 $container.html(out);
             });
         }

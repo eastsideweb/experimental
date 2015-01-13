@@ -88,7 +88,7 @@ a.btn_close {
     border-width: 1px;
     border-radius: 5px;
     color: #000;
-    cursor: pointer;
+    cursor: none;
     display: inline-block;
     padding: 8px 1px 8px;
     margin-top: 10px;
@@ -102,7 +102,7 @@ a.btn_close {
     border-width: 1px;
     border-radius: 5px;
     color: #000;
-    cursor: pointer;
+    cursor: none;
     display: inline-block;
     padding: 8px 1px 8px;
     margin-top: 10px;
@@ -118,10 +118,13 @@ a.btn_close {
     background-color:#ddd;
 }
     */
+
 .button:enabled:hover{
+    cursor:pointer;
     background: #888888;
 }
 .button-small:enabled:hover{
+    cursor:pointer;
     background: #888888;
 }
 
