@@ -44,6 +44,10 @@ module.exports = function (grunt) {
                 dest: '../Debug/'
             },
             {
+                src: 'server.js',
+                dest: '../Debug/'
+            },
+            {
                 expand: true,
                 src: '*.json',
                 dest: '../Debug/',
