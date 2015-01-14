@@ -218,7 +218,7 @@ module psdbClient {
             stateMap.seriesAnchorMap.type = null;
 
             // Load the list of object types available on this series
-            util.renderTemplate(config.objtypeTemplate, { items: objList }, jqueryMap.$content);
+            util.renderTemplate(config.objtypeTemplate, { items: objList, seriesId: stateMap.seriesId }, jqueryMap.$content);
             enableSignoutButton(/*enable*/true);
 
         }
