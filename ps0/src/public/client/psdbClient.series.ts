@@ -132,7 +132,7 @@ module psdbClient {
                 error = { 'title': 'Object not found', 'details': 'No object found for the given id?', 'code': null };
             }
             else {
-                util.renderTemplate(config.objectTemplate, result[0] , jqueryMap.$content);
+                util.renderTemplate(config.objectTemplate, { seriesId: stateMap.seriesId, type: stateMap.seriesAnchorMap.type, item: result[0] } , jqueryMap.$content);
             }
             enableSignoutButton(/*enable*/true);
         }
@@ -142,8 +142,12 @@ module psdbClient {
                 util.handleError(error, jqueryMap.$modal);
             }
             else {
-                util.renderTemplate(config.objlistTemplate, { items: result }, jqueryMap.$content);
+                util.renderTemplate(config.objlistTemplate, { items: result, seriesId: stateMap.seriesId, objtype: stateMap.seriesAnchorMap.type  }, jqueryMap.$content);
                 enableSignoutButton(/*enable*/true);
+                // By default, none of the items in the obj list will be selected. Disable all buttons except for the addbutton
+                jqueryMap.$content.find('.button-small').prop('disabled', true);
+                jqueryMap.$content.find('#addButton').prop('disabled', false);
+
                 jqueryMap.$content.find('#objlist').selectable({
                     stop: function () {
                         var selectedItems, countSelect;
@@ -157,7 +161,7 @@ module psdbClient {
                         // Disable appropriate buttons
                         switch (countSelect) {
                             case 0:
-                                // Disable all buttons
+                                // Disable all buttons, except for the add button
                                 jqueryMap.$content.find('.button-small').prop('disabled', true);
                                 jqueryMap.$content.find('#addButton').prop('disabled', false);
                                 break;

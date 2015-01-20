@@ -1,12 +1,15 @@
 ﻿<div>
-  <div id="{_id}">
-    <b>name: </b>{name}
+  <div id="rootItem" objId="{item._id}">
+    <b>name: </b>{item.name}
     <div>
-      <b>description: </b>{description}
+      <b>description: </b>{item.description}
     </div>
     <div>
-      <b>active</b>: {active}
+      <b>active</b>: {item.active}
     </div>
+    {?item.playerIds}
+    <a href="#series={seriesId}:type,{type}|id,{item._id}|subtype,players">List of players</a>
+    {/item.playerIds}
   </div>
   <button id="objeditButton" class="submit button-small" type="button">Edit</button>
   <button id="objdeleteButton" class="submit button-small" type="button">Delete</button>

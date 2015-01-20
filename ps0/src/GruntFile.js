@@ -40,10 +40,6 @@ module.exports = function (grunt) {
                 dest: '../Debug/bin/'
             },
             {
-                src: 'puzzlehuntDebug.njsproj',
-                dest: '../Debug/'
-            },
-            {
                 src: 'server.js',
                 dest: '../Debug/'
             },

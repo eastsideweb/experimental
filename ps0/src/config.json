@@ -3,10 +3,10 @@
 "test": false,
 "printLog": false,
 "psdb": {
-    "useFakeDB":  true,
+    "useFakeDB":  false,
     "fakeserver": "localhost",
     "serverName": "mongodb://localhost:27017/",
-    "infoDBName": "psdbInfo",
+    "infoDBName": "testpsdbInfo",
     "seriesInfoCollectionName": "psdbSeriesInfo",
     "userInfoCollectionName":  "psdbUsersInfo",
     "instructorsCollectionName":  "instructors",
