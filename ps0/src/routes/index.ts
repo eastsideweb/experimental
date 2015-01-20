@@ -173,8 +173,24 @@ router.get('/:type/:id', function (request, response,next) {
 // Applicable only for events.
 // Request: GET should contain only events
 // Response: Status of the event: notstarted/ended/started
-router.get('/:type/:id/status', function (request, response) {
-    response.json(200, {});
+router.get('/:type/:id/status', function (request, response,next) {
+    // This should only work with events type so check that out first
+    if (request.params.type !== "events") {
+        next(new Error('This is an invalid token ( ' + token + ' ) please provide a valid session token'));
+    }
+    else {
+        var token = request.headers['token'];
+        //var query = (request.query !== null) ? request.query : {};
+        var series = psdb.series(token);
+        series.findObj(request.params.type, { "_id": request.params.id }, { _id: false, status: true }, function (err: Error, list: any[]) {
+            if (err) {
+                next(err);
+            }
+            else {
+                response.json(200, list[0].status);
+            }
+        });
+    }
 });
 
 
@@ -204,6 +220,21 @@ router.delete('/:type/:id', function (request, response) {
 
 /// Region for sub collections
 
+// Handles the request to get associated type (e.g. players or puzzles to the team)
+// Request: GET containing valid type and a valid subtype associated with that type
+// Response: list of ids of the subtype
+router.get('/:type/:id/:associatedtype', function (request, response, next) {
+    var token = request.headers['token'];
+    var series = psdb.series(token);
+    series.findObj(request.params.type, { "_id": request.params.id }, {}, function (err: Error, list: any[]) {
+        if (err) {
+            next(err);
+        }
+        else {
+            response.json(200, list[0][request.params.associatedtype]);
+        }
+    });
+});
 
 // Handles the request to add associated type (players or puzzles to the team)
 // Request: POST containing the json of ids of associated type (json containing player id or array of player ids)
