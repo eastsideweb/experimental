@@ -80,6 +80,10 @@ module psdbClient {
                         // No subtype specified, load the object view
                         loadObject(seriesParams.type, seriesParams.id);
                     }
+                    else {
+                        // there is a subtype
+                        loadObjSublist(seriesParams.type, seriesParams.id, seriesParams.subtype);
+                    }
                 }
             }
             return true;
@@ -148,7 +152,7 @@ module psdbClient {
                 jqueryMap.$content.find('.button-small').prop('disabled', true);
                 jqueryMap.$content.find('#addButton').prop('disabled', false);
 
-                jqueryMap.$content.find('#objlist').selectable({
+              /*  jqueryMap.$content.find('#objlist').selectable({
                     stop: function () {
                         var selectedItems, countSelect;
                         selectedItems = jqueryMap.$content.find('li').filter(function () {
@@ -175,7 +179,7 @@ module psdbClient {
                                 break;
                         }
                     }
-                });
+                }); */
             }
         }
 
@@ -245,6 +249,15 @@ module psdbClient {
             //get the list of the given object type for this series
             var reqParams: IRequestParameters = { session: stateMap.session, loadPreloader: true };
             util.getRequestAsync('/' + stateMap.seriesAnchorMap.type + '/' + stateMap.seriesAnchorMap.id, renderObject, reqParams);
+        }
+        //Function to load a list of sub objs for a specific obj of a given type
+        function loadObjSublist(objtype: string, objId:number, objSubtype: string) {
+            stateMap.seriesAnchorMap.type = objtype;
+            stateMap.seriesAnchorMap.id = objId;
+            stateMap.seriesAnchorMap.subtype = objSubtype;
+            //get the list of the given object type for this series
+            var reqParams: IRequestParameters = { session: stateMap.session, loadPreloader: true };
+            util.getRequestAsync('/' + stateMap.seriesAnchorMap.type + '/' + stateMap.seriesAnchorMap.id + '/' + stateMap.seriesAnchorMap.subtype, renderObjectList, reqParams);
         }
         function enableSignoutButton(enable: boolean) {
             if (enable) {

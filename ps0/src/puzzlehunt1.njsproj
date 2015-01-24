@@ -84,6 +84,7 @@
     <Content Include="public\client\templates\modalTemplate.tl" />
     <Content Include="public\client\templates\objlistTemplate.tl" />
     <Content Include="public\client\templates\objtypeTemplate.tl" />
+    <Content Include="public\client\templates\objectTemplate.tl" />
     <Content Include="public\index.html" />
     <TypeScriptCompile Include="routes\index.ts" />
     <Content Include="test\test.html" />

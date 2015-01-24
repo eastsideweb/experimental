@@ -5,14 +5,39 @@
       <b>description: </b>{item.description}
     </div>
     <div>
-      <b>active</b>: {item.active}
+      <div>
+      {?item.active} <b>active :</b> {item.active} {/item.active}
+      </div>
+      <div>
+      {?item.instructorIds} 
+      <a id ="{item.instructorIds}" href="#series={item.seriesId}:type,{type}|id,{item._id}|subtype,InstructorIds">
+        <b>List of instructors:</b>
+      </a>
+      {/item.instructorIds}
+      </div>
+      <div>
+        {?item.playerIds}  <a id="{item.playerIds}" href="#series={seriesId}:type,{type}|id,{item._id}|subtype,playerIds">
+      <b>List of players :</b>
+    </a> {/item.playerIds}
     </div>
-    {?item.playerIds}
-    <a href="#series={seriesId}:type,{type}|id,{item._id}|subtype,players">List of players</a>
-    {/item.playerIds}
+      <div>
+        {?item.puzzleIds} <a id="{item.puzzleIds}" href="#series={seriesId}:type,{type}|id,{item._id}|subtype,puzzleIds">
+        <b>List of puzzles</b>{/item.puzzleIds}
+      </a>
+      </div>
+      <div>
+        {?item.teamIds}<a id="{item.teamIds}" href="#series={seriesId}:type,{type}|id,{item._id}|subtype,teamIds">
+        <b>List of teams</b> {/item.teamIds}
+      </a>
+      </div>
+      <div>
+        {?item.status} <b>Status :</b> {item.status}{/item.status}
+      </div>
+      <div>
+        {?item.teamLeadId} <b>Team lead Id: </b> {item.teamLeadId} {/item.teamLeadId}
+      </div>
+    </div>
   </div>
   <button id="objeditButton" class="submit button-small" type="button">Edit</button>
-  <button id="objdeleteButton" class="submit button-small" type="button">Delete</button>
-  <button id="objactivateButton" class="submit button-small" type="button">Activate</button>
-  <button id="objdeactivateButton" class="submit button-small" type="button">Deactivate</button>  
+  <button id="objdeleteButton" class="submit button-small" type="button">Delete</button>  
 </div>
