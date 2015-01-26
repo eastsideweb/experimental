@@ -1,4 +1,4 @@
 [
-{ "name": "Test Series1", "_id": "testSeriesId1", "description": "description for test series 1", "database": "SeriesDB_testSeriesId1" },
-{ "name": "Test Series2", "_id": "testSeriesId2", "description": "description for test series 2", "database": "SeriesDB_testSeriesId2" }
+{ "name": "Test Series1", "_id": "psdbSeriesInfo1", "description": "description for test series 1", "database": "SeriesDB_testSeriesId1" },
+{ "name": "Test Series2", "_id": "psdbSeriesInfo2", "description": "description for test series 2", "database": "SeriesDB_testSeriesId2" }
 ]

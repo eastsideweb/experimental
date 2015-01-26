@@ -1,6 +1,6 @@
 [
-{ "name": "Test player 1", "_id": "playerId1","description": "player 1 for the series 1", "active": "true","password": "player1"},
-{ "name": "Test player 2", "_id": "playerId2", "description": "player 2 for the series 2", "active": "true","password": "player2"},
-{"name": "Test player 3",  "_id": "playerId3", "description": "player 3 for the series 3", "active": "true","password": "player3"},
-{ "name": "Test player 4", "_id": "playerId4", "description": "player 4 for the series 4", "active": "true","password": "player4"}
+{ "name": "Test player 1", "_id": "players1","description": "player 1 for the series 1", "active": "true","password": "players1"},
+{ "name": "Test player 2", "_id": "players2", "description": "player 2 for the series 2", "active": "true","password": "players2"},
+{"name": "Test player 3",  "_id": "players3", "description": "player 3 for the series 3", "active": "true","password": "players3"},
+{ "name": "Test player 4", "_id": "players4", "description": "player 4 for the series 4", "active": "true","password": "players4"}
 ]

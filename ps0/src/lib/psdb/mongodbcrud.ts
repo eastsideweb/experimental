@@ -57,6 +57,43 @@ class mongoDBCRUD implements DBCRUD {
             return null;
         }
     };
+
+
+    //Helper function to retrieve the last known sequence from the document corresponding to the given collection from the counters collection which holds all the counters
+    // The seqId returned is to be used as the _id field in insertObj method when _id is not specified by the caller.
+    private getNextId(collection: string, callback: (err: Error, seq: number)=> void) {
+        this.dbHandle.collection(global.config.psdb.countersCollectionName).findAndModify({ "_id": collection }, null, { $inc: { seq: 1 } }, { new: true }, function (err1: Error, result: any) {
+            // Call the passed in callback with new seq
+            if (err1 === null) {
+                console.log("************** result from findAndModify:" + JSON.stringify(result));
+                callback(null, result.seq);
+            }
+            else {
+                callback(err1, -1);
+            }
+        });
+        return;
+    }
+
+    private fixQueryForObjectId(query: any) {
+        var fixedQuery = query;
+        if (global.config.psdb.useObjectID) {
+            fixedQuery = {}
+            // **WARNING** assuming only static fields coming in - otherwise we need to do a deep copy
+            for (var prop in query) {
+                // Check the "_id" property and fix it
+                if (query.hasOwnProperty(prop)) {
+                    if (prop === "_id") {
+                        fixedQuery[prop] = new mongodb.ObjectID(query[prop]);
+                    }
+                    else {
+                        fixedQuery[prop] = query[prop];
+                    }
+                }
+            }
+        }
+        return fixedQuery;
+    }
     constructor(dbHandle: mongodb.Db) {
         this.dbHandle = dbHandle;
     }
@@ -64,12 +101,33 @@ class mongoDBCRUD implements DBCRUD {
     // Insert a new document in the given collection
     public insertObj(collection: string, objMap: any, callback: (err: Error, obj: any) => void) {
 
-        var checkerror = this.checkAllOk(collection);
+        var self = this, checkerror = this.checkAllOk(collection);
         if (checkerror !== null) {
             callback(checkerror, null);
             return;
         }
         // collection exists. call insertObj on the collection object
+
+        // First check if _id was specified in the objMap, if not, create a unique one using the helper function getNextId
+        if (objMap._id !== null && objMap._id !== undefined) {
+            this.insertObjInternal(collection, objMap, callback);
+        }
+        else {
+            console.log("**************calling getNextId for collection: " + collection);
+            this.getNextId(collection, function (err1: Error, seq: number) {
+                if (err1 !== null) {
+                    console.log("**************got error : " + err1);
+                    callback(err1, null);
+                }
+                else {
+                    console.log("**************got seq : " + seq);
+                    objMap._id = collection + seq.toString();
+                    self.insertObjInternal(collection, objMap, callback);
+                }
+            });
+        }
+    }
+    private insertObjInternal(collection: string, objMap: any, callback: (err: Error, obj: any) => void) {
         this.dbHandle.collection(collection).insert(objMap, function (err1: Error, result: any) {
             if (err1 !== null) {
                 callback(err1, null);

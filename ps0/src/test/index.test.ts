@@ -82,7 +82,7 @@ describe('Server REST API', function () {
 
         describe('Series GET AND DELETE token - Positive/Negative', function () {
             var testAccount = {
-                "id": "testSeriesId1",
+                "id": "psdbSeriesInfo1",
                 "credentials": {
                     "username": "Admin1",
                     "password": "testAdminPassword",
@@ -172,14 +172,16 @@ describe('Server REST API', function () {
                 "password": "testAdminPassword",
                 "roleType" : "administrator"
             },
-            "id": "testSeriesId1",
+            "id": "psdbSeriesInfo1",
             "sessionToken": "",
             "series": {
                 "annotations": {
                 },
                 "events": {
-                    "id": "eventId1",
-                    "queryParameters": "description%5D=test%2A%28%29"
+                    "id": "events1",
+                    "queryParameters": "description%5D=test%2A%28%29",
+                    "newEventObj": { 'name': 'events2', 'status': 'notStarted', "description": "event2 description", "_id": "events2" },
+                    "newEventObjId": ""
                 },
                 "instructors": {
                 },
@@ -284,7 +286,11 @@ describe('Server REST API', function () {
                     .end(function (err, res) {
                         if (err) {
                             done(err);
-                        } else {
+                        }
+                        else if (res.body !== "notStarted" && res.body !== "started" && res.body !== "ended") {
+                            done({ message: "Invalid status returned: " + JSON.stringify(res.body), name: "Invalid status value" });
+                        }
+                        else {
                             done();
                         }
                     });
@@ -302,6 +308,40 @@ describe('Server REST API', function () {
                             done(err);
                         } else {
                             done();
+                        }
+                    });
+            });
+
+            //// Test for adding a single object 
+            it('test adding, updating and deleting an object', function (done) {
+                request.post('/events')
+                    .set('token', testAccount.sessionToken)
+                    .send(testAccount.series.events.newEventObj)
+                    .expect(200)
+                    .expect('Content-Type', /json/)
+                    .end(function (err, res) {
+                        if (err) {
+                            done(err);
+                        }
+                        else {
+                        if (res.body.name !== testAccount.series.events.newEventObj.name) {
+                                done({ message: "addobj failed", name: "addobj failed" });
+                            }
+                            else {
+                                console.log("1. INDEX TEST: addobj returned" + JSON.stringify(res.body));
+                                testAccount.series.events.newEventObjId = res.body._id;
+                                request.delete('/events/' + testAccount.series.events.newEventObjId)
+                                    .set('token', testAccount.sessionToken)
+                                    .expect(200)
+                                    .end(function (err2, res2) {
+                                        if (err2) {
+                                            done(err2);
+                                        }
+                                        else {
+                                            done();
+                                        }
+                                    });
+                            }
                         }
                     });
             });

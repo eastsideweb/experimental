@@ -140,41 +140,46 @@ describe("psdb apis tests", function () {
 describe("series apis test with administrator role", function () {
     var seriesToken, seriesToken2, seriesId1, seriesId2, credentials, handleToSeriesDatabase;
     before(function (done) {
-        psdb_init(done);
-        //*** WARNING: assuming order in the array in the seriesInfoCollectionName
-        seriesId1 = handleToInfoDatabase[global.config.psdb.seriesInfoCollectionName][0]._id;
-        seriesId2 = handleToInfoDatabase[global.config.psdb.seriesInfoCollectionName][1]._id;
-        credentials = {
-            "userName": handleToInfoDatabase[global.config.psdb.userInfoCollectionName][0].name,
-            "password": handleToInfoDatabase[global.config.psdb.userInfoCollectionName][0].password
-        };
-        handleToSeriesDatabase = {};
-        setupHandleToDatabase(handleToInfoDatabase[global.config.psdb.seriesInfoCollectionName][0].database, [global.config.psdb.eventsCollectionName, global.config.psdb.puzzlesCollectionName, global.config.psdb.playersCollectionName,
-            global.config.psdb.teamsCollectionName, global.config.psdb.instructorsCollectionName], handleToSeriesDatabase);
-        handleToSeriesDatabase.should.be.ok;
-        psdb.getSeriesToken(seriesId1, "administrator",
-            credentials, {}, function (err: Error, token: string) {
-                if (err) {
-                    done(err);
-                }
-                else {
-                    token.should.be.a.String;
-                    seriesToken = token;
-                    psdb.getSeriesToken(seriesId2, "administrator",
-                        credentials, {}, function (err2: Error, token2: string) {
-                            if (err) {
-                                done(err);
-                            }
-                            else {
-                                token2.should.be.a.String;
-                                seriesToken2 = token2;
-                                done();
-                            }
-                        });
-                }
-            });
+        psdb.Init(function (err) {
+            if (err) {
+                done(err);
+            }
+            else {
+                //*** WARNING: assuming order in the array in the seriesInfoCollectionName
+                seriesId1 = handleToInfoDatabase[global.config.psdb.seriesInfoCollectionName][0]._id;
+                seriesId2 = handleToInfoDatabase[global.config.psdb.seriesInfoCollectionName][1]._id;
+                credentials = {
+                    "userName": handleToInfoDatabase[global.config.psdb.userInfoCollectionName][0].name,
+                    "password": handleToInfoDatabase[global.config.psdb.userInfoCollectionName][0].password
+                };
+                handleToSeriesDatabase = {};
+                setupHandleToDatabase(handleToInfoDatabase[global.config.psdb.seriesInfoCollectionName][0].database, [global.config.psdb.eventsCollectionName, global.config.psdb.puzzlesCollectionName, global.config.psdb.playersCollectionName,
+                    global.config.psdb.teamsCollectionName, global.config.psdb.instructorsCollectionName], handleToSeriesDatabase);
+                handleToSeriesDatabase.should.be.ok;
+                psdb.getSeriesToken(seriesId1, "administrator",
+                    credentials, {}, function (err: Error, token: string) {
+                        if (err) {
+                            done(err);
+                        }
+                        else {
+                            token.should.be.a.String;
+                            seriesToken = token;
+                            psdb.getSeriesToken(seriesId2, "administrator",
+                                credentials, {}, function (err2: Error, token2: string) {
+                                    if (err) {
+                                        done(err);
+                                    }
+                                    else {
+                                        token2.should.be.a.String;
+                                        seriesToken2 = token2;
+                                        done();
+                                    }
+                                });
+                        }
+                    });
+            }
+        });
     });
-
     it("series findObj api - all valid objectTypes", function (done) {
         var series = psdb.series(seriesToken);
         series.should.be.ok;

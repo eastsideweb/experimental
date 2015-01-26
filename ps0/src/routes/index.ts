@@ -198,7 +198,17 @@ router.get('/:type/:id/status', function (request, response,next) {
 // Request: POST containing the respective json object passed in the body
 // Response: the requested json object type created
 router.post('/:type', function (request, response, next) {
-    response.json(200, {});
+    var token = request.headers['token'];
+    var series = psdb.series(token);
+    var newObj = request.body;
+    series.addObj(request.params.type, newObj, function (err: Error, objInfo: any) {
+        if (err) {
+            next(err);
+        }
+        else {
+            response.json(200, objInfo);
+        }
+    });
 });
 
 // Handles the request for modifying a particular type
@@ -212,8 +222,21 @@ router.put('/:type/:id', function (request, response) {
 // Handles the request to delete a particular type
 // Request: DELETE containing a valid type id
 // Response: status ok
-router.delete('/:type/:id', function (request, response) {
-    response.json(200, {});
+router.delete('/:type/:id', function (request, response, next) {
+    var token = request.headers['token'];
+    var series = psdb.series(token);
+
+    series.deleteObj(request.params.type, { "_id": request.params.id }, function (err: Error, count: number) {
+        if (err) {
+            next(err);
+        }
+        else if (count !== 1) {
+            next(new Error('Object deletion failed'));
+        }
+        else {
+            response.send(200);
+        }
+    });
 });
 
 

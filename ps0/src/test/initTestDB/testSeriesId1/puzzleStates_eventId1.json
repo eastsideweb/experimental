@@ -1,6 +1,0 @@
-[
-{ "_id":  "pzst_teamId1_puzzleId1","teamId":  "teamId1","puzzleId":  "puzzleId1","solved":  false },
-{ "_id":  "pzst_teamId1_puzzleId2","teamId":  "teamId1","puzzleId":  "puzzleId2","solved":  false },
-{ "_id":  "pzst_teamId2_puzzleId1","teamId":  "teamId2","puzzleId":  "puzzleId1","solved":  false },
-{ "_id":  "pzst_teamId2_puzzleId2","teamId":  "teamId2","puzzleId":  "puzzleId2","solved":  false }
-]
