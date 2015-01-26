@@ -65,7 +65,7 @@ class mongoDBCRUD implements DBCRUD {
         this.dbHandle.collection(global.config.psdb.countersCollectionName).findAndModify({ "_id": collection }, null, { $inc: { seq: 1 } }, { new: true }, function (err1: Error, result: any) {
             // Call the passed in callback with new seq
             if (err1 === null) {
-                console.log("************** result from findAndModify:" + JSON.stringify(result));
+                //console.log("************** result from findAndModify:" + JSON.stringify(result));
                 callback(null, result.seq);
             }
             else {
@@ -113,14 +113,14 @@ class mongoDBCRUD implements DBCRUD {
             this.insertObjInternal(collection, objMap, callback);
         }
         else {
-            console.log("**************calling getNextId for collection: " + collection);
+            //console.log("**************calling getNextId for collection: " + collection);
             this.getNextId(collection, function (err1: Error, seq: number) {
                 if (err1 !== null) {
-                    console.log("**************got error : " + err1);
+                    //console.log("**************got error : " + err1);
                     callback(err1, null);
                 }
                 else {
-                    console.log("**************got seq : " + seq);
+                    //console.log("**************got seq : " + seq);
                     objMap._id = collection + seq.toString();
                     self.insertObjInternal(collection, objMap, callback);
                 }

@@ -77,13 +77,15 @@ module.exports = function (grunt) {
 	            //copy json files from test dir
 	            expand:true,
 	            src: 'test/initTestDB/testpsdbInfo/*.json',
-	            dest: '../Debug/test/initTestDB/testpsdbInfo/'
+	            dest: '../Debug/test/initTestDB/testpsdbInfo/',
+                flatten: true
 
 	        }, {
 	            //copy json files from test dir
 	            expand: true,
 	            src: 'test/initTestDB/testSeriesId1/*.json',
-	            dest: '../Debug/test/initTestDB/testSeriesId1/'
+	            dest: '../Debug/test/initTestDB/SeriesDB_testSeriesId1/',
+                 flatten: true
 
 	        }
 

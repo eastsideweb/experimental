@@ -328,7 +328,6 @@ describe('Server REST API', function () {
                                 done({ message: "addobj failed", name: "addobj failed" });
                             }
                             else {
-                                console.log("1. INDEX TEST: addobj returned" + JSON.stringify(res.body));
                                 testAccount.series.events.newEventObjId = res.body._id;
                                 request.delete('/events/' + testAccount.series.events.newEventObjId)
                                     .set('token', testAccount.sessionToken)
