@@ -215,8 +215,17 @@ router.post('/:type', function (request, response, next) {
 // Not allowed sub-collections when used as association
 // Request: PUT containing the respective type to be modified, should contain a valid id
 // Response: count for the updated type
-router.put('/:type/:id', function (request, response) {
-    response.json({});
+router.put('/:type/:id', function (request, response, next) {
+    var token = request.headers['token'];
+    var series = psdb.series(token);
+    series.updateObj(request.params.type, request.params.id, request.body, function (err: Error, count: number) {
+        if (err !== null) {
+            next(err);
+        }
+        else {
+            response.send(200);
+        }
+    });
 });
 
 // Handles the request to delete a particular type

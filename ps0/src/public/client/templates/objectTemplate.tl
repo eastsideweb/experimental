@@ -10,7 +10,7 @@
       </div>
       <div>
       {?item.instructorIds} 
-      <a id ="{item.instructorIds}" href="#series={item.seriesId}:type,{type}|id,{item._id}|subtype,InstructorIds">
+      <a id ="{item.instructorIds}" href="#series={seriesId}:type,{type}|id,{item._id}|subtype,instructorIds">
         <b>List of instructors:</b>
       </a>
       {/item.instructorIds}

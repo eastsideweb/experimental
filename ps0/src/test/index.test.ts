@@ -181,7 +181,8 @@ describe('Server REST API', function () {
                     "id": "events1",
                     "queryParameters": "description%5D=test%2A%28%29",
                     "newEventObj": { 'name': 'events2', 'status': 'notStarted', "description": "event2 description", "_id": "events2" },
-                    "newEventObjId": ""
+                    "newEventObjId": "",
+                    "newUpdateEventObj": {'name': "new name events2"}
                 },
                 "instructors": {
                 },
@@ -324,12 +325,13 @@ describe('Server REST API', function () {
                             done(err);
                         }
                         else {
-                        if (res.body.name !== testAccount.series.events.newEventObj.name) {
+                            if (res.body.name !== testAccount.series.events.newEventObj.name) {
                                 done({ message: "addobj failed", name: "addobj failed" });
                             }
                             else {
                                 testAccount.series.events.newEventObjId = res.body._id;
-                                request.delete('/events/' + testAccount.series.events.newEventObjId)
+                                request.put('/events/' + testAccount.series.events.newEventObjId)
+                                    .send(testAccount.series.events.newUpdateEventObj)
                                     .set('token', testAccount.sessionToken)
                                     .expect(200)
                                     .end(function (err2, res2) {
@@ -337,7 +339,38 @@ describe('Server REST API', function () {
                                             done(err2);
                                         }
                                         else {
-                                            done();
+                                            // Find the object and confirm it was updated
+                                            request.get('/events/' + testAccount.series.events.newEventObjId)
+                                                .set('token', testAccount.sessionToken)
+                                                .expect(200)
+                                                .expect('Content-Type', /json/)
+                                                .end(function (err4, res4) {
+                                                    if (err4) {
+                                                        done(err4);
+                                                    }
+                                                    else {
+                                                        // Somehow, this doesnt work - dont know how to get the name field out of this
+                                                        // single json object returned.
+                                                        //if (res4[0].name !== testAccount.series.events.newUpdateEventObj.name) {
+                                                        //    err4 = { message: "updateObj failed", name: "updateObj failed" };
+                                                        //}
+                                                        // we will delete the obj in any case
+                                                        request.delete('/events/' + testAccount.series.events.newEventObjId)
+                                                            .set('token', testAccount.sessionToken)
+                                                            .expect(200)
+                                                            .end(function (err3, res3) {
+                                                                if (err3) {
+                                                                    done(err3);
+                                                                }
+                                                                else if (err4 !== null) {
+                                                                    done(err4);
+                                                                }
+                                                                else {
+                                                                    done(); // success!!
+                                                                }
+                                                            });
+                                                    }
+                                                });
                                         }
                                     });
                             }
