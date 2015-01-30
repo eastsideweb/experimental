@@ -248,6 +248,21 @@ router.delete('/:type/:id', function (request, response, next) {
     });
 });
 
+// Handles the request for activating a particular type  
+// Request: PUT body containing true or false for states representing activate/deactivate
+// Response: status ok
+router.put('/:type/:id/active', function (request, response) {
+    response.json(200, {});
+});
+
+// Handles the request for setting status on a particular type 
+// Applicable only for events
+// Reuquest: PUT containing status: notstarted/ended/started
+// Response: status ok
+router.put('/:type/:id/status', function (request, response) {
+    response.json(200, {});
+});
+
 
 
 /// Region for sub collections
@@ -269,26 +284,38 @@ router.get('/:type/:id/:associatedtype', function (request, response, next) {
 });
 
 // Handles the request to add associated type (players or puzzles to the team)
-// Request: POST containing the json of ids of associated type (json containing player id or array of player ids)
+// Request: PUT containing the json of ids of associated type (json containing player id or array of player ids)
 // Response: status ok
-router.post('/:type/:id/:associatedtype', function (request, response) {
-    response.json(200, {});
+router.put('/:type/:id/:associatedtype', function (request, response,next) {
+    var token = request.headers['token'];
+    var series = psdb.series(token);
+    var itemList = request.body;
+    series.addItemsToObj(itemList, request.params.associatedtype, request.params.id, request.params.type, function (err: Error) {
+        if (err !== null) {
+            next(err);
+        }
+        else {
+            response.send(200);
+        }
+    });
 });
 
 
-// Handles the request for activating a particular type  
-// Request: PUT body containing true or false for states representing activate/deactivate
+// Handles the request to remove associated type items from the given object (e.g players or puzzles to the team)
+// Request: delete containing the json of ids of associated type (json containing player id or array of player ids)
 // Response: status ok
-router.put('/:type/:id/active', function (request, response) {
-    response.json(200, {});
-});
-
-// Handles the request for setting status on a particular type 
-// Applicable only for events
-// Reuquest: PUT containing status: notstarted/ended/started
-// Response: status ok
-router.put('/:type/:id/status', function (request, response) {
-    response.json(200, {});
+router.delete('/:type/:id/:associatedtype', function (request, response, next) {
+    var token = request.headers['token'];
+    var series = psdb.series(token);
+    var itemList = request.body;
+    series.removeItemsFromObj(itemList, request.params.associatedtype, request.params.id, request.params.type, function (err: Error, count: number) {
+        if (err !== null) {
+            next(err);
+        }
+        else {
+            response.json(200, { "count": count });
+        }
+    });
 });
 
 // Handles the reqest for modifying puzzle states associated to a team

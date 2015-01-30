@@ -2,7 +2,7 @@
 { "_id": "annotations", "seq": 0},
 {"_id": "events", "seq" : 1},
 { "_id": "instructors", "seq": 1},
-{"_id":  "players", "seq": 4},
+{"_id":  "players", "seq": 7},
 {"_id": "puzzles", "seq" : 2},
 {"_id":  "teams", "seq": 2  },
 {"_id":  "puzzleStates_events1", "seq": 4}

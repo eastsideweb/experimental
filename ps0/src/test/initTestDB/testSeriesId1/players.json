@@ -1,6 +1,9 @@
 [
 { "name": "Test player 1", "_id": "players1","description": "player 1 for the series 1", "active": "true","password": "players1"},
-{ "name": "Test player 2", "_id": "players2", "description": "player 2 for the series 2", "active": "true","password": "players2"},
-{"name": "Test player 3",  "_id": "players3", "description": "player 3 for the series 3", "active": "true","password": "players3"},
-{ "name": "Test player 4", "_id": "players4", "description": "player 4 for the series 4", "active": "true","password": "players4"}
+{ "name": "Test player 2", "_id": "players2", "description": "player 2 for the series 1", "active": "true","password": "players2"},
+{"name": "Test player 3",  "_id": "players3", "description": "player 3 for the series 1", "active": "true","password": "players3"},
+{ "name": "Test player 4", "_id": "players4", "description": "player 4 for the series 1", "active": "true","password": "players4"},
+{ "name": "Test player 5", "_id": "players5", "description": "player 5 for the series 1", "active": "true","password": "players5"},
+{ "name": "Test player 6", "_id": "players6", "description": "player 6 for the series 1", "active": "true","password": "players6"},
+{ "name": "Test player 7", "_id": "players7", "description": "player 7 for the series 1", "active": "false","password": "players7"}
 ]

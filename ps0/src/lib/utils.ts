@@ -46,6 +46,24 @@ var errors = {
         name: "InvalidObjType",
         message: "Invalid object type specified"
     },
+
+    "invalidItemId": {
+        name: "InvalidItemId",
+        message: "Invalid item id specified"
+    },
+    "invalidItemType": {
+        name: "InvalidItemType",
+        message: "Invalid item type specified"
+    },
+    "itemNotActive": {
+        name: "ItemNotActive",
+        message: "One or more items are not active"
+    },
+    "invalidObjId": {
+        name: "InvalidObjId",
+        message: "Invalid object id specified"
+    },
+
     "UnauthorizedAccess": {
         name: "UnauthorizedAccess",
         message: "Access to this api not supported for the RoleType"

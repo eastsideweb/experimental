@@ -39,6 +39,16 @@ class PuzzleSeries implements IPuzzleSeries {
 
     // jsonValidator used for schema validation
     static jsonValidator: any;
+
+    // Map of itemType to item field name for all allowed subObject Types
+    static seriesItemTypeToFieldNameMap: any = {
+        'instructors': 'instructorIds',
+        'players': 'playerIds',
+        'puzzles': 'puzzleIds',
+        'teams': 'teamIds'
+    };
+
+
     // Map of schema for all allowed SeriesObjectTypes
     static seriesObjTypeMap: any = {
         'instructors':
@@ -259,7 +269,7 @@ class PuzzleSeries implements IPuzzleSeries {
 
     // Utility method to check that the updates meant for given currentObj of given objType meet the symantics of that objType. If any of the updates
     // don't meet the symantics, error is returned and the update is rejected
-    checkObjectValidity(objType: string /*SeriesObjectType*/, currentObj: any, updateFields, callback: SimpleCallBack): void {
+    checkObjectValidityForUpdate(objType: string /*SeriesObjectType*/, currentObj: any, updateFields, callback: SimpleCallBack): void {
         var err: Error = { name: "InvalidUpdate", message: "" };
         switch (objType) {
             case "events":
@@ -274,10 +284,28 @@ class PuzzleSeries implements IPuzzleSeries {
                         return;
                     }
                 }
+                // Check if any of the sublists are specified in the updateFields, if so, return error
+                if (updateFields.instructors !== undefined || updateFields.players !== undefined || updateFields.puzzles !== undefined || updateFields.teams !== undefined) {
+                    err.message = "Sublists cannot be updated through updateObj";
+                    callback(err);
+                    return;
+                }
                 break;
             case "teams":
+                // Check if any of the sublists are specified in the updateFields, if so, return error
+                if (updateFields.players !== undefined) {
+                    err.message = "Sublists cannot be updated through updateObj";
+                    callback(err);
+                    return;
+                }
                 if (updateFields.teamLeadId) {
                     // Make sure the provided teamLeadId is a valid id and that the player is already part of the team
+                    if (currentObj.playerIds.lastIndexOf(updateFields.teamLeadId) === -1) {
+                        // new teamLead is not in the players list
+                        err.message = "New teamLead is not part of the team";
+                        callback(err);
+                        return;
+                    }
                 }
                 break;
             case "players":
@@ -290,6 +318,61 @@ class PuzzleSeries implements IPuzzleSeries {
                 break;
         }
         callback(null);
+    }
+
+    // Utility method to check that the updates meant for given currentObj of given objType meet the symantics of that 
+    // objType. This is meant for the subtype list update
+    // If any of the updates don't meet the symantics, error is returned
+    checkObjectValidityForListUpdate(objType: string /*SeriesObjectType*/, currentObj: any, updateFields, callback: SimpleCallBack): void {
+        //utils.log("checkObjectValidityForListUpdate called with updateFields " + JSON.stringify(updateFields));
+        var err: Error = { name: "InvalidUpdate", message: "" };
+        var playerIdsFlattened: any[];
+        switch (objType) {
+            case "events":
+                // No semantics check here
+                break;
+            case "teams":
+                if (updateFields.playerIds) {
+                    // Need to make sure the given players are not already part of another team
+                    this.crudHandle.findObj(global.config.psdb.teamsCollectionName, {
+                        "_id": { $nin: [currentObj._id] },
+                    }, { "playerIds": 1, "_id": 0 }, function (err2: Error, result: any[]) {
+                            if (result !== undefined && result !== null && result.length !== 0) {
+                                // Found atleast one other team - check if any of them has any of the incoming playerIds
+                                playerIdsFlattened = [];
+                                result.forEach(function (item) {
+                                    item.playerIds.forEach(function (pid) {
+                                        playerIdsFlattened.push(pid);
+                                    });
+                                });
+                                for (var i = 0; i < updateFields.playerIds.length; i++) {
+                                    if (playerIdsFlattened.lastIndexOf(updateFields.playerIds[i]) !== -1) {
+                                        utils.log("checkObjectValidityForListUpdate detected existing playerId: " + updateFields.playerIds[i]);
+                                        callback(utils.errors.invalidItemId);
+                                        return;
+                                        break;
+                                    }
+                                }
+                                callback(null);
+                                return;
+                            }
+                            else {
+                                // No other team present. We are clear!
+                                callback(null);
+                                return;
+                            }
+                        });
+                }
+                break;
+            case "players":
+            case "instructors":
+            case "puzzles": 
+            default:
+                // There is no sublist field for players/instructors/puzzles???
+                err.message = "Invalid update";
+                callback(err);
+                return;
+        }
     }
     // end utility methods
 
@@ -338,7 +421,7 @@ class PuzzleSeries implements IPuzzleSeries {
                         callback(utils.errors.inconsistentDB, 0);
                     }
                     else {
-                        self.checkObjectValidity(objType, objList[0], updateFields, function (innererr2: Error) {
+                        self.checkObjectValidityForUpdate(objType, objList[0], updateFields, function (innererr2: Error) {
                             if (innererr2) {
                                 callback(innererr2, 0);
                             }
@@ -455,6 +538,164 @@ class PuzzleSeries implements IPuzzleSeries {
             }
         });
     }
+
+    // Add given set of items to the given type
+    // Possible errors:
+    //      "InvalidItemId"         "One or more invalid item ids provided"
+    //      "InvalidObjId"         "Invalid object id specified"
+    //      "ItemNotActive"       "One or more item is deactivate"
+    //      "PlayerOnAnotherTeam"   "One or more player is already part of another team"
+    //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
+    addItemsToObj(listItemIds: string[], itemType: string, objId: string, objType: string, callback: SimpleCallBack): void {
+        var currentItemList: string[], updateField, self = this;
+        if (listItemIds === null || listItemIds === undefined || listItemIds.length === 0) {
+            callback(null);
+            return;
+        }
+        // First check if the item type and obj type is valid
+        // Check if item Type is valid
+        if (!PuzzleSeries.checkObjType(itemType)) {
+            utils.log(utils.getShortfileName(__filename) + " returning invalidItemType error with itemType: " + itemType);
+            callback(utils.errors.invalidItemType);
+            return;
+        }
+        // Check if objType is valid
+        if (!PuzzleSeries.checkObjType(objType)) {
+            utils.log(utils.getShortfileName(__filename) + " returning invalidObjType error with objType: " + objType);
+            callback(utils.errors.invalidObjType);
+            return;
+        }
+
+        // Check if all the items in the listItemIds are active
+        //**** MONGODB dependency in the query construction ****MONGODB dependency
+        this.crudHandle.findObj(PuzzleSeries.seriesObjTypeMap[itemType].collectionName, { "_id": { $in: listItemIds } }, { "active": 1 }, function (innerErr: Error, objList: any[]) {
+            if (objList === undefined || objList === null) {
+                callback(utils.errors.inconsistentDB);
+                return;
+            }
+
+            if (objList.length !== listItemIds.length) {
+                // Atleast one of the incoming ids was not found in the collection
+                callback(utils.errors.invalidItemId);
+                return;
+            }
+
+            // check if all are active
+            for (var i = 0; i < objList.length; i++) {
+                if (objList[i].active === "false") {
+                    utils.log("####******** found inactive item " + objList[i]._id);
+                    callback(utils.errors.itemNotActive);
+                    return;
+                }
+            }
+            // Check write access for this object for given role
+            var writePermission = PuzzleSeries.seriesObjTypeMap[objType].allowedPropertyMap[self.token.role].write;
+
+            if (writePermission != "unrestricted" && (Array.isArray(writePermission) && writePermission.length === 0)) {
+                callback(utils.errors.UnauthorizedAccess);
+                return;
+            }
+
+            updateField = {};
+            updateField[PuzzleSeries.seriesItemTypeToFieldNameMap[itemType]] = listItemIds;
+            if (!PuzzleSeries.checkObjForUpdate(updateField, writePermission)) {
+                callback(utils.errors.UnauthorizedAccess);
+                return;
+            }
+            else {
+                self.crudHandle.findObj(PuzzleSeries.seriesObjTypeMap[objType].collectionName, { "_id": objId }, {}, function (err2: Error, result: any[]) {
+                    var currentObj: any;
+                    if (err2 !== null) {
+                        callback(err2);
+                        return;
+                    }
+                    else if (result.length != 1) {
+                        callback(utils.errors.invalidObjId);
+                        return;
+                    }
+                    else {
+                        currentObj = result[0];
+                        // Verify that the new list is consistent with the semantics of the object
+                        self.checkObjectValidityForListUpdate(objType, currentObj, updateField, function (err3: Error): void {
+                            if (err3 !== null) {
+                                callback(err3);
+                                return;
+                            }
+                            else {
+                                // Coalesce the two lists currentObj.itemList and the incoming itemList, and update the obj
+                                currentItemList = currentObj[PuzzleSeries.seriesItemTypeToFieldNameMap[itemType]];
+                                listItemIds.forEach(function (item) {
+                                    // Add it to the currentItemList if not there already
+                                    if (currentItemList.lastIndexOf(item) === -1) {
+                                        currentItemList.push(item);
+                                    }
+                                });
+
+                                // Now update the item
+                                updateField[PuzzleSeries.seriesItemTypeToFieldNameMap[itemType]] = currentItemList;
+                                self.crudHandle.updateObj(PuzzleSeries.seriesObjTypeMap[objType].collectionName, { "_id": objId }, updateField, function (err4: Error, count: number) {
+                                    if (err4 !== null) {
+                                        callback(err4);
+                                    }
+                                    else {
+                                        callback(null);
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });                               
+            }
+
+        });        
+    }
+
+    // Remove given set of items from the given obj
+    // Possible errors:
+    //      "InvalidItemId"       "One or more invalid item ids"
+    //      "InvalidObjId"         "Invalid object id"
+    //      "PlayerNotOnTeam"       "One or more player is not part of the team"
+    //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
+    removeItemsFromObj(listItemIds: string[], itemType: string, objId: string, objType: string, callback: CallBackWithCount): void {
+        var updateField: any,
+            updatedItemList: any[],
+            itemField: string = PuzzleSeries.seriesItemTypeToFieldNameMap[itemType],
+            self = this;
+        this.crudHandle.findObj(PuzzleSeries.seriesObjTypeMap[objType].collectionName, { "_id": objId }, { }, function (err2: Error, result: any[]) {
+            if (err2 !== null) {
+                callback(err2, 0);
+                return;
+            }
+            else if (result.length != 1) {
+                callback(utils.errors.invalidObjId, 0);
+                return;
+            }
+            else {
+                updatedItemList = result[0][itemField].filter(function (item) {
+                    if (listItemIds.lastIndexOf(item) === -1) {
+                        // item not present in the delete list,so should keep it
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                });
+
+                // Now update the object
+                updateField = {};
+                updateField[itemField] = updatedItemList;
+                self.crudHandle.updateObj(PuzzleSeries.seriesObjTypeMap[objType].collectionName, { "_id": objId }, updateField, function (err4: Error, count: number) {
+                    if (err4 !== null) {
+                        callback(err4, 0);
+                    }
+                    else {
+                        callback(null, count);
+                    }
+                });
+            }
+        })
+    }
+
 
     // Add given set of players to the given team
     // Possible errors:

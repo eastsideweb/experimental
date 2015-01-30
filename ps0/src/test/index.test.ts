@@ -193,6 +193,13 @@ describe('Server REST API', function () {
                 "puzzlestates": {
                 },
                 "teams": {
+                    teamId: "teams1",
+                    newTeamPlayersInactive: ["players5", "players7"],
+                    newTeamPlayersInvalidId: ["players8"],
+                    newTeamPlayersValid: ["players1", "players5", "players6"],
+                    newTeamPlayersExisting: ["players5", "players3"],
+                    newTeamPlayersDelete: ["players5", "players6"],
+                    newTeamLeadIdInvalid: { "teamLeadId": "players5" }
                 }
                 
             }
@@ -313,6 +320,19 @@ describe('Server REST API', function () {
                     });
             });
 
+            //// Test for adding an invalid teamLead to a team
+            it('test  for adding an invalid teamLead to a team', function (done) {
+                request.put('/teams/' + testAccount.series.teams.teamId)
+                    .set('token', testAccount.sessionToken)
+                    .send(testAccount.series.teams.newTeamLeadIdInvalid)
+                    .expect(500)
+                    .end(function (err, res) {
+                        if (err)
+                            done(err);
+                        else
+                            done();
+                    });
+            });
             //// Test for adding a single object 
             it('test adding, updating and deleting an object', function (done) {
                 request.post('/events')
@@ -377,6 +397,78 @@ describe('Server REST API', function () {
                         }
                     });
             });
+        });
+        describe('Test for updating subitem lists', function () {
+            //// Test for updating subitem lists 
+            it('test for updating subitem lists inactive item', function (done) {
+                request.put('/teams/'+ testAccount.series.teams.teamId + "/players")
+                    .set('token', testAccount.sessionToken)
+                    .send(testAccount.series.teams.newTeamPlayersInactive)
+                    .expect(500)
+                    .end(function (err, res) {
+                        if (err)
+                            done(err);
+                        else {
+                            done();
+                        }
+                    });
+            });
+            //// Test for updating subitem lists - invalid items
+            it('test for updating subitem lists invalid item', function (done) {
+                request.put('/teams/' + testAccount.series.teams.teamId + "/players")
+                    .set('token', testAccount.sessionToken)
+                    .send(testAccount.series.teams.newTeamPlayersInvalidId)
+                    .expect(500)
+                    .end(function (err, res) {
+                        if (err)
+                            done(err);
+                        else {
+                            done();
+                        }
+                    });
+            });
+            //// Test for updating subitem lists - 
+            it('test for updating subitem lists - existing items', function (done) {
+                request.put('/teams/' + testAccount.series.teams.teamId + "/players")
+                    .set('token', testAccount.sessionToken)
+                    .send(testAccount.series.teams.newTeamPlayersExisting)
+                    .expect(500)
+                    .end(function (err, res) {
+                        if (err)
+                            done(err);
+                        else {
+                            done();
+                        }
+                    });
+            });
+
+            //// Test for updating subitem lists - valid items
+            it('test for updating subitem lists - valid items', function (done) {
+                request.put('/teams/' + testAccount.series.teams.teamId + "/players")
+                    .set('token', testAccount.sessionToken)
+                    .send(testAccount.series.teams.newTeamPlayersValid)
+                    .expect(200)
+                    .end(function (err, res) {
+                        if (err)
+                            done(err);
+                        else {
+                            // Make the delete request and restore the teams object
+                            request.delete('/teams/' + testAccount.series.teams.teamId + "/players")
+                                .set('token', testAccount.sessionToken)
+                                .send(testAccount.series.teams.newTeamPlayersDelete)
+                                .expect(200)
+                                .expect('Content-Type', /json/)
+                                .end(function (err, res) {
+                                    if (err)
+                                        done(err);
+                                    else {
+                                        done();
+                                    }
+                                });
+                        }
+                    });
+            });
+
         });
     });
 });

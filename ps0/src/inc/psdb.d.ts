@@ -133,22 +133,22 @@ interface IPuzzleSeries {
     //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
     deleteObj(objType: string /*SeriesObjectType*/, objInfo: any, callback: CallBackWithCount): void;
 
-    // Add given set of players to the given team
+    // Add given set of subitems of given itemType to the given object of given object type
     // Possible errors:
-    //      "InvalidPlayerId"       "One or more invalid player ids"
-    //      "InvalidTeamId"         "Invalid team id"
-    //      "PlayerNotActive"       "One or more player is deactivate"
+    //      "InvalidItemId"         "One or more invalid item ids provided"
+    //      "InvalidObjId"         "Invalid object id specified"
+    //      "ItemNotActive"       "One or more item is deactivate"
     //      "PlayerOnAnotherTeam"   "One or more player is already part of another team"
     //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
-    addPlayersToTeam(listPlayerIds: string[], teamId: string, callback: SimpleCallBack): void;
+    addItemsToObj(listItemIds: string[], itemType: string, objId: string, objType: string, callback: SimpleCallBack): void;
 
-    // Remove given set of players from the given team
+    // Remove given set of subitems of given itemType to the given object of given object type
     // Possible errors:
-    //      "InvalidPlayerId"       "One or more invalid player ids"
-    //      "InvalidTeamId"         "Invalid team id"
+    //      "InvalidItemId"       "One or more invalid item ids"
+    //      "InvalidObjId"         "Invalid object id"
     //      "PlayerNotOnTeam"       "One or more player is not part of the team"
     //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
-    removePlayersFromTeam(listPlayerIds: string[], teamId: string, callback: CallBackWithCount): void;
+    removeItemsFromObj(listItemIds: string[], itemType: string, objId: string, objType: string, callback: CallBackWithCount): void;
 
     // Get a list of fields of objects of given SeriesObjectType meeting the select-query condition
     // Possible errors:
