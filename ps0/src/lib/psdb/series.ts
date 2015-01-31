@@ -279,7 +279,8 @@ class PuzzleSeries implements IPuzzleSeries {
                         (currentObj.status === "notStarted" && updateFields.status !== "started") ||
                         (currentObj.status === "started" && updateFields.status !== "ended")) 
                     {
-                        err.message = "Events: status update is invalid";
+                        err.message = "Events: status update (from " + currentObj.status + " to " + updateFields.status +
+                        ") is invalid";
                         callback(err);
                         return;
                     }
@@ -374,6 +375,7 @@ class PuzzleSeries implements IPuzzleSeries {
                 return;
         }
     }
+
     // end utility methods
 
     //------------------ Begin PuzzleSeries interface methods ------------------
@@ -383,8 +385,17 @@ class PuzzleSeries implements IPuzzleSeries {
     //      "InvalidObjType"        "Invalid object type"
     //      "InvalidObjId"          "Invaid object id"
     //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
-    activate(objType: string /*SeriesObjectType*/, objId: string, callback: SimpleCallBack): void { }
-    deactivate(objType: string /*SeriesObjectType*/, objId: string, callback: SimpleCallBack): void { }
+    setActive(objType: string /*SeriesObjectType*/, objId: string, active: boolean, callback: SimpleCallBack ): void {
+        if (objType === "puzzleStates" /* there is no active field on the puzzleState obj */
+            || !PuzzleSeries.checkObjType(objType)) {
+            utils.log(utils.getShortfileName(__filename) + " returning invalidObjType error with objType: " + objType);
+            callback(utils.errors.invalidObjType);
+            return;
+        }
+        this.crudHandle.updateObj(PuzzleSeries.seriesObjTypeMap[objType].collectionName, { "_id": objId }, { "active": active }, function (err: Error, count: number) {
+            callback(err);
+        });
+    }
 
     // Update static fields of a given object from the given SeriesObjectType collection having given objId
     // Possible err:
@@ -582,7 +593,7 @@ class PuzzleSeries implements IPuzzleSeries {
 
             // check if all are active
             for (var i = 0; i < objList.length; i++) {
-                if (objList[i].active === "false") {
+                if (!objList[i].active) {
                     utils.log("####******** found inactive item " + objList[i]._id);
                     callback(utils.errors.itemNotActive);
                     return;
@@ -696,24 +707,6 @@ class PuzzleSeries implements IPuzzleSeries {
         })
     }
 
-
-    // Add given set of players to the given team
-    // Possible errors:
-    //      "InvalidPlayerId"       "One or more invalid player ids"
-    //      "InvalidTeamId"         "Invalid team id"
-    //      "PlayerNotActive"       "One or more player is deactivate"
-    //      "PlayerOnAnotherTeam"   "One or more player is already part of another team"
-    //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
-    addPlayersToTeam(listPlayerIds: string[], teamId: string, callback: SimpleCallBack): void { }
-
-    // Remove given set of players from the given team
-    // Possible errors:
-    //      "InvalidPlayerId"       "One or more invalid player ids"
-    //      "InvalidTeamId"         "Invalid team id"
-    //      "PlayerNotOnTeam"       "One or more player is not part of the team"
-    //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
-    removePlayersFromTeam(listPlayerIds: string[], teamId: string, callback: CallBackWithCount): void { }
-
     // Get a list of fields of objects of given SeriesObjectType meeting the select-query condition
     // Possible errors:
     //      "InvalidObjType"        "Invalid object type"
@@ -742,23 +735,19 @@ class PuzzleSeries implements IPuzzleSeries {
     //      "InvalidStatusChange"   "attemp to start an event already underway or ended OR attempt to end an event already ended"
     //      "InvalidEventChange"    "another event already active"
     //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
-    setEventStatus(eventId: string, eventStatus: EventStatus, callback: SimpleCallBack): void { }
-
-    // Assign given set of puzzles to the given team
-    // Possible errors:
-    //      "InvalidPuzzleId"       "One or more invalid puzzle ids"
-    //      "InvalidTeamId"         "Invalid team id"
-    //      "PuzzleNotInEvent"      "One or more puzzles not part of the current event"
-    //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
-    assignPuzzlesToTeam(listPuzzleIds: string[], teamId: string, callback: SimpleCallBack): void { }
-
-    // Remove given set of puzzles from the given team
-    // Possible errors:
-    //      "InvalidPuzzleId"       "One or more invalid puzzle ids"
-    //      "InvalidTeamId"         "Invalid team id"
-    //      "PuzzleNotInTeam"       "One or more puzzles not assigned to the team"
-    //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
-    removePuzzlesFromTeam(listPuzzleIds: string[], teamId: string, callback: SimpleCallBack): void { }
+    setEventStatus(eventId: string, eventStatus: EventStatus, callback: SimpleCallBack): void {
+        this.updateObj("events", eventId, { "status": eventStatus }, function (err: Error, count: number) {
+            if (err) {
+                callback(err);
+            }
+            else if (count != 1) {
+                callback(utils.errors.inconsistentDB);
+            }
+            else {
+                callback(null);
+            }
+        });
+    }
 
     // Update the state of the given puzzle for the given team
     // Possible errors:

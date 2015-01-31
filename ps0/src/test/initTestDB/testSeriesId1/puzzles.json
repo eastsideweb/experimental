@@ -1,4 +1,4 @@
 [
-{ "name": "Test Puzzle1", "_id": "puzzles1","description": "description for test puzzle 1 from test series 1","active": "true"},
-{ "name": "Test Puzzle2", "_id": "puzzles2", "description": "description for test puzzle 2 from test series 1","active": "true"}
+{ "name": "Test Puzzle1", "_id": "puzzles1","description": "description for test puzzle 1 from test series 1","active": true},
+{ "name": "Test Puzzle2", "_id": "puzzles2", "description": "description for test puzzle 2 from test series 1","active": true}
 ]

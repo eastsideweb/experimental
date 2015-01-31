@@ -2,7 +2,7 @@
 	{ "name": "Test Event1", 
       "_id": "events1", 
       "description": "description for event 1 from test series 1",
-      "active": "true",
+      "active": true,
       "status":  "notStarted",
       "puzzleIds":  ["puzzles1", "puzzles2"], 
       "teamIds":  ["teams1","teams2"], 

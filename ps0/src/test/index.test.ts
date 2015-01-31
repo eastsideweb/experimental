@@ -187,6 +187,7 @@ describe('Server REST API', function () {
                 "instructors": {
                 },
                 "players": {
+                    playerId: "players8",
                 },
                 "puzzles": {
                 },
@@ -195,7 +196,7 @@ describe('Server REST API', function () {
                 "teams": {
                     teamId: "teams1",
                     newTeamPlayersInactive: ["players5", "players7"],
-                    newTeamPlayersInvalidId: ["players8"],
+                    newTeamPlayersInvalidId: ["players9"],
                     newTeamPlayersValid: ["players1", "players5", "players6"],
                     newTeamPlayersExisting: ["players5", "players3"],
                     newTeamPlayersDelete: ["players5", "players6"],
@@ -305,17 +306,43 @@ describe('Server REST API', function () {
             });
 
             //// Test for a single object type
-            it('test the status of event type with the corresponding id', function (done) {
+            it('test the invalid status update of event type with the corresponding id', function (done) {
                 request.put('/events/' + testAccount.series.events.id + '/status')
                     .set('token', testAccount.sessionToken)
-                    .send({ 'name': 'events1', 'status': 'started' })
-                    .expect(200)
-                    .expect('Content-Type', /json/)
+                    .send({'status': 'ended' })
+                    .expect(500)
                     .end(function (err, res) {
                         if (err) {
                             done(err);
                         } else {
                             done();
+                        }
+                    });
+            });
+
+            //// Test for a single object type
+            it('test activating/deactivating an object with the corresponding id', function (done) {
+                request.put('/players/' + testAccount.series.players.playerId + '/active')
+                    .set('token', testAccount.sessionToken)
+                    .send({ 'active': true })
+                    .expect(200)
+                    .end(function (err, res) {
+                        if (err) {
+                            done(err);
+                        } else {
+                            // In the spirit of keeping the test db unchanged - deactivate
+                            request.put('/players/' + testAccount.series.players.playerId + '/active')
+                                .set('token', testAccount.sessionToken)
+                                .send({ 'active': false })
+                                .expect(200)
+                                .end(function (err, res) {
+                                    if (err) {
+                                        done(err);
+                                    }
+                                    else {
+                                        done();
+                                    }
+                                });
                         }
                     });
             });

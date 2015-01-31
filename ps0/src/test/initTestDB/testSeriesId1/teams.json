@@ -1,4 +1,4 @@
 [
-{ "name": "Test Team1", "_id": "teams1", "description": "first team with player1 and player2", "playerIds": ["players1", "players2"], "puzzleIds": ["puzzles1", "puzzles2"], "teamLeadId":  "players1"},
-{ "name": "Test Team2", "_id": "teams2", "description": "first team with player3 and player4", "playerIds": ["players3", "players4"], "puzzleIds": ["puzzles1", "puzzles2"], "teamLeadId":  "players3"}
+{ "name": "Test Team1", "_id": "teams1", "description": "first team with player1 and player2", "playerIds": ["players1", "players2"], "puzzleIds": ["puzzles1", "puzzles2"], "teamLeadId":  "players1","active": true},
+{ "name": "Test Team2", "_id": "teams2", "description": "first team with player3 and player4", "playerIds": ["players3", "players4"], "puzzleIds": ["puzzles1", "puzzles2"], "teamLeadId":  "players3", "active": true}
 ]

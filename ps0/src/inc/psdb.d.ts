@@ -109,8 +109,7 @@ interface IPuzzleSeries {
     //      "InvalidObjType"        "Invalid object type"
     //      "InvalidObjId"          "Invaid object id"
     //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
-    activate(objType: string /*SeriesObjectType*/, objId: string, callback: SimpleCallBack): void;
-    deactivate(objType: string /*SeriesObjectType*/, objId: string, callback: SimpleCallBack): void;
+    setActive(objType: string /*SeriesObjectType*/, objId: string, active: boolean, callback: SimpleCallBack): void;
 
     // Update static fields of a given object from the given SeriesObjectType collection having given objId
     // Possible err:
@@ -163,22 +162,6 @@ interface IPuzzleSeries {
     //      "InvalidEventChange"    "another event already active"
     //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
     setEventStatus(eventId: string, eventStatus: EventStatus, callback: SimpleCallBack): void;
-
-    // Assign given set of puzzles to the given team
-    // Possible errors:
-    //      "InvalidPuzzleId"       "One or more invalid puzzle ids"
-    //      "InvalidTeamId"         "Invalid team id"
-    //      "PuzzleNotInEvent"      "One or more puzzles not part of the current event"
-    //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
-    assignPuzzlesToTeam(listPuzzleIds: string[], teamId: string, callback: SimpleCallBack): void;
-
-    // Remove given set of puzzles from the given team
-    // Possible errors:
-    //      "InvalidPuzzleId"       "One or more invalid puzzle ids"
-    //      "InvalidTeamId"         "Invalid team id"
-    //      "PuzzleNotInTeam"       "One or more puzzles not assigned to the team"
-    //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
-    removePuzzlesFromTeam(listPuzzleIds: string[], teamId: string, callback: SimpleCallBack): void;
 
     // Update the state of the given puzzle for the given team
     // Possible errors:

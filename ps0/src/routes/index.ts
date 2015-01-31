@@ -182,7 +182,7 @@ router.get('/:type/:id/status', function (request, response,next) {
         var token = request.headers['token'];
         //var query = (request.query !== null) ? request.query : {};
         var series = psdb.series(token);
-        series.findObj(request.params.type, { "_id": request.params.id }, { _id: false, status: true }, function (err: Error, list: any[]) {
+        series.findObj(request.params.type, { "_id": request.params.id }, { _id: 0, status: 1 }, function (err: Error, list: any[]) {
             if (err) {
                 next(err);
             }
@@ -251,16 +251,35 @@ router.delete('/:type/:id', function (request, response, next) {
 // Handles the request for activating a particular type  
 // Request: PUT body containing true or false for states representing activate/deactivate
 // Response: status ok
-router.put('/:type/:id/active', function (request, response) {
-    response.json(200, {});
+router.put('/:type/:id/active', function (request, response, next) {
+    var token = request.headers['token'];
+    var series = psdb.series(token);
+    series.setActive(request.params.type, request.params.id, request.body.active, function (err: Error) {
+        if (err) {
+            next(err);
+        }
+        else {
+            response.send(200);
+        }
+    });
 });
 
 // Handles the request for setting status on a particular type 
 // Applicable only for events
 // Reuquest: PUT containing status: notstarted/ended/started
 // Response: status ok
-router.put('/:type/:id/status', function (request, response) {
-    response.json(200, {});
+router.put('/events/:id/status', function (request, response, next) {
+    var token = request.headers['token'];
+    var series = psdb.series(token);
+    console.log(" events/id/status got " + JSON.stringify(request.body));
+    series.setEventStatus(request.params.id, request.body.status, function (err: Error) {
+        if (err !== null) {
+            next(err);
+        }
+        else {
+            response.send(200);
+        }
+    });
 });
 
 
