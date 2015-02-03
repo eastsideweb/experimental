@@ -3,10 +3,21 @@
       "_id": "events1", 
       "description": "description for event 1 from test series 1",
       "active": true,
-      "status":  "notStarted",
+      "status":  "started",
       "puzzleIds":  ["puzzles1", "puzzles2"], 
       "teamIds":  ["teams1","teams2"], 
       "playerIds": ["players1", "players2", "players3", "players4"],
       "instructorIds": ["instructors1"]
+	},
+	{ "name": "Test Event2", 
+      "_id": "events2", 
+      "description": "description for event 2 from test series 1",
+      "active": false,
+      "status":  "notStarted",
+      "puzzleIds":  [], 
+      "teamIds":  [], 
+      "playerIds": [],
+      "instructorIds": ["instructors1"]
 	}
+
 ]

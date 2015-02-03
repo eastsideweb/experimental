@@ -42,7 +42,7 @@ interface DBCRUD {
     // Additional allowed set_map only for event collection: 
     //          {$addToSet: { puzzles: { $each: [id1, id2, id3] } }
     //          {$pull: {puzzleid1, puzzleid2,..} //no multi-pull available
-    updateObj(collection: string, findMap: any, setMap: any, callback: CallBackWithCount): void;
+    updateObj(collection: string, findMap: any, setMap: any, callback: CallBackWithCount, options?: any): void;
 
     // Delete an object from given collection
     // Allowed collection strings:

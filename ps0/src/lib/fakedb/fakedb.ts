@@ -147,7 +147,7 @@ class fakeDB implements DBCRUD {
     // Additional allowed set_map only for event collection: 
     //          {$addToSet: { puzzles: { $each: [id1, id2, id3] } }
     //          {$pull: {puzzleid1, puzzleid2,..} //no multi-pull available
-    public updateObj(collection: string, findMap: any, setMap: any, callback: CallBackWithCount) {
+    public updateObj(collection: string, findMap: any, setMap: any, callback: CallBackWithCount, options? : any) {
         var updateObj;
         if (!fakeDB.checkInDebug()) {
             callback(utils.errors.notInDebug, null);
@@ -183,6 +183,10 @@ class fakeDB implements DBCRUD {
             }
             if (found) {
                 setTimeout(callback(null, 1), 100);
+            }
+            else if (options !== null && options !== undefined && options.upsert === true) {
+                // upsert is set to true - return NOTIMPL
+                setTimeout(callback(utils.errors.notImpl, 0), 100);
             }
             else {
                 setTimeout(callback(utils.errors.inconsistentDB, 0), 100);

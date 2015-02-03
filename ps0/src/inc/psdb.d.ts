@@ -169,6 +169,6 @@ interface IPuzzleSeries {
     //      "InvalidTeamId"         "Invalid team id"
     //      "PuzzleNotInEvent"      "puzzle not assigned to the team"
     //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
-    updatePuzzleState(teamID: string, puzzleID: string, puzzleState: any, callback: SimpleCallBack): void;
+    updatePuzzleState(teamID: string, puzzleID: string, puzzleStateSolved: string, callback: SimpleCallBack): void;
 
 }

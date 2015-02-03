@@ -211,6 +211,23 @@ router.post('/:type', function (request, response, next) {
     });
 });
 
+// Handles the reqest for modifying puzzle states associated to a team
+// Request: PUT containing json puzzle state string
+// Response: status ok
+router.put('/teams/:teamId/puzzlestates/:puzzleId', function (request, response, next) {
+    var token = request.headers['token'];
+    var series = psdb.series(token);
+    var puzzlestate: string = request.body.puzzleStateSolved;
+    series.updatePuzzleState(request.params.teamId, request.params.puzzleId, puzzlestate, function (err: Error) {
+        if (err !== null) {
+            next(err);
+        }
+        else {
+            response.send(200);
+        }
+    });
+});
+
 // Handles the request for modifying a particular type
 // Not allowed sub-collections when used as association
 // Request: PUT containing the respective type to be modified, should contain a valid id
@@ -335,20 +352,6 @@ router.delete('/:type/:id/:associatedtype', function (request, response, next) {
             response.json(200, { "count": count });
         }
     });
-});
-
-// Handles the reqest for modifying puzzle states associated to a team
-// Request: PUT containing json puzzle state string
-// Response: status ok
-router.put('/:type/:id/puzzlestates/id', function (request, response) {
-    response.json(200, {});
-});
-
-// Handles the request to delete associated type (players or puzzles from the team)
-// Request: DELETE containing valid json ids of associated type
-// Response: status ok
-router.delete('/:type/:id/:associatedtype', function (request, response) {
-    response.json(200, {});
 });
 
 /// End region for subcollections

@@ -170,7 +170,7 @@ describe('Server REST API', function () {
             "credentials": {
                 "username": "Admin1",
                 "password": "testAdminPassword",
-                "roleType" : "administrator"
+                "roleType": "administrator"
             },
             "id": "psdbSeriesInfo1",
             "sessionToken": "",
@@ -179,10 +179,11 @@ describe('Server REST API', function () {
                 },
                 "events": {
                     "id": "events1",
+                    "id2": "events2",
                     "queryParameters": "description%5D=test%2A%28%29",
                     "newEventObj": { 'name': 'events2', 'status': 'notStarted', "description": "event2 description", "_id": "events2" },
                     "newEventObjId": "",
-                    "newUpdateEventObj": {'name': "new name events2"}
+                    "newUpdateEventObj": { 'name': "new name events2" },
                 },
                 "instructors": {
                 },
@@ -192,6 +193,9 @@ describe('Server REST API', function () {
                 "puzzles": {
                 },
                 "puzzlestates": {
+                    "puzzleIdInvalid": "puzzles5",
+                    "puzzleIdValid": "puzzles1",
+                    "teamIdValid": "teams1"
                 },
                 "teams": {
                     teamId: "teams1",
@@ -307,7 +311,7 @@ describe('Server REST API', function () {
 
             //// Test for a single object type
             it('test the invalid status update of event type with the corresponding id', function (done) {
-                request.put('/events/' + testAccount.series.events.id + '/status')
+                request.put('/events/' + testAccount.series.events.id2 + '/status')
                     .set('token', testAccount.sessionToken)
                     .send({'status': 'ended' })
                     .expect(500)
@@ -495,6 +499,55 @@ describe('Server REST API', function () {
                         }
                     });
             });
+
+            // Tests for updating puzzleStates
+            it('Tests for updating puzzleStates - invalid puzzleId', function (done) {
+                request.put("/teams/" + testAccount.series.puzzlestates.teamIdValid + "/puzzleStates/" +
+                    testAccount.series.puzzlestates.puzzleIdInvalid)
+                    .set('token', testAccount.sessionToken)
+                    .send("true")
+                    .expect(500)
+                    .end(function (err, res) {
+                        if (err)
+                            done(err);
+                        else {
+                            done();
+                        }
+                    });
+
+            });
+            it('Tests for updating puzzleStates - valid puzzleId', function (done) {
+                request.put("/teams/" + testAccount.series.puzzlestates.teamIdValid + "/puzzleStates/" +
+                    testAccount.series.puzzlestates.puzzleIdValid)
+                    .set('token', testAccount.sessionToken)
+                    .send({ "puzzleStateSolved": "false" })
+                    .expect(200)
+                    .end(function (err, res) {
+                        if (err)
+                            done(err);
+                        else {
+                            done();
+                        }
+                    });
+
+            });
+            // Reset the puzzlestate
+            it('Tests for updating puzzleStates - reset valid puzzleId', function (done) {
+                request.put("/teams/" + testAccount.series.puzzlestates.teamIdValid + "/puzzleStates/" +
+                    testAccount.series.puzzlestates.puzzleIdValid)
+                    .set('token', testAccount.sessionToken)
+                    .send({ "puzzleStateSolved": "false" })
+                    .expect(200)
+                    .end(function (err, res) {
+                        if (err)
+                            done(err);
+                        else {
+                            done();
+                        }
+                    });
+
+            });
+
 
         });
     });

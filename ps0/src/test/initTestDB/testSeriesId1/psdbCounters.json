@@ -1,6 +1,6 @@
 [
 { "_id": "annotations", "seq": 0},
-{"_id": "events", "seq" : 1},
+{"_id": "events", "seq" : 2},
 { "_id": "instructors", "seq": 1},
 {"_id":  "players", "seq": 8},
 {"_id": "puzzles", "seq" : 2},

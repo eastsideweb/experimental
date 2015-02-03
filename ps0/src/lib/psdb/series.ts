@@ -252,7 +252,7 @@ class PuzzleSeries implements IPuzzleSeries {
 
 
     static composePuzzleStateId = function (teamId: string, puzzleId: string) {
-        return "puzzleStateId_" + teamId + "_" + puzzleId;
+        return teamId + "_" + puzzleId;
     }
 
     // End static var/functions
@@ -755,49 +755,65 @@ class PuzzleSeries implements IPuzzleSeries {
     //      "InvalidTeamId"         "Invalid team id"
     //      "PuzzleNotInEvent"      "puzzle not assigned to the team"
     //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
-    updatePuzzleState(teamID: string, puzzleID: string, puzzleState: any, callback: SimpleCallBack): void {
+    updatePuzzleState(teamID: string, puzzleID: string, puzzleStateSolved: string, callback: SimpleCallBack): void {
         var self = this, pzStateId, puzzleStateCollectionName, eventId /* TODO: which eventId to use? the one and only active event? */;
 
         //Figure out the eventId
-        pzStateId = PuzzleSeries.composePuzzleStateId(teamID, puzzleID);
-        puzzleStateCollectionName = global.config.psdb.puzzleStatesCollectionNamePrefix + eventId;
-        //Check if such an item exists in the db - if so, we will update the state else
-        this.crudHandle.findObj(puzzleStateCollectionName, { "_id": pzStateId }, {}, function (err: Error, objList: any[]) {
-            if (err) {
-                callback(err);
+        this.findObj(global.config.psdb.eventsCollectionName, { "status": "started", "active": true }, {}, function (err0: Error, eventList: any[]) {
+            if (err0 !== null) {
+                callback(err0);
             }
             else {
-                if (objList && objList.length === 1) {
-                    // Found the item with the given  team & puzzle id. Just update the state
-                    self.crudHandle.updateObj(puzzleStateCollectionName, { "_id": pzStateId }, { "solved": puzzleState }, function (err1: Error, count: number) {
-                        if (err1) {
-                            // Something went wrong in the update!!
-                            callback(err1);
-                        }
-                        else {
-                        if (count < 1) {
-                                // Something went wrong in the update!!
-                                callback(utils.errors.inconsistentDB);
-                            }
-                        else {
-                                // Success!!
-                                callback(null);
-                            }
-                        }
-                    });
+                // Confirm that only one event is active and is underway
+                if (eventList === null || eventList.length !== 1) {
+                    utils.log(" updatePuzzleState found zero or more than one events underway");
+                    callback(utils.errors.inconsistentDB);
                 }
                 else {
-                    // No item found with the given team & puzzle id. Add a new item
-                    self.crudHandle.insertObj(puzzleStateCollectionName, { "_id": pzStateId, "teamId": teamID, "puzzleId": puzzleID, "solved": puzzleState },
-                        function (err2: Error, obj: any) {
-                            if (err2) {
-                                callback(err2);
-                            }
-                            else {
-                                // Success!!
-                                callback(null);
-                            }
-                        });
+                    eventId = eventList[0]._id;
+                    //TODO: Need to confirm that the team and puzzle are part of the event
+                    if (eventList[0].teamIds.lastIndexOf(teamID) === -1) {
+                        callback(utils.errors.invalidteamId);
+                    }
+                    else if (eventList[0].puzzleIds.lastIndexOf(puzzleID) === -1) {
+                        callback(utils.errors.invalidpuzzleId);
+                    }
+                    else {
+                        // Now need to confirm that the puzzle was assigned to the team
+                        self.crudHandle.findObj(global.config.psdb.teamsCollectionName, { "_id": teamID }, {},
+                            function (err3: Error, teamsList: any[]) {
+                                if (teamsList === null || teamsList.length !== 1) {
+                                    // The teamId is not a valid one
+                                    callback(utils.errors.invalidteamId);
+                                }
+                                else if (!teamsList[0].active || teamsList[0].puzzleIds.lastIndexOf(puzzleID) === -1) {
+                                    // The puzzle is not assigned to the team
+                                    callback(utils.errors.invalidpuzzleId);
+                                }
+                                else {
+                                    pzStateId = PuzzleSeries.composePuzzleStateId(teamID, puzzleID);
+                                    puzzleStateCollectionName = global.config.psdb.puzzleStatesCollectionNamePrefix + eventId;
+                                    // Use upsert:true option so it will create a document with this id if it is already not present
+                                    self.crudHandle.updateObj(puzzleStateCollectionName, { "_id": pzStateId }, { "_id": pzStateId, "teamId": teamID, "puzzleId": puzzleID, "solved": puzzleStateSolved },
+                                        function (err1: Error, count: number) {
+                                            if (err1) {
+                                                // Something went wrong in the update!!
+                                                callback(err1);
+                                            }
+                                            else {
+                                                if (count < 1) {
+                                                    // Something went wrong in the update!!
+                                                    callback(utils.errors.inconsistentDB);
+                                                }
+                                                else {
+                                                    // Success!!
+                                                    callback(null);
+                                                }
+                                            }
+                                        }, { upsert: true });
+                                };
+                            });
+                    }
                 }
             }
         });

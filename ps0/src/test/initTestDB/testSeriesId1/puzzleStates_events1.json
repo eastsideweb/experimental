@@ -1,6 +1,5 @@
 [
-{ "_id":  "pzst_teams1_puzzles1","teamId":  "teams1","puzzleId":  "puzzles1","solved":  false },
-{ "_id":  "pzst_teams1_puzzles2","teamId":  "teams1","puzzleId":  "puzzles2","solved":  false },
-{ "_id":  "pzst_teams2_puzzles1","teamId":  "teams2","puzzleId":  "puzzles1","solved":  false },
-{ "_id":  "pzst_teams2_puzzles2","teamId":  "teams2","puzzleId":  "puzzles2","solved":  false }
+{ "_id":  "teams1_puzzles2","teamId":  "teams1","puzzleId":  "puzzles2","solved":  "false" },
+{ "_id":  "teams2_puzzles1","teamId":  "teams2","puzzleId":  "puzzles1","solved":  "false" },
+{ "_id":  "teams2_puzzles2","teamId":  "teams2","puzzleId":  "puzzles2","solved":  "false" }
 ]

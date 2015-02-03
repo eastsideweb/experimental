@@ -179,13 +179,15 @@ class mongoDBCRUD implements DBCRUD {
     // Additional allowed set_map only for event collection: 
     //          {$addToSet: { puzzles: { $each: [id1, id2, id3] } }
     //          {$pull: {puzzleid1, puzzleid2,..} //no multi-pull available
-    public updateObj(collection: string, findMap: any, setMap: any, callback: CallBackWithCount) {
-        var checkerror = this.checkAllOk(collection);
+    public updateObj(collection: string, findMap: any, setMap: any, callback: CallBackWithCount, options?: any) {
+        var upsertOptionValue: boolean, checkerror = this.checkAllOk(collection);
         if (checkerror !== null) {
             callback(checkerror, null);
             return;
         }
-        this.dbHandle.collection(collection).update(findMap, { $set: setMap }, { safe: true, upsert: false, multi: false, fullResult: true }, function (err1, result: any) {
+        // Check if options are specified, and if upsert is included.
+        upsertOptionValue = (options !== null && options !== undefined && options.upsert !== undefined)? options.upsert : false;
+        this.dbHandle.collection(collection).update(findMap, { $set: setMap }, { safe: true, upsert: upsertOptionValue, multi: false, fullResult: true }, function (err1, result: any) {
             if (err1 !== null) {
                 callback(err1, 0);
             }

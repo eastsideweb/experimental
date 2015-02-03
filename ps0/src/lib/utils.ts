@@ -47,6 +47,14 @@ var errors = {
         message: "Invalid object type specified"
     },
 
+    "invalidteamId": {
+        name: "InvalidteamId",
+        message: "Invalid team id specified"
+    },
+    "invalidpuzzleId": {
+        name: "InvalidpuzzleId",
+        message: "Invalid puzzle id specified"
+    },
     "invalidItemId": {
         name: "InvalidItemId",
         message: "Invalid item id specified"
