@@ -182,7 +182,41 @@ module psdbClient {
                 }); */
             }
         }
+        function renderObjectSublist(err: any, result: JSON) {
+            var itemList = result;
+            var reqParams: IRequestParameters = { session: stateMap.session, loadPreloader: true };
+            var objToCollectionMap = {
+                eventIds: "events",
+                playerIds: "players",
+                puzzleIds: "puzzles",
+                teamIds: "teams",
+                instructorIds: "instructors"
+            };
+            var queryUrl = objToCollectionMap[stateMap.seriesAnchorMap.subtype];
+            util.getRequestAsync(queryUrl, function (err: any, queryResult: JSON) {
+                var idList: any = result; 
+                if (idList.length === 0) {
+                   var error = { 'title': 'Object not found', 'details': 'No object found for the given id?', 'code': null };
+                }
+                else {
+                    //grab the name and discription for the objects corresponding ot the objectIds in result from collection
+                    var objId;
+                    var collList: any = queryResult;
+                    var arr = [];
+                    for (var j = 0; j < idList.length; j++) {
+                        objId = idList[j];
+                        for (var i = 0; i < collList.length; i++) {
+                            if (collList[i]._id === objId) {
+                                arr.push(collList[i]);
+                                break;
+                            }
+                        }
+                    }
+                    util.renderTemplate(config.objlistTemplate, {items: arr }, jqueryMap.$content);
+                } }, reqParams);
 
+        }
+       
         function onLogout() {
 
             enableSignoutButton(/*enable*/false);
@@ -257,7 +291,7 @@ module psdbClient {
             stateMap.seriesAnchorMap.subtype = objSubtype;
             //get the list of the given object type for this series
             var reqParams: IRequestParameters = { session: stateMap.session, loadPreloader: true };
-            util.getRequestAsync('/' + stateMap.seriesAnchorMap.type + '/' + stateMap.seriesAnchorMap.id + '/' + stateMap.seriesAnchorMap.subtype, renderObjectList, reqParams);
+            util.getRequestAsync('/' + stateMap.seriesAnchorMap.type + '/' + stateMap.seriesAnchorMap.id + '/' + stateMap.seriesAnchorMap.subtype, renderObjectSublist, reqParams);
         }
         function enableSignoutButton(enable: boolean) {
             if (enable) {
