@@ -97,6 +97,10 @@ interface IPSDB {
     // Synchronous call to get a puzzleSeries object represented by given token (which was handed out earlier)
     // return value will be null if the token is invalid or has expired
     series(token: string): IPuzzleSeries;
+
+    // Helper functions
+    // Processes a query that was parsed by express app to a form that the underlying database understands
+    translateURLQuery(query: string): any;
 }
 
 // Interface puzzleSeries that the series object needs to implement

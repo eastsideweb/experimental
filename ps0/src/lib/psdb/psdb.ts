@@ -180,7 +180,7 @@ var psdb: IPSDB = {
     },
     callInitCompleteCallback: function (err: Error) {
         var item;
-        while ( item = initCallbackArray.shift() ){
+        while (item = initCallbackArray.shift()) {
             item(err);
         }
     },
@@ -189,8 +189,8 @@ var psdb: IPSDB = {
     // -------------- Begin PSDB interface  methods --------------
 
     Init(initComplete: (err: Error) => void) {
-    var self = this;
-    console.log("******* psdb module init called ***********");
+        var self = this;
+        console.log("******* psdb module init called ***********");
         if (initCalled === true) {
             // Init is called one more time. Check if all is ok - 
             var checkErr = this.checkAllOk();
@@ -262,7 +262,7 @@ var psdb: IPSDB = {
             return;
         }
         infoDBcrud.findObj(global.config.psdb.seriesInfoCollectionName, queryFields, {}, function (innerErr: Error, seriesList) {
-//            utils.log("findObj returning: " + JSON.stringify(seriesList));
+            //            utils.log("findObj returning: " + JSON.stringify(seriesList));
             callback(innerErr, seriesList);
         });
     },
@@ -358,6 +358,51 @@ var psdb: IPSDB = {
             }
         }
         return null;
+    },
+
+    // Helper functions
+    // Processes a query that was parsed by express app to a form that the underlying database understands
+    //**** MONGODB dependency in the query construction ****MONGODB dependency //
+    translateURLQuery(query: any): any {
+        if (query === null || query === undefined) {
+            return {};
+        }
+        var translatedQuery = {}, queryParts: string[], subparts: string[], fieldValue: any, values: any, queryOperator: string;
+
+        for (var fieldName in query) {
+            if (query.hasOwnProperty(fieldName)) {
+
+                if (query[fieldName].indexOf(global.config.psdb.queryValueSeparator) !== -1) {
+                    // Mutliple parts specified for the values, extract the list
+                    queryOperator = '$in';
+                    values = query[fieldName].split(global.config.psdb.queryValueSeparator);
+                }
+                else {
+                    queryOperator = null;
+                    values = query[fieldName];
+                }
+                if (fieldName.lastIndexOf('!') === 0) {
+                    // The part starts with a negation sign, we should use the $nin query operator
+                    fieldName = fieldName.substr(1);
+                    if (queryOperator === null) {
+                        // set the values to be an array
+                        values = [values];
+                    }
+                    // else the values must be an array already
+                    queryOperator = '$nin';
+                }
+                if (queryOperator !== null) {
+                    // Non-null query operator set, make it a complex query
+                    fieldValue = {};
+                    fieldValue[queryOperator] = values;
+                }
+                else {
+                    fieldValue = values;
+                }
+                translatedQuery[fieldName] = fieldValue;
+            }
+        } // End of forEach
+        return translatedQuery;
     }
     // -------------- End PSDB interface  methods --------------
 

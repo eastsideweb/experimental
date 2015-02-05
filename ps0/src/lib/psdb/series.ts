@@ -578,7 +578,7 @@ class PuzzleSeries implements IPuzzleSeries {
         }
 
         // Check if all the items in the listItemIds are active
-        //**** MONGODB dependency in the query construction ****MONGODB dependency
+        //**** MONGODB dependency in the query construction ****MONGODB dependency //
         this.crudHandle.findObj(PuzzleSeries.seriesObjTypeMap[itemType].collectionName, { "_id": { $in: listItemIds } }, { "active": 1 }, function (innerErr: Error, objList: any[]) {
             if (objList === undefined || objList === null) {
                 callback(utils.errors.inconsistentDB);

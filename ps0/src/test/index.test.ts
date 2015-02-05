@@ -184,6 +184,21 @@ describe('Server REST API', function () {
                     "newEventObj": { 'name': 'events2', 'status': 'notStarted', "description": "event2 description", "_id": "events2" },
                     "newEventObjId": "",
                     "newUpdateEventObj": { 'name': "new name events2" },
+                    "queryList": [{ query: "/events?_id=events1", length: 1 },
+                        {
+                            query: "/events?_id=events1,events2", length: 2
+                        },
+                        {
+                            query: "/events?!_id=events1&!status=started", length: 1
+                        },
+                        {
+                            query: "/events?_id=events1,events2&status=notStarted", length: 1
+                        },
+                        { query: "/events?!_id=events1,events2&status=started", length: 0 },
+                        { query: "/events?_id=events1,events2&!status=started", length: 1 },
+                        { query: "/events?description=description%20for event 2 from test series 1", length: 1}
+                    ]
+
                 },
                 "instructors": {
                 },
@@ -275,6 +290,30 @@ describe('Server REST API', function () {
                     });
             });
 
+            // Test for searching using complex query parameters
+            describe('this should return an array of the type for the complex query parameters', function () {
+                testAccount.series.events.queryList.forEach(function (queryItem, index) {
+                    it("complex query " + index, function (done) {
+                        request.get(queryItem.query)
+                            .set('token', testAccount.sessionToken)
+                            .expect(200)
+                            .expect('Content-Type', /json/)
+                            .end(function (err, res) {
+                                if (err) {
+                                    done(err);
+                                }
+                                else if (res.body.length !== queryItem.length) {
+                                    console.log("*****Complex query failed for " + queryItem.query + queryItem.length + "with length= " + res.length);
+                                    done({ message: "complex query (" + queryItem.query + " )didn't return correct result", name: "invalidQueryResult" });
+                                }
+                                else {
+                                    done();
+                                }
+                            });
+                    });
+                });
+            });
+            
             // Test for a single object type
             it('this should return an object of the type with the corresponding id', function (done) {
                 request.get('/events/' + testAccount.series.events.id)
