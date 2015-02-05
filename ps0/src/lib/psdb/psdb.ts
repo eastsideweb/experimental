@@ -65,7 +65,7 @@ var infoDBcrud: DBCRUD,
         'administrator': 'administrator',
         'instructor': 'instructor',
         'player': 'player'
-    },
+    },    
     tokenMap = {}, // Map of token string to the corresponding IToken object and the crudHandle to the series database
     env = process.env.BUILD_ENV || "ENV_NOT_FOUND";
 
@@ -111,6 +111,29 @@ var psdb: IPSDB = {
         else {
             // All ok!
             return null;
+        }
+    },
+
+    fixSeriesFieldsToReturn: function(inList: any): any {
+        var found = false, outList = { 'name': 1, 'description': 1, "_id": 1 }, fieldsToRemove = [];
+        if (Object.getOwnPropertyNames(inList).length === 0) {
+            // incoming list was empty, return the allowed list
+            return outList;
+        }
+        for (var prop in outList) {
+            if (inList[prop] === undefined) {
+                fieldsToRemove.push(prop);
+            }
+        }
+        fieldsToRemove.forEach(function (prop) {
+            delete outList[prop];
+        });
+        if (Object.getOwnPropertyNames(outList).length === 0) {
+            // after pruning outlist was empty, reset to only the allowed list
+            return { 'name': 1, 'description': 1, "_id": 1 };
+        }
+        else {
+            return outList;
         }
     },
     getSeriesTokenInternal: function (seriesId: string, role: string, credentials: ICredentials, options: any, callback: (err: Error, token: string) => void) {
@@ -250,18 +273,21 @@ var psdb: IPSDB = {
     // A function that returns a list of objects for a given objtype.
     // No authentication needed
     // queryFields - the select clauses to get a subset of SeriesInfo objects
-    // REVIEW: Removing this projection argument cause we want keep the SeriesInfo type specification. 
     // fieldsReturned - the projection that identifies 
-    findSeries: function (queryFields: any, /* fieldsReturned: any, */callback: (err: Error, list: Array<SeriesInfo>) => void) {
+    findSeries: function (queryFields: any,  fieldsReturned: any, callback: (err: Error, list: Array<any>) => void) {
 
-        var checkErr = this.checkAllOk();
+        var fixedFieldsReturned, checkErr = this.checkAllOk();
         if (checkErr !== null) {
             setTimeout(function () {
                 callback(checkErr, null);
             }, 100);
             return;
         }
-        infoDBcrud.findObj(global.config.psdb.seriesInfoCollectionName, queryFields, {}, function (innerErr: Error, seriesList) {
+
+        // Make sure the fieldsReturned has only allowed fields specified.
+        fixedFieldsReturned = this.fixSeriesFieldsToReturn(fieldsReturned);
+
+        infoDBcrud.findObj(global.config.psdb.seriesInfoCollectionName, queryFields, fixedFieldsReturned, function (innerErr: Error, seriesList) {
             //            utils.log("findObj returning: " + JSON.stringify(seriesList));
             callback(innerErr, seriesList);
         });
@@ -362,46 +388,62 @@ var psdb: IPSDB = {
 
     // Helper functions
     // Processes a query that was parsed by express app to a form that the underlying database understands
+    // It extracts the query params (findMap) and the projection map (projectionMap) and returns the combined object
     //**** MONGODB dependency in the query construction ****MONGODB dependency //
     translateURLQuery(query: any): any {
         if (query === null || query === undefined) {
             return {};
         }
-        var translatedQuery = {}, queryParts: string[], subparts: string[], fieldValue: any, values: any, queryOperator: string;
-
+        var translatedQuery = { findMap: {}, projectionMap: {} },
+            queryParts: string[],
+            subparts: string[],
+            fieldValue: any,
+            values: any,
+            queryOperator: string,
+            projParts: string[];
+        
         for (var fieldName in query) {
             if (query.hasOwnProperty(fieldName)) {
-
-                if (query[fieldName].indexOf(global.config.psdb.queryValueSeparator) !== -1) {
-                    // Mutliple parts specified for the values, extract the list
-                    queryOperator = '$in';
-                    values = query[fieldName].split(global.config.psdb.queryValueSeparator);
+                if (fieldName === global.config.psdb.projectionMapKeyWord) {
+                    // Projection fields provided, adjust the projection map accordingly
+                    projParts = query[fieldName].split(global.config.psdb.queryValueSeparator);
+                    projParts.forEach(function (projItem) {
+                        translatedQuery.projectionMap[projItem] = 1;
+                    });
                 }
                 else {
-                    queryOperator = null;
-                    values = query[fieldName];
-                }
-                if (fieldName.lastIndexOf('!') === 0) {
-                    // The part starts with a negation sign, we should use the $nin query operator
-                    fieldName = fieldName.substr(1);
-                    if (queryOperator === null) {
-                        // set the values to be an array
-                        values = [values];
+                    // A query fieldName found, add it to the translatedQuery
+                    if (query[fieldName].indexOf(global.config.psdb.queryValueSeparator) !== -1) {
+                        // Mutliple parts specified for the values, extract the list
+                        queryOperator = '$in';
+                        values = query[fieldName].split(global.config.psdb.queryValueSeparator);
                     }
-                    // else the values must be an array already
-                    queryOperator = '$nin';
+                    else {
+                        queryOperator = null;
+                        values = query[fieldName];
+                    }
+                    if (fieldName.lastIndexOf('!') === 0) {
+                        // The part starts with a negation sign, we should use the $nin query operator
+                        fieldName = fieldName.substr(1);
+                        if (queryOperator === null) {
+                            // set the values to be an array
+                            values = [values];
+                        }
+                        // else the values must be an array already
+                        queryOperator = '$nin';
+                    }
+                    if (queryOperator !== null) {
+                        // Non-null query operator set, make it a complex query
+                        fieldValue = {};
+                        fieldValue[queryOperator] = values;
+                    }
+                    else {
+                        fieldValue = values;
+                    }
+                    translatedQuery.findMap[fieldName] = fieldValue;
                 }
-                if (queryOperator !== null) {
-                    // Non-null query operator set, make it a complex query
-                    fieldValue = {};
-                    fieldValue[queryOperator] = values;
-                }
-                else {
-                    fieldValue = values;
-                }
-                translatedQuery[fieldName] = fieldValue;
-            }
-        } // End of forEach
+            } // hasownProperty
+        } // for fieldName
         return translatedQuery;
     }
     // -------------- End PSDB interface  methods --------------

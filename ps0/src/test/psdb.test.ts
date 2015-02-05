@@ -35,7 +35,7 @@ var should = require("should");
 
 
 var psdb_findSeries = function (done) {
-    psdb.findSeries({}, function (err: Error, list: SeriesInfo[]) {
+    psdb.findSeries({}, {}, function (err: Error, list: any[]) {
         if (err) {
             done(err);
         }

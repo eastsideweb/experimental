@@ -58,7 +58,7 @@ router.get('/', function (request, response) {
 router.get('/series', function (request, response, next) {
     // Check for query parameters, else return all the available lists
     var query = (request.query !== null) ? psdb.translateURLQuery(request.query) : {};
-    var series = psdb.findSeries(query, function (err, seriesList) {
+    var series = psdb.findSeries(query.findMap, query.projectionMap, function (err, seriesList) {
         if (err) {
             next(err);
         }
@@ -140,7 +140,7 @@ router.get('/:type', function (request, response,next) {
     var token = request.headers['token'];
     var query = (request.query !== null) ? psdb.translateURLQuery(request.query) : {};
     var series = psdb.series(token);
-    series.findObj(request.params.type, query, {}, function (err: Error, list: any[]) {
+    series.findObj(request.params.type, query.findMap, query.projectionMap, function (err: Error, list: any[]) {
         if (err) {
             next(err);
         }

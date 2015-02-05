@@ -184,9 +184,15 @@ describe('Server REST API', function () {
                     "newEventObj": { 'name': 'events2', 'status': 'notStarted', "description": "event2 description", "_id": "events2" },
                     "newEventObjId": "",
                     "newUpdateEventObj": { 'name': "new name events2" },
-                    "queryList": [{ query: "/events?_id=events1", length: 1 },
+                    "queryList": [{ query: "/series?_id=psdbSeriesInfo1&properties=name", length: 1 },
                         {
                             query: "/events?_id=events1,events2", length: 2
+                        },
+                        {
+                            query: "/events?_id=events1,events2&properties=name,status", length: 2
+                        },
+                        {
+                            query: "/events?_id=events1,events2&properties=database", length: 2
                         },
                         {
                             query: "/events?!_id=events1&!status=started", length: 1

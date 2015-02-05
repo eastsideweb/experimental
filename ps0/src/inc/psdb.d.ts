@@ -76,7 +76,7 @@ interface IPSDB {
     // queryFields - the select clauses to get a subset of SeriesInfo objects
     // REVIEW: Removing this projection argument cause we want keep the SeriesInfo type specification. 
     // fieldsReturned - the projection that identifies 
-    findSeries(queryFields: any, /* fieldsReturned: any, */callback: (err: Error, list: Array<SeriesInfo>) => void): void;
+    findSeries(queryFields: any, fieldsReturned: any, callback: (err: Error, list: Array<any>) => void): void;
 
     // Function to get a token that represents access to the series object for a given series id, with previliges appropriate 
     // for the given "role". The credentials provided should have the given role previliges
@@ -100,7 +100,8 @@ interface IPSDB {
 
     // Helper functions
     // Processes a query that was parsed by express app to a form that the underlying database understands
-    translateURLQuery(query: string): any;
+    // It extracts the query params (findMap) and the projection map (projectionMap) and returns the combined object
+    translateURLQuery(query: any): any;
 }
 
 // Interface puzzleSeries that the series object needs to implement
