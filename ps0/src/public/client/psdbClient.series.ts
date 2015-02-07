@@ -150,7 +150,9 @@ module psdbClient {
                 enableSignoutButton(/*enable*/true);
                 // By default, none of the items in the obj list will be selected. Disable all buttons except for the addbutton
                 jqueryMap.$content.find('.button-small').prop('disabled', true);
-                jqueryMap.$content.find('#addButton').prop('disabled', false);
+                var $addBtn = jqueryMap.$content.find('#addButton');
+                $addBtn.attr('disabled', false);
+                $addBtn.on('click', renderAddobjTemplate);
 
               /*  jqueryMap.$content.find('#objlist').selectable({
                     stop: function () {
@@ -181,6 +183,27 @@ module psdbClient {
                     }
                 }); */
             }
+        }
+        function renderAddobjTemplate() {
+            util.renderTemplate(config.addobjTemplate, {}, jqueryMap.$content);
+            var $saveBtn = jqueryMap.$content.find('#saveButton');
+            $saveBtn.on('click', addObjToCollection);
+            return false;
+        }
+        function addObjToCollection() {
+            //get data from form
+            var input = $('#addForm :input').serializeArray();
+            var inputObject: any = {};
+            $.each(input,
+                function (index: any, item: any) {
+                    inputObject[item.name] = item.value;
+                });
+            var reqParams: IRequestParameters = { session: stateMap.session, loadPreloader: true };
+            util.postRequestAsync('/' + stateMap.seriesAnchorMap.type, inputObject, function (err: IPSDBClientError, data) {
+                if (err) {
+                    jqueryMap.$content.find('#error').html(err.title);
+                }
+            }, reqParams);
         }
         function renderObjectSublist(err: any, result: JSON) {
             var itemList = result;

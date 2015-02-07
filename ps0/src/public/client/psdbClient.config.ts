@@ -19,6 +19,7 @@ module psdbClient {
         objectTemplate: 'public/client/templates/objectTemplate',
         modalTemplate: 'public/client/templates/modalTemplate',
         loginTemplate: 'public/client/templates/loginTemplate',
+        addobjTemplate: 'public/client/templates/addobjTemplate',
         seriesUrl: '/series',
         sessionUrl: '/series/{id}/session',
         eventsUrl: '/events',

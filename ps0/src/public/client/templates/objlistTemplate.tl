@@ -10,8 +10,6 @@
       </div>
     </li>{~n}
     {/items}
-  </ul>
-  <button id="editButton" class="submit button-small" type="button">Edit</button>
-  <button id="deleteButton" class="submit button-small" type="button">Delete</button> 
+  </ul> 
   <button id="addButton" class="submit button-small" type="button">Add</button>
 </div>

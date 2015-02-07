@@ -97,7 +97,7 @@ class PuzzleSeries implements IPuzzleSeries {
         },
         'puzzles': {
             collectionName: global.config.psdb.puzzlesCollectionName,
-            propertyAccessMap: {
+            allowedPropertyMap: {
                 'administrator': {
                     "read": "unrestricted",
                     "write": "unrestricted"
@@ -140,17 +140,19 @@ class PuzzleSeries implements IPuzzleSeries {
         },
         'players': {
             collectionName: global.config.psdb.playersCollectionName,
-            'administrator': {
-                "read": "unrestricted",
-                "write": "unrestricted"
-            },
-            'instructor': {
-                "read": ["name", "description", "_id", "active"],
-                "write": ["name", "description", ],
-            },
-            'player': {
-                "read": ["name", "description", "_id", "active"],
-                "write": [],
+            allowedPropertyMap: {
+                'administrator': {
+                    "read": "unrestricted",
+                    "write": "unrestricted"
+                },
+                'instructor': {
+                    "read": ["name", "description", "_id", "active"],
+                    "write": ["name", "description", ],
+                },
+                'player': {
+                    "read": ["name", "description", "_id", "active"],
+                    "write": [],
+                }
             }
         },
         // we will not allow addObj for this objType because the only way to add an object of this type is through updatePuzzleState api
@@ -199,7 +201,7 @@ class PuzzleSeries implements IPuzzleSeries {
         var objType;
         if (PuzzleSeries.initDone)
             return;
-        PuzzleSeries.jsonValidator = new validator(["annotations", "events", "instructors", "players", "puzzleStates", "series", "teams"]);
+        PuzzleSeries.jsonValidator = new validator(["annotations", "events", "instructors", "players", "puzzles", "puzzleStates", "series", "teams"]);
         PuzzleSeries.initDone = true;
     };
 
