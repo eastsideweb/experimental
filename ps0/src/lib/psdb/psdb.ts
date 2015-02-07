@@ -177,13 +177,10 @@ var psdb: IPSDB = {
                     return;
                 }
                 else {
-                    //console.log(utils.getShortfileName(__filename) + " userList[0] = ");
-                    //for (var pr in userList[0]) {
-                    //    if (userList[0].hasOwnProperty(pr)) {
-                    //        console.log(pr + " : " + userList[0][pr]);
-                    //    }
-                    //}
-                    if (userList[0].roleType.indexOf(role) < 0) {
+
+                    // if the roleType is instructor or player, we don't save the roleType field in the collection, so it will be undefined, 
+                    // don't bother checking this then.
+                    if (userList[0].roleType !== undefined && userList[0].roleType.indexOf(role) < 0) {
                         //given role is not allowed for this user
                         callback(utils.errors.invalidRole, null);
                         return;
