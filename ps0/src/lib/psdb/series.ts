@@ -199,8 +199,9 @@ class PuzzleSeries implements IPuzzleSeries {
 
     static initializeObjTypeMap = function () {
         var objType;
-        if (PuzzleSeries.initDone)
+        if (PuzzleSeries.initDone) {
             return;
+        }
         PuzzleSeries.jsonValidator = new validator(["annotations", "events", "instructors", "players", "puzzles", "puzzleStates", "series", "teams"]);
         PuzzleSeries.initDone = true;
     };
@@ -221,7 +222,7 @@ class PuzzleSeries implements IPuzzleSeries {
     }
 
     static commonFixObjForInsertion = function (objInfo, writePermission) : any {
-        var fixedObj = {};
+        var fixedObj : any = {};
         // **WARNING** assuming only static fields coming in - otherwise we need to do a deep copy
         for (var prop in objInfo) {
             // Copy only the properties that are allowed by write permission
@@ -233,16 +234,17 @@ class PuzzleSeries implements IPuzzleSeries {
         utils.log("*********** " + utils.getShortfileName(__filename) + "after copy " + JSON.stringify(fixedObj));
         // Fix the object with common properties                                
         // Make sure the object is marked non-active
-        fixedObj["active"] = false;
-        fixedObj["description"] = fixedObj["description"] || "";
+        fixedObj.active = false;
+        fixedObj.description = fixedObj.description || "";
 
         utils.log("*********** " + utils.getShortfileName(__filename) + "after fixing " + JSON.stringify(fixedObj));
         return fixedObj;
     }
 
     static checkObjForUpdate = function (objInfo, writePermission): boolean {
-        if (writePermission === "unrestricted")
+        if (writePermission === "unrestricted") {
             return true;
+        }
         for (var prop in objInfo) {
             // Allow only the properties that are allowed by write permission
             if (!writePermission[prop]) {
@@ -353,7 +355,6 @@ class PuzzleSeries implements IPuzzleSeries {
                                         utils.log("checkObjectValidityForListUpdate detected existing playerId: " + updateFields.playerIds[i]);
                                         callback(utils.errors.invalidItemId);
                                         return;
-                                        break;
                                     }
                                 }
                                 callback(null);
@@ -370,6 +371,10 @@ class PuzzleSeries implements IPuzzleSeries {
             case "players":
             case "instructors":
             case "puzzles": 
+                // There is no sublist field for players/instructors/puzzles???
+                err.message = "Invalid update";
+                callback(err);
+                return;
             default:
                 // There is no sublist field for players/instructors/puzzles???
                 err.message = "Invalid update";
@@ -417,7 +422,7 @@ class PuzzleSeries implements IPuzzleSeries {
         // Check write access for this object for given role
         var writePermission = PuzzleSeries.seriesObjTypeMap[objType].allowedPropertyMap[this.token.role].write;
 
-        if (writePermission != "unrestricted" && (Array.isArray(writePermission) && writePermission.length === 0)) {
+        if (writePermission !== "unrestricted" && (Array.isArray(writePermission) && writePermission.length === 0)) {
             callback(utils.errors.UnauthorizedAccess, null);
             return;
         }
@@ -430,7 +435,7 @@ class PuzzleSeries implements IPuzzleSeries {
                     callback(innererr1, 0);
                 }
                 else {
-                    if (objList.length != 1) {
+                    if (objList.length !== 1) {
                         callback(utils.errors.inconsistentDB, 0);
                     }
                     else {
@@ -531,13 +536,13 @@ class PuzzleSeries implements IPuzzleSeries {
         // Check write access for this object for given role
         writePermission = PuzzleSeries.seriesObjTypeMap[objType].allowedPropertyMap[this.token.role].write;
 
-        if (writePermission != "unrestricted" && (Array.isArray(writePermission) && writePermission.length === 0)) {
+        if (writePermission !== "unrestricted" && (Array.isArray(writePermission) && writePermission.length === 0)) {
             callback(utils.errors.UnauthorizedAccess, null);
             return;
         }
 
         self.crudHandle.deleteObj(PuzzleSeries.seriesObjTypeMap[objType].collectionName, objInfo, function (innerErr2: Error, count: number) {
-            if (innerErr2 != null) {
+            if (innerErr2 !== null) {
                 callback(innerErr2, null);
             }
             else {
@@ -604,7 +609,7 @@ class PuzzleSeries implements IPuzzleSeries {
             // Check write access for this object for given role
             var writePermission = PuzzleSeries.seriesObjTypeMap[objType].allowedPropertyMap[self.token.role].write;
 
-            if (writePermission != "unrestricted" && (Array.isArray(writePermission) && writePermission.length === 0)) {
+            if (writePermission !=="unrestricted" && (Array.isArray(writePermission) && writePermission.length === 0)) {
                 callback(utils.errors.UnauthorizedAccess);
                 return;
             }
@@ -622,7 +627,7 @@ class PuzzleSeries implements IPuzzleSeries {
                         callback(err2);
                         return;
                     }
-                    else if (result.length != 1) {
+                    else if (result.length !==1) {
                         callback(utils.errors.invalidObjId);
                         return;
                     }
@@ -679,7 +684,7 @@ class PuzzleSeries implements IPuzzleSeries {
                 callback(err2, 0);
                 return;
             }
-            else if (result.length != 1) {
+            else if (result.length !==1) {
                 callback(utils.errors.invalidObjId, 0);
                 return;
             }
@@ -742,7 +747,7 @@ class PuzzleSeries implements IPuzzleSeries {
             if (err) {
                 callback(err);
             }
-            else if (count != 1) {
+            else if (count !==1) {
                 callback(utils.errors.inconsistentDB);
             }
             else {
@@ -813,7 +818,7 @@ class PuzzleSeries implements IPuzzleSeries {
                                                 }
                                             }
                                         }, { upsert: true });
-                                };
+                                }
                             });
                     }
                 }

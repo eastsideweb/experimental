@@ -403,10 +403,12 @@ describe('Server REST API', function () {
                     .send(testAccount.series.teams.newTeamLeadIdInvalid)
                     .expect(500)
                     .end(function (err, res) {
-                        if (err)
+                        if (err) {
                             done(err);
-                        else
+                        }
+                        else {
                             done();
+                        }
                     });
             });
             //// Test for adding a single object 
@@ -482,8 +484,9 @@ describe('Server REST API', function () {
                     .send(testAccount.series.teams.newTeamPlayersInactive)
                     .expect(500)
                     .end(function (err, res) {
-                        if (err)
+                        if (err) {
                             done(err);
+                        }
                         else {
                             done();
                         }
@@ -496,8 +499,9 @@ describe('Server REST API', function () {
                     .send(testAccount.series.teams.newTeamPlayersInvalidId)
                     .expect(500)
                     .end(function (err, res) {
-                        if (err)
+                        if (err) {
                             done(err);
+                        }
                         else {
                             done();
                         }
@@ -510,8 +514,9 @@ describe('Server REST API', function () {
                     .send(testAccount.series.teams.newTeamPlayersExisting)
                     .expect(500)
                     .end(function (err, res) {
-                        if (err)
+                        if (err) {
                             done(err);
+                        }
                         else {
                             done();
                         }
@@ -525,8 +530,9 @@ describe('Server REST API', function () {
                     .send(testAccount.series.teams.newTeamPlayersValid)
                     .expect(200)
                     .end(function (err, res) {
-                        if (err)
+                        if (err) {
                             done(err);
+                        }
                         else {
                             // Make the delete request and restore the teams object
                             request.delete('/teams/' + testAccount.series.teams.teamId + "/players")
@@ -535,8 +541,9 @@ describe('Server REST API', function () {
                                 .expect(200)
                                 .expect('Content-Type', /json/)
                                 .end(function (err, res) {
-                                    if (err)
+                                    if (err) {
                                         done(err);
+                                    }
                                     else {
                                         done();
                                     }
@@ -553,8 +560,9 @@ describe('Server REST API', function () {
                     .send("true")
                     .expect(500)
                     .end(function (err, res) {
-                        if (err)
+                        if (err) {
                             done(err);
+                        }
                         else {
                             done();
                         }
@@ -568,8 +576,9 @@ describe('Server REST API', function () {
                     .send({ "puzzleStateSolved": "false" })
                     .expect(200)
                     .end(function (err, res) {
-                        if (err)
+                        if (err) {
                             done(err);
+                        }
                         else {
                             done();
                         }
@@ -584,8 +593,9 @@ describe('Server REST API', function () {
                     .send({ "puzzleStateSolved": "false" })
                     .expect(200)
                     .end(function (err, res) {
-                        if (err)
+                        if (err) {
                             done(err);
+                        }
                         else {
                             done();
                         }

@@ -199,9 +199,10 @@ var psdb: IPSDB = {
         return;
     },
     callInitCompleteCallback: function (err: Error) {
-        var item;
-        while (item = initCallbackArray.shift()) {
+        var item = initCallbackArray.shift();
+        while (item) {
             item(err);
+            item = initCallbackArray.shift();
         }
     },
     // --------------End private methods--------------
@@ -398,15 +399,15 @@ var psdb: IPSDB = {
             values: any,
             queryOperator: string,
             projParts: string[];
-        
+    var transFunc = function (item) {
+        translatedQuery.projectionMap[item] = 1;
+    };
         for (var fieldName in query) {
             if (query.hasOwnProperty(fieldName)) {
                 if (fieldName === global.config.psdb.projectionMapKeyWord) {
                     // Projection fields provided, adjust the projection map accordingly
                     projParts = query[fieldName].split(global.config.psdb.queryValueSeparator);
-                    projParts.forEach(function (projItem) {
-                        translatedQuery.projectionMap[projItem] = 1;
-                    });
+                    projParts.forEach(transFunc); //Pulled the definition of the function, out of the for loop to make jshint happy!
                 }
                 else {
                     // A query fieldName found, add it to the translatedQuery
