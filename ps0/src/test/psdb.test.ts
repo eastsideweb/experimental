@@ -40,7 +40,7 @@ var psdb_findSeries = function (done) {
             done(err);
         }
         else {
-            handleToInfoDatabase.should.be.ok;
+            assert(handleToInfoDatabase !== null && handleToInfoDatabase !== undefined);
             assert(list.length === handleToInfoDatabase[global.config.psdb.seriesInfoCollectionName].length);
             done();
         }
@@ -85,7 +85,6 @@ describe("psdb apis tests", function () {
 
     it("psdb getseriesToken api - invalid seriesID", function (done) {        
         psdb.getSeriesToken("wrongSeriesId", "administrator", null, {}, function (err: Error, token: string) {
-            err.should.ok;
             err.should.eql(utils.errors.invalidSeriesID);
             done();
         });
@@ -98,16 +97,24 @@ describe("psdb apis tests", function () {
             "password": handleToInfoDatabase[global.config.psdb.userInfoCollectionName][0].password
         };
         psdb.getSeriesToken(seriesId1, "administrator", credentials, {}, function (err: Error, token: string) {
-            (err === null).should.be.true;
-            token.should.be.a.String;
-            savedToken = token;
-            done();
+            if (err) {
+                done(err);
+            }
+            else {
+                (typeof token).should.eql('string');
+                savedToken = token;
+                done();
+            }
         });
     });
     it("psdb releaseSeriesToken api", function (done) {
         psdb.releaseSeriesToken(savedToken, function (err: Error) {
-            (err === null).should.be.true;
-            done();
+            if (err) {
+                done(err);
+            }
+            else {
+                done();
+            }
         });
     });
 
@@ -123,7 +130,7 @@ describe("psdb apis tests", function () {
         psdb.getSeriesToken(seriesId1, "administrator",
             credentials, {}, function (err: Error, token: string) {
                 setTimeout(function () {
-                    (psdb.series(token) === null).should.be.true;
+                    (psdb.series(token) === null).should.eql(true);
                     // Reset the tolerence
                     global.config.psdb.tokenValidityTolerence = oldTolerence;
                     done();
@@ -133,7 +140,7 @@ describe("psdb apis tests", function () {
 
     it("psdb series api", function (done) {
         savedSeries = psdb.series(savedToken);
-        (savedSeries === null).should.be.true;
+        (savedSeries === null).should.eql(true);
         done();
     });
 });
@@ -155,14 +162,14 @@ describe("series apis test with administrator role", function () {
                 handleToSeriesDatabase = {};
                 setupHandleToDatabase(handleToInfoDatabase[global.config.psdb.seriesInfoCollectionName][0].database, [global.config.psdb.eventsCollectionName, global.config.psdb.puzzlesCollectionName, global.config.psdb.playersCollectionName,
                     global.config.psdb.teamsCollectionName, global.config.psdb.instructorsCollectionName], handleToSeriesDatabase);
-                handleToSeriesDatabase.should.be.ok;
+                assert(handleToSeriesDatabase !== null && handleToSeriesDatabase !== undefined);
                 psdb.getSeriesToken(seriesId1, "administrator",
                     credentials, {}, function (err: Error, token: string) {
                         if (err) {
                             done(err);
                         }
                         else {
-                            token.should.be.a.String;
+                            (typeof token).should.eql('string');
                             seriesToken = token;
                             psdb.getSeriesToken(seriesId2, "administrator",
                                 credentials, {}, function (err2: Error, token2: string) {
@@ -170,7 +177,7 @@ describe("series apis test with administrator role", function () {
                                         done(err);
                                     }
                                     else {
-                                        token2.should.be.a.String;
+                                        (typeof token2).should.eql('string');
                                         seriesToken2 = token2;
                                         done();
                                     }
@@ -182,13 +189,13 @@ describe("series apis test with administrator role", function () {
     });
     it("series findObj api - all valid objectTypes", function (done) {
         var series = psdb.series(seriesToken);
-        series.should.be.ok;
+        assert(series !== null && series !== undefined);
         series.findObj('events', {}, {}, function (err: Error, eventList) {
             if (err) {
                 done(err);
             }
             else {
-                eventList.should.have.length(handleToSeriesDatabase[global.config.psdb.eventsCollectionName].length);
+                eventList.length.should.eql(handleToSeriesDatabase[global.config.psdb.eventsCollectionName].length);
             if (eventList.length === 1) {
                     eventList[0].name.should.eql(handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0].name);
                 }
@@ -245,7 +252,7 @@ describe("series apis test with administrator role", function () {
     });
     it("series findObj api - invalid objectType", function (done) {
         var series = psdb.series(seriesToken);
-        series.should.be.ok;
+        assert(series !== null && series !== undefined);
         series.findObj('dummyObject', {}, {}, function (err: Error, eventList) {
             if (err) {
                 err.should.eql(utils.errors.invalidObjType);
@@ -261,7 +268,7 @@ describe("series apis test with administrator role", function () {
         puzzleStateCollectionName = global.config.psdb.puzzleStatesCollectionNamePrefix + handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0]._id;
         setupHandleToDatabase(handleToInfoDatabase[global.config.psdb.seriesInfoCollectionName][0].database, [puzzleStateCollectionName], handleToSeriesDatabase);
         series2 = psdb.series(seriesToken2);
-        series2.should.be.ok;
+        assert(series2 !== null && series2 !== undefined);
         eventObj = {
             "name": handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0].name,
             "description": handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0].description,
@@ -288,15 +295,15 @@ describe("series apis test with administrator role", function () {
                 objInfo.name.should.eql(eventObj.name);
                 eventObj.description.should.eql(objInfo.description);
                 eventObj._id.should.not.eql(objInfo._id);
-                objInfo._id.should.be.ok;
-                objInfo.active.should.be.false;
-                Array.isArray(objInfo.playerIds).should.be.ok;
+                assert(objInfo._id !== null && objInfo._id !== undefined);
+                objInfo.active.should.eql(false);
+                Array.isArray(objInfo.playerIds).should.eql(true);
                 objInfo.playerIds.length.should.eql(0);
-                Array.isArray(objInfo.puzzleIds).should.be.ok;
+                Array.isArray(objInfo.puzzleIds).should.eql(true);
                 objInfo.puzzleIds.length.should.eql(0);
-                Array.isArray(objInfo.instructorIds).should.be.ok;
+                Array.isArray(objInfo.instructorIds).should.eql(true);
                 objInfo.instructorIds.length.should.eql(0);
-                Array.isArray(objInfo.teamIds).should.be.ok;
+                Array.isArray(objInfo.teamIds).should.eql(true);
                 objInfo.teamIds.length.should.eql(0);
                 series2.addObj("teams", teamObj, function (innererr1: Error, objInfo1: any) {
                     if (innererr1) {
@@ -306,11 +313,11 @@ describe("series apis test with administrator role", function () {
                         objInfo1.name.should.eql(teamObj.name);
                         teamObj.description.should.eql(objInfo1.description);
                         teamObj._id.should.not.eql(objInfo1._id);
-                        objInfo1._id.should.be.ok;
-                        objInfo1.active.should.be.false;
-                        Array.isArray(objInfo1.playerIds).should.be.ok;
+                        assert(objInfo1._id !== null && objInfo1._id !== undefined);
+                        objInfo1.active.should.eql(false);
+                        Array.isArray(objInfo1.playerIds).should.eql(true);
                         objInfo1.playerIds.length.should.eql(0);
-                        Array.isArray(objInfo1.puzzleIds).should.be.ok;
+                        Array.isArray(objInfo1.puzzleIds).should.eql(true);
                         objInfo1.puzzleIds.length.should.eql(0);
                         objInfo1.teamLeadId.should.eql(teamObj.teamLeadId);
                         // Skipping addObj of puzzle/instructor/player - no custom fields
@@ -335,7 +342,7 @@ describe("series apis test with administrator role", function () {
         puzzleStateCollectionName = global.config.psdb.puzzleStatesCollectionNamePrefix + handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0]._id;
         setupHandleToDatabase(handleToInfoDatabase[global.config.psdb.seriesInfoCollectionName][0].database, [puzzleStateCollectionName], handleToSeriesDatabase);
         series = psdb.series(seriesToken);
-        series.should.be.ok;
+        assert(series !== null && series !== undefined);
         eventId = handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0]._id;
         teamId = handleToSeriesDatabase[global.config.psdb.teamsCollectionName][0]._id;
         eventUpdateObj = {
@@ -360,7 +367,7 @@ describe("series apis test with administrator role", function () {
                 done(err);
             }
             else {
-                (count === 1).should.be.ok;
+                count.should.eql(1);
                 series.findObj('events', { "_id": eventId }, {}, function (err1: Error, eventList) {
                     if (err1) {
                         done(err1);
@@ -377,7 +384,7 @@ describe("series apis test with administrator role", function () {
                                 done(err2);
                             }
                             else {
-                                (count2 === 1).should.be.ok;
+                                count2.should.eql(1);
                                 done();
                             }
                         });
@@ -393,7 +400,7 @@ describe("series apis test with administrator role", function () {
         puzzleStateCollectionName = global.config.psdb.puzzleStatesCollectionNamePrefix + handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0]._id;
         setupHandleToDatabase(handleToInfoDatabase[global.config.psdb.seriesInfoCollectionName][0].database, [puzzleStateCollectionName], handleToSeriesDatabase);
         series = psdb.series(seriesToken);
-        series.should.be.ok;
+        assert(series !== null && series !== undefined);
         eventId = handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0]._id;
         teamId = handleToSeriesDatabase[global.config.psdb.teamsCollectionName][0]._id;
         eventUpdateObj = {
