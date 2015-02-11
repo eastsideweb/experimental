@@ -123,7 +123,7 @@ router.delete('/series/:id/session/:token', function (request, response, next) {
 // Validates the incoming request if it contains a valid token in the header
 router.all('/:type*', function (request, response, next) {
     // TODO: Validate token value
-    var token = request.headers['token'];
+    var token = request.header('token');
     if (validator.isValidString(token)) {
         next();
     }
@@ -137,7 +137,7 @@ router.all('/:type*', function (request, response, next) {
 // Request: GET should contain a valid type, (and valid query string)
 // Response: list of the requested type
 router.get('/:type', function (request, response,next) {
-    var token = request.headers['token'];
+    var token = request.header('token');
     var query = (request.query !== null) ? psdb.translateURLQuery(request.query) : {};
     var series = psdb.series(token);
     series.findObj(request.params.type, query.findMap, query.projectionMap, function (err: Error, list: any[]) {
@@ -156,7 +156,7 @@ router.get('/:type', function (request, response,next) {
 // Reequest: GET should contain a valid id of the requested type
 // Response: json object containing the details of the requested type
 router.get('/:type/:id', function (request, response,next) {
-    var token = request.headers['token'];
+    var token = request.header('token');
 //    var query = (request.query !== null) ? request.query : {};
     var series = psdb.series(token);
     series.findObj(request.params.type, {"_id": request.params.id}, {}, function (err: Error, list: any[]) {
@@ -179,7 +179,7 @@ router.get('/:type/:id/status', function (request, response,next) {
         next(new Error('This is an invalid token ( ' + token + ' ) please provide a valid session token'));
     }
     else {
-        var token = request.headers['token'];
+        var token = request.header('token');
         //var query = (request.query !== null) ? request.query : {};
         var series = psdb.series(token);
         series.findObj(request.params.type, { "_id": request.params.id }, { _id: 0, status: 1 }, function (err: Error, list: any[]) {
@@ -198,7 +198,7 @@ router.get('/:type/:id/status', function (request, response,next) {
 // Request: POST containing the respective json object passed in the body
 // Response: the requested json object type created
 router.post('/:type', function (request, response, next) {
-    var token = request.headers['token'];
+    var token = request.header('token');
     var series = psdb.series(token);
     var newObj = request.body;
     series.addObj(request.params.type, newObj, function (err: Error, objInfo: any) {
@@ -215,7 +215,7 @@ router.post('/:type', function (request, response, next) {
 // Request: PUT containing json puzzle state string
 // Response: status ok
 router.put('/teams/:teamId/puzzlestates/:puzzleId', function (request, response, next) {
-    var token = request.headers['token'];
+    var token = request.header('token');
     var series = psdb.series(token);
     var puzzlestate: string = request.body.puzzleStateSolved;
     series.updatePuzzleState(request.params.teamId, request.params.puzzleId, puzzlestate, function (err: Error) {
@@ -233,7 +233,7 @@ router.put('/teams/:teamId/puzzlestates/:puzzleId', function (request, response,
 // Request: PUT containing the respective type to be modified, should contain a valid id
 // Response: count for the updated type
 router.put('/:type/:id', function (request, response, next) {
-    var token = request.headers['token'];
+    var token = request.header('token');
     var series = psdb.series(token);
     series.updateObj(request.params.type, request.params.id, request.body, function (err: Error, count: number) {
         if (err !== null) {
@@ -249,7 +249,7 @@ router.put('/:type/:id', function (request, response, next) {
 // Request: DELETE containing a valid type id
 // Response: status ok
 router.delete('/:type/:id', function (request, response, next) {
-    var token = request.headers['token'];
+    var token = request.header('token');
     var series = psdb.series(token);
 
     series.deleteObj(request.params.type, { "_id": request.params.id }, function (err: Error, count: number) {
@@ -269,7 +269,7 @@ router.delete('/:type/:id', function (request, response, next) {
 // Request: PUT body containing true or false for states representing activate/deactivate
 // Response: status ok
 router.put('/:type/:id/active', function (request, response, next) {
-    var token = request.headers['token'];
+    var token = request.header('token');
     var series = psdb.series(token);
     series.setActive(request.params.type, request.params.id, request.body.active, function (err: Error) {
         if (err) {
@@ -286,7 +286,7 @@ router.put('/:type/:id/active', function (request, response, next) {
 // Reuquest: PUT containing status: notstarted/ended/started
 // Response: status ok
 router.put('/events/:id/status', function (request, response, next) {
-    var token = request.headers['token'];
+    var token = request.header('token');
     var series = psdb.series(token);
     console.log(" events/id/status got " + JSON.stringify(request.body));
     series.setEventStatus(request.params.id, request.body.status, function (err: Error) {
@@ -307,7 +307,7 @@ router.put('/events/:id/status', function (request, response, next) {
 // Request: GET containing valid type and a valid subtype associated with that type
 // Response: list of ids of the subtype
 router.get('/:type/:id/:associatedtype', function (request, response, next) {
-    var token = request.headers['token'];
+    var token = request.header('token');
     var series = psdb.series(token);
     series.findObj(request.params.type, { "_id": request.params.id }, {}, function (err: Error, list: any[]) {
         if (err) {
@@ -323,7 +323,7 @@ router.get('/:type/:id/:associatedtype', function (request, response, next) {
 // Request: PUT containing the json of ids of associated type (json containing player id or array of player ids)
 // Response: status ok
 router.put('/:type/:id/:associatedtype', function (request, response,next) {
-    var token = request.headers['token'];
+    var token = request.header('token');
     var series = psdb.series(token);
     var itemList = request.body;
     series.addItemsToObj(itemList, request.params.associatedtype, request.params.id, request.params.type, function (err: Error) {
@@ -341,7 +341,7 @@ router.put('/:type/:id/:associatedtype', function (request, response,next) {
 // Request: delete containing the json of ids of associated type (json containing player id or array of player ids)
 // Response: status ok
 router.delete('/:type/:id/:associatedtype', function (request, response, next) {
-    var token = request.headers['token'];
+    var token = request.header('token');
     var series = psdb.series(token);
     var itemList = request.body;
     series.removeItemsFromObj(itemList, request.params.associatedtype, request.params.id, request.params.type, function (err: Error, count: number) {

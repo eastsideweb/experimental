@@ -52,7 +52,7 @@ module psdbClient {
         export function initModule($container) {
             jqueryMap.$container = $container;
 
-        };
+        }
 
         //---------------------- END PUBLIC METHODS -------------------------------------
 
@@ -119,9 +119,9 @@ module psdbClient {
                     else {
                         clearModal();
                         // Append data with seriesId and roleType, since it is not part of the response
-                        data['seriesId'] = seriesId;
-                        data['roleType'] = inputObject.roleType;
-                        data['seriesParams'] = seriesParams;
+                        data.seriesId = seriesId;
+                        data.roleType = inputObject.roleType;
+                        data.seriesParams = seriesParams;
                         publishLogin(data);
                     }
             });
