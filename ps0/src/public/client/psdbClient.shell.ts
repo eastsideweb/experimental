@@ -39,7 +39,7 @@ module psdbClient {
             $(window).bind('hashchange', onHashChange)
                 .trigger('hashchange'); // This will make sure the appropriate state is loaded based on current anchor
 
-        };
+        }
         // Begin DOM method /changeAnchorPart/
         // Purpose    : Changes part of the URI anchor component
         // Arguments  :
@@ -64,12 +64,12 @@ module psdbClient {
             var
                 anchor_map_revise = copyAnchorMap(),
                 bool_return = true,
-                key_name, key_name_dep;
+                key_name,key_dep, key_name_dep, arg_map_dep_obj, anchor_revise_dep_obj;
 
             // Begin merge changes into anchor map
             KEYVAL:
             for (key_name in arg_map) {
-                if (arg_map.hasOwnProperty(key_name)) {
+                if (arg_map.hasOwnProperty(key_name) && arg_map[key_name] !== null) {
 
                     // skip dependent keys during iteration
                     if (key_name.indexOf('_') === 0) { continue KEYVAL; }
@@ -79,8 +79,15 @@ module psdbClient {
 
                     // update matching dependent key
                     key_name_dep = '_' + key_name;
-                    if (arg_map[key_name_dep]) {
-                        anchor_map_revise[key_name_dep] = arg_map[key_name_dep];
+                    if ((arg_map[key_name_dep]) && (arg_map[key_name_dep] !== null)) {
+                        arg_map_dep_obj = arg_map[key_name_dep];
+                        anchor_revise_dep_obj = anchor_map_revise[key_name_dep];
+                        for (key_dep in arg_map_dep_obj) {
+                            if (arg_map_dep_obj.hasOwnProperty(key_dep) && arg_map_dep_obj[key_dep] !== null) {
+                                anchor_revise_dep_obj[key_dep] = arg_map_dep_obj[key_dep];
+                            }
+                        }
+                     //  anchor_map_revise[key_name_dep] = anchor_revise_dep_obj;
                     }
                     else {
                         delete anchor_map_revise[key_name_dep];
@@ -92,7 +99,7 @@ module psdbClient {
 
             // Begin attempt to update URI; revert if not successful
             try {
-                $.uriAnchor.setAnchor(anchor_map_revise);
+                $.uriAnchor.setAnchor(anchor_map_revise, null, true);
             }
             catch (error) {
                 // replace URI with existing state
@@ -102,7 +109,7 @@ module psdbClient {
             // End attempt to update URI...
 
             return bool_return;
-        };
+        }
       // End DOM method /changeAnchorPart/
         // End PUBLIC method /initModule/
     }
@@ -124,7 +131,7 @@ module psdbClient {
         },
         configMap = {
             /* A possible valid anchor map:
-            #seriesId=1234:type,events|id,eventId1|subtype,players|roleType:player
+            #series=1234:type,events|id,eventId1|subtype,players|roleType:player
             */
             anchor_schema_map: {
                 series: true,
@@ -151,7 +158,7 @@ module psdbClient {
                 $content: $container.find('.psdbClient-shell-main-content'),
                 $signoutButton: $container.find('#signoutButton')
             };
-        };
+        }
         // End DOM method /setJqueryMap/
 
         function onTapSeries(event) {
@@ -161,7 +168,7 @@ module psdbClient {
             // We should just set the anchor part correctly and then let the onHashChange do the right thing
  //           changeAnchorPart({ series: seriesId });
             return false;
-        };
+        }
 
         function onSeriesLogin(event, data) {
             //jqueryMap.$acct.text(data);
@@ -175,12 +182,12 @@ module psdbClient {
                 var error: IPSDBClientError = { "title": "Unable to retrieve session id"};
                 util.handleError(error, jqueryMap.$modal);
             }
-        };
+        }
         function onSeriesLogout(event, logout_user) {
             jqueryMap.$acct.text('');
             // Call series
             psdbClient.util.getRequest(config.seriesUrl, renderSeriesTemplate); //TODO: should this be Async or sync?
-        };
+        }
 
 
 
@@ -214,7 +221,7 @@ module psdbClient {
         }
 
         //TODO: clean up this logic that takes care of the first time loading
-        if (stateMap.anchor_map == null) {
+        if (stateMap.anchor_map === null) {
             // First load
             // Check if proposed map has any series information
             if (anchor_map_proposed.series === null || anchor_map_proposed.series === undefined || anchor_map_proposed.series === {}) {
@@ -235,7 +242,7 @@ module psdbClient {
 
         // Begin adjust series component if changed
         if (!anchor_map_previous
-            || _s_series_previous != _s_series_proposed
+            || _s_series_previous !== _s_series_proposed
             ) {
             // something has changed
             // notify the series component 
@@ -281,7 +288,7 @@ module psdbClient {
         // End revert anchor if slider change denied
 
         return false;
-    };
+    }
         //-------------------- END EVENT HANDLERS --------------------
         
         //---------------------- BEGIN CALLBACKS ---------------------
@@ -303,7 +310,7 @@ module psdbClient {
     // Returns copy of stored anchor map; minimizes overhead
     function copyAnchorMap() {
         return $.extend(true, {}, stateMap.anchor_map);
-    };
+    }
   //-------------------- END UTILITY METHODS -------------------
 
 }

@@ -31,7 +31,7 @@ module psdbClient {
             // Set the roletype correctly - the roletype found in sessiondata should be used, since that's what the
             // token corresponds to.
             stateMap.seriesAnchorMap.roletype = sessionData.roleType;
-            updateSeries(sessionData.seriesParams);
+            updateSeries(sessionData.seriesParams)
         }
 
         export function unloadSeries() {
@@ -72,6 +72,7 @@ module psdbClient {
                 if (seriesParams.id === null || seriesParams.id === undefined) {
                     // No id specified, load the list of objects of given type
                     loadObjList(seriesParams.type);
+                    return true;
                 }
                 else {
                     // an id was specified for the given type
@@ -79,10 +80,12 @@ module psdbClient {
                     if (seriesParams.subtype === null || seriesParams.subtype === undefined) {
                         // No subtype specified, load the object view
                         loadObject(seriesParams.type, seriesParams.id);
+                        return true;
                     }
                     else {
                         // there is a subtype
                         loadObjSublist(seriesParams.type, seriesParams.id, seriesParams.subtype);
+                        return true;
                     }
                 }
             }
@@ -90,7 +93,7 @@ module psdbClient {
         }
 
         export function getCurrentSeriesId(): string {
-            return stateMap.seriesId;
+            return stateMap.seriesId
         }
         //--------------------------END PUBLIC METHODS--------------------------------------------
 
@@ -122,7 +125,7 @@ module psdbClient {
             var reqParams: IRequestParameters = { session: stateMap.session, loadPreloader: true };
             util.getRequestAsync('/' + stateMap.seriesAnchorMap.type, renderObjectList, reqParams);
             return false;
-        };
+        }
 
         function renderObject(err: any, result: JSON) {
             var error: IPSDBClientError;
@@ -202,6 +205,19 @@ module psdbClient {
             util.postRequestAsync('/' + stateMap.seriesAnchorMap.type, inputObject, function (err: IPSDBClientError, data) {
                 if (err) {
                     jqueryMap.$content.find('#error').html(err.title);
+                } else {
+                    //add object was successful return to previous screen
+                     var anchorSchemaMap = {
+                         series: stateMap.seriesId,
+                         _series: {
+                             id: stateMap.seriesAnchorMap.id ,
+                             type: stateMap.seriesAnchorMap.type,
+                             subtype: stateMap.seriesAnchorMap.subtype,
+                             role: stateMap.seriesAnchorMap.roletype
+                         }
+                     };
+                   
+                    psdbClient.shell.changeAnchorPart(anchorSchemaMap);
                 }
             }, reqParams);
         }
@@ -269,7 +285,7 @@ module psdbClient {
         function stateOk(seriesParams: any) {
             if (stateMap.session === null || stateMap.session === undefined
                 || stateMap.seriesId === null || stateMap.seriesId === undefined
-                || (seriesParams !== null && seriesParams != undefined && seriesParams.roletype !== null && seriesParams.roletype !== undefined && stateMap.seriesAnchorMap.roletype !== seriesParams.roletype)) {
+                || (seriesParams !== null && seriesParams !== undefined && seriesParams.roletype !== null && seriesParams.roletype !== undefined && stateMap.seriesAnchorMap.roletype !== seriesParams.roletype)) {
                 alert("returning false stateOk: seriesParams.roletype = " + seriesParams.roletype);
                 return false;
             }
