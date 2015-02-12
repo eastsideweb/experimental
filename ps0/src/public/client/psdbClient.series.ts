@@ -251,7 +251,7 @@ module psdbClient {
                             }
                         }
                     }
-                    util.renderTemplate(config.objlistTemplate, {items: arr }, jqueryMap.$content);
+                    util.renderTemplate(config.objlistTemplate, { items: arr, seriesId: stateMap.seriesId, objtype: stateMap.seriesAnchorMap.type }, jqueryMap.$content);
                 } }, reqParams);
 
         }

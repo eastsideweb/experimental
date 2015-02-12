@@ -64,7 +64,7 @@ module psdbClient {
             var
                 anchor_map_revise = copyAnchorMap(),
                 bool_return = true,
-                key_name,key_dep, key_name_dep, arg_map_dep_obj, anchor_revise_dep_obj;
+                key_name, key_dep, key_name_dep, arg_map_dep_obj, anchor_revise_dep_obj:any = {};
 
             // Begin merge changes into anchor map
             KEYVAL:
@@ -81,13 +81,12 @@ module psdbClient {
                     key_name_dep = '_' + key_name;
                     if ((arg_map[key_name_dep]) && (arg_map[key_name_dep] !== null)) {
                         arg_map_dep_obj = arg_map[key_name_dep];
-                        anchor_revise_dep_obj = anchor_map_revise[key_name_dep];
                         for (key_dep in arg_map_dep_obj) {
                             if (arg_map_dep_obj.hasOwnProperty(key_dep) && arg_map_dep_obj[key_dep] !== null) {
                                 anchor_revise_dep_obj[key_dep] = arg_map_dep_obj[key_dep];
                             }
                         }
-                     //  anchor_map_revise[key_name_dep] = anchor_revise_dep_obj;
+                     anchor_map_revise[key_name_dep] = anchor_revise_dep_obj;
                     }
                     else {
                         delete anchor_map_revise[key_name_dep];
