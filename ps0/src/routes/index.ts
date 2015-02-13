@@ -63,6 +63,7 @@ router.get('/series', function (request, response, next) {
             next(err);
         }
         else {
+            response.setHeader('Cache-Control', 'no-cache, no-store');
             response.json(seriesList);
         }
     });
@@ -145,6 +146,7 @@ router.get('/:type', function (request, response,next) {
             next(err);
         }
         else {
+            response.setHeader('Cache-Control', 'no-cache, no-store');
             response.json(list);
         }
     });
@@ -164,6 +166,7 @@ router.get('/:type/:id', function (request, response,next) {
             next(err);
         }
         else {
+            response.setHeader('Cache-Control', 'no-cache, no-store');
             response.json(list);
         }
     });
@@ -187,6 +190,7 @@ router.get('/:type/:id/status', function (request, response,next) {
                 next(err);
             }
             else {
+                response.setHeader('Cache-Control', 'no-cache, no-store');
                 response.json(200, list[0].status);
             }
         });
@@ -206,6 +210,7 @@ router.post('/:type', function (request, response, next) {
             next(err);
         }
         else {
+            response.setHeader('Cache-Control', 'no-cache, no-store');
             response.json(200, objInfo);
         }
     });
@@ -314,6 +319,7 @@ router.get('/:type/:id/:associatedtype', function (request, response, next) {
             next(err);
         }
         else {
+            response.setHeader('Cache-Control', 'no-cache, no-store');
             response.json(200, list[0][request.params.associatedtype]);
         }
     });

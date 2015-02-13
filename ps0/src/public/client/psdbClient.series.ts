@@ -134,14 +134,27 @@ module psdbClient {
                 util.handleError(error, jqueryMap.$modal);
                 return;
             }
-            var items: any = result; /* WOrk around to make typescript compilor happy */
+            var items: any = result; /* Work around to make typescript compilor happy */
             if (items.length === 0) {
                 error = { 'title': 'Object not found', 'details': 'No object found for the given id?', 'code': null };
             }
             else {
-                util.renderTemplate(config.objectTemplate, { seriesId: stateMap.seriesId, type: stateMap.seriesAnchorMap.type, item: result[0] } , jqueryMap.$content);
+                util.renderTemplate(config.objectTemplate, { seriesId: stateMap.seriesId, type: stateMap.seriesAnchorMap.type, item: result[0] }, jqueryMap.$content);
+                jqueryMap.$content.find('#objdeleteButton').on('click', deleteObject);
             }
             enableSignoutButton(/*enable*/true);
+        }
+        function deleteObject() {
+            var objId, reqParams: IRequestParameters , url:string;
+            objId = jqueryMap.$content.find('#rootItem').attr('objId');
+            reqParams = { session: stateMap.session, loadPreloader: true };
+            url = config.deleteObjUrl.replace('{id}', objId).replace('{type}', stateMap.seriesAnchorMap.type);
+            util.deleteRequestAsync(url, function (err, result) {
+                psdbClient.shell.changeAnchorPart({
+                    series: stateMap.seriesId,
+                    _series: { type: stateMap.seriesAnchorMap.type, roletype: stateMap.seriesAnchorMap.roletype}
+                });
+            }, reqParams);                
         }
         function renderObjectList(err: any, result: JSON) {
             if (err !== null) {

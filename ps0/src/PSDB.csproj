@@ -42,6 +42,7 @@
     <Content Include="config.test.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="public\client\templates\addobjTemplate.tl" />
     <None Include="public\client\templates\listTemplate.tl" />
     <TypeScriptCompile Include="public\client\psdbClient.login.ts" />
     <Content Include="public\index.html" />
@@ -139,6 +140,9 @@
     </Content>
     <Content Include="test\initTestDB\testSeriesId1\initDBtestSeriesId1.bat" />
     <Content Include="test\initTestDB\testpsdbInfo\initDBtestpsdbInfo.bat" />
+    <Content Include="public\client\templates\objectTemplate.tl" />
+    <Content Include="public\client\templates\objlistTemplate.tl" />
+    <Content Include="public\client\templates\objtypeTemplate.tl" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>

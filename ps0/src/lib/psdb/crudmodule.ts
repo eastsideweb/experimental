@@ -18,7 +18,7 @@
 
 import fakedbModule = require('../fakedb/fakedb');
 import mongodbModule = require('./mongodbcrud');
-"use strict"
+//"use strict"
 
 var dbcrudmodule: DBCRUDModule = {
     createDBHandleAsync: function (server: string, dbName: string, callback) {

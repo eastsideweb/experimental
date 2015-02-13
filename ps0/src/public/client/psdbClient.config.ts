@@ -24,6 +24,7 @@ module psdbClient {
         sessionUrl: '/series/{id}/session',
         eventsUrl: '/events',
         releaseTokenUrl: '/series/{id}/session/{token}',
+        deleteObjUrl: '/{type}/{id}',
         timeout:8000
     };
 }
