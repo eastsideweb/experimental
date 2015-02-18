@@ -10,6 +10,7 @@
 //     2014 May 25th    NSA  Created
 // 
 // Provides validations for strings, characters and JSON objects
+import path = require('path');
 
 class Validator {
     private fsHandle = null;
@@ -59,7 +60,7 @@ class Validator {
     private loadSchema(value: Array<string>): void {
         var schemaPath: string;
         for (var i = 0; i < value.length; i++) {
-            schemaPath = __dirname + '\\..\\public\\schema\\' + value[i] + '.json';
+            schemaPath = path.join(__dirname, "..", "public", "schema", value[i] + '.json');
 
             this.loadSchemaFromPath(value[i], schemaPath, this.getSchemaRefUri(value[i]));
         }
@@ -91,6 +92,9 @@ class Validator {
     private loadSchemaFromPath(schemaName: string, schemaPath: string, schemaRefUri: string) {
         if (this.fsHandle.existsSync(schemaPath)) {
             this.jsonValidator.createSchema(JSON.parse(this.fsHandle.readFileSync(schemaPath, 'utf8')), undefined, schemaRefUri);
+        }
+        else {
+            console.log("schemaPath not found: " + schemaPath);
         }
     }
 
