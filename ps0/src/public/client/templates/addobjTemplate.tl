@@ -1,9 +1,6 @@
 ﻿<div>
   <form id ="addForm">
-    {@eq key="events" value=objType} <legend>Found events </legend>
-    {:else}<legend> Not Found</legend>
-    {/eq}
-    <legend>Enter Details for {objType} </legend>
+        <legend>Enter Details for {objType} </legend>
     <table>
       <tr>
         <td>
