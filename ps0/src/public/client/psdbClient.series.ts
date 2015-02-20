@@ -137,6 +137,7 @@ module psdbClient {
             var items: any = result; /* Work around to make typescript compilor happy */
             if (items.length === 0) {
                 error = { 'title': 'Object not found', 'details': 'No object found for the given id?', 'code': null };
+                 util.handleError(error, jqueryMap.$modal);
             }
             else {
                 util.renderTemplate(config.objectTemplate, { seriesId: stateMap.seriesId, type: stateMap.seriesAnchorMap.type, item: result[0] }, jqueryMap.$content);
@@ -201,7 +202,7 @@ module psdbClient {
             }
         }
         function renderAddobjTemplate() {
-            util.renderTemplate(config.addobjTemplate, {}, jqueryMap.$content);
+            util.renderTemplate(config.addobjTemplate, {objType: stateMap.seriesAnchorMap.type}, jqueryMap.$content);
             var $saveBtn = jqueryMap.$content.find('#saveButton');
             $saveBtn.on('click', addObjToCollection);
             return false;
@@ -214,6 +215,8 @@ module psdbClient {
                 function (index: any, item: any) {
                     inputObject[item.name] = item.value;
                 });
+            //active field should be a boolean value
+            inputObject["active"] = (inputObject["active"] === "true") ? true : false;
             var reqParams: IRequestParameters = { session: stateMap.session, loadPreloader: true };
             util.postRequestAsync('/' + stateMap.seriesAnchorMap.type, inputObject, function (err: IPSDBClientError, data) {
                 if (err) {

@@ -86,7 +86,9 @@ class PuzzleSeries implements IPuzzleSeries {
                 }
             },
             fixObjForInsertion: function (obj) {
-                obj.status = "notStarted";
+                if (obj.status === null || obj.status === undefined) {
+                    obj.status = "notStarted";
+                }
                 obj.puzzleIds = [];
                 obj.playerIds = [];
                 obj.instructorIds = [];
@@ -233,8 +235,8 @@ class PuzzleSeries implements IPuzzleSeries {
         }
         utils.log("*********** " + utils.getShortfileName(__filename) + "after copy " + JSON.stringify(fixedObj));
         // Fix the object with common properties                                
-        // Make sure the object is marked non-active
-        fixedObj.active = false;
+        // Make sure the object is marked non-active if undefined
+        fixedObj.active = (fixedObj.active === true) ? true : false;
         fixedObj.description = fixedObj.description || "";
 
         utils.log("*********** " + utils.getShortfileName(__filename) + "after fixing " + JSON.stringify(fixedObj));
