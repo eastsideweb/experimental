@@ -128,16 +128,19 @@ module psdbClient {
         }
 
         function renderObject(err: any, result: JSON) {
-            var error: IPSDBClientError;
+            var error: IPSDBClientError, redirectUrl = {
+                series: stateMap.seriesId,
+                _series: { type: stateMap.seriesAnchorMap.type, roletype: stateMap.seriesAnchorMap.roletype }
+            };
             if (err !== null ) {
                 error = { 'title': err.title, 'details': err.details, 'code': null };
-                util.handleError(error, jqueryMap.$modal);
+                util.handleError(error, jqueryMap.$modal, redirectUrl);
                 return;
             }
             var items: any = result; /* Work around to make typescript compilor happy */
             if (items.length === 0) {
                 error = { 'title': 'Object not found', 'details': 'No object found for the given id?', 'code': null };
-                 util.handleError(error, jqueryMap.$modal);
+                 util.handleError(error, jqueryMap.$modal, redirectUrl);
             }
             else {
                 util.renderTemplate(config.objectTemplate, { seriesId: stateMap.seriesId, type: stateMap.seriesAnchorMap.type, item: result[0] }, jqueryMap.$content);
@@ -224,15 +227,12 @@ module psdbClient {
                 } else {
                     //add object was successful return to previous screen
                      var anchorSchemaMap = {
-                         series: stateMap.seriesId,
-                         _series: {
-                             id: stateMap.seriesAnchorMap.id ,
-                             type: stateMap.seriesAnchorMap.type,
-                             subtype: stateMap.seriesAnchorMap.subtype,
-                             role: stateMap.seriesAnchorMap.roletype
-                         }
-                     };
-                   
+                          series: stateMap.seriesId,
+                          _series: {
+                              type: stateMap.seriesAnchorMap.type,
+                              role: stateMap.seriesAnchorMap.roletype
+                          }
+                      };               
                     psdbClient.shell.changeAnchorPart(anchorSchemaMap);
                 }
             }, reqParams);
@@ -297,7 +297,6 @@ module psdbClient {
             stateMap.seriesAnchorMap.subtype = null;
             stateMap.seriesAnchorMap.type = null;
         }
-
         function stateOk(seriesParams: any) {
             if (stateMap.session === null || stateMap.session === undefined
                 || stateMap.seriesId === null || stateMap.seriesId === undefined
