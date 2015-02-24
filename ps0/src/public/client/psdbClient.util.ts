@@ -35,7 +35,7 @@ module psdbClient {
         // err: JSON error object
         // $container: the Jquery container to append the rendered template output 
         // ignoreError: a value to ignore error, in case it needs to be handled in a different way
-        export function handleError(err: IPSDBClientError, $container:JQuery, ignoreError = false) {
+        export function handleError(err: IPSDBClientError, $container:JQuery, anchorURL?:any, ignoreError = false) {
             if (!ignoreError) {
                 renderTemplate(config.modalTemplate, err, $container);
                 $container.fadeIn(10);
@@ -50,7 +50,10 @@ module psdbClient {
 
                     return false;
                 });
-            }
+                if (anchorURL) {
+                    $.uriAnchor.setAnchor(anchorURL, null, true);
+                };
+            };
         }
 
         // Synchronous get request
