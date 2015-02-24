@@ -337,6 +337,7 @@ class PuzzleSeries implements IPuzzleSeries {
         switch (objType) {
             case "events":
                 // No semantics check here
+                callback(null);
                 break;
             case "teams":
                 if (updateFields.playerIds) {

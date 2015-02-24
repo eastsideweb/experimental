@@ -40,7 +40,7 @@ module psdbClient {
                 // We should release the session token we have
                 var reqParams: IRequestParameters = { session: stateMap.session, loadPreloader: true };
                 var url: string = config.releaseTokenUrl.replace('{id}', stateMap.seriesId).replace('{token}', stateMap.session);
-                util.deleteRequest(url, function (err, result) {
+                util.deleteRequest(url, null, function (err, result) {
                     resetStateMap();
                 }, reqParams);                
             }
@@ -113,7 +113,14 @@ module psdbClient {
                 { _id: "puzzles", name: "Puzzles", "description": "List of Puzzles", url: "/Puzzles" },
                 { _id: "teams", name: "Teams", "description": "List of Teams", url: "/teams" },
                 { _id: "instructors", name: "Instructors", "description": "List of Instructors", url: "/instructors" }
-            ];
+            ],
+            objToCollectionMap = {
+                eventIds: "events",
+                playerIds: "players",
+                puzzleIds: "puzzles",
+                teamIds: "teams",
+                instructorIds: "instructors"
+            };
 
         //---------------------------- DOM METHODS-------------------------------------------------
 
@@ -150,7 +157,7 @@ module psdbClient {
             objId = jqueryMap.$content.find('#rootItem').attr('objId');
             reqParams = { session: stateMap.session, loadPreloader: true };
             url = config.deleteObjUrl.replace('{id}', objId).replace('{type}', stateMap.seriesAnchorMap.type);
-            util.deleteRequestAsync(url, function (err, result) {
+            util.deleteRequestAsync(url, null, function (err, result) {
                 psdbClient.shell.changeAnchorPart({
                     series: stateMap.seriesId,
                     _series: { type: stateMap.seriesAnchorMap.type, roletype: stateMap.seriesAnchorMap.roletype}
@@ -170,35 +177,6 @@ module psdbClient {
                 var $addBtn = jqueryMap.$content.find('#addButton');
                 $addBtn.attr('disabled', false);
                 $addBtn.on('click', renderAddobjTemplate);
-
-              /*  jqueryMap.$content.find('#objlist').selectable({
-                    stop: function () {
-                        var selectedItems, countSelect;
-                        selectedItems = jqueryMap.$content.find('li').filter(function () {
-                            return $(this).hasClass('ui-selected');
-                        });
-                        countSelect = selectedItems.length;
-                        //alert('count = ' + countSelect);
-                        var buttons = jqueryMap.$content.find('.button-small');
-                        var button: JQuery = $('#signoutButton');
-                        // Disable appropriate buttons
-                        switch (countSelect) {
-                            case 0:
-                                // Disable all buttons, except for the add button
-                                jqueryMap.$content.find('.button-small').prop('disabled', true);
-                                jqueryMap.$content.find('#addButton').prop('disabled', false);
-                                break;
-                            case 1:
-                                //jqueryMap.$content.find('.button-small').css('color', '#00ff00');
-                                jqueryMap.$content.find('.button-small').prop('disabled', false);
-                                break;
-                            default:
-                                jqueryMap.$content.find('.button-small').prop('disabled', false);
-                                jqueryMap.$content.find('#editButton').prop('disabled', true);
-                                break;
-                        }
-                    }
-                }); */
             }
         }
         function renderAddobjTemplate() {
@@ -216,7 +194,7 @@ module psdbClient {
                     inputObject[item.name] = item.value;
                 });
             //active field should be a boolean value
-            inputObject["active"] = (inputObject["active"] === "true") ? true : false;
+            inputObject.active = (inputObject.active === "true") ? true : false;
             var reqParams: IRequestParameters = { session: stateMap.session, loadPreloader: true };
             util.postRequestAsync('/' + stateMap.seriesAnchorMap.type, inputObject, function (err: IPSDBClientError, data) {
                 if (err) {
@@ -238,40 +216,192 @@ module psdbClient {
             }, reqParams);
         }
         function renderObjectSublist(err: any, result: JSON) {
-            var itemList = result;
-            var reqParams: IRequestParameters = { session: stateMap.session, loadPreloader: true };
-            var objToCollectionMap = {
-                eventIds: "events",
-                playerIds: "players",
-                puzzleIds: "puzzles",
-                teamIds: "teams",
-                instructorIds: "instructors"
-            };
-            var queryUrl = objToCollectionMap[stateMap.seriesAnchorMap.subtype];
-            util.getRequestAsync(queryUrl, function (err: any, queryResult: JSON) {
-                var idList: any = result; 
+            var error: IPSDBClientError,
+                reqParams: IRequestParameters = { session: stateMap.session, loadPreloader: true };
+            var idList: any = result; 
+            if (err !== null) {
+                error = { 'title': err.title, 'details': err.details, 'code': null };
+                util.handleError(error, jqueryMap.$modal);
+                return;
+            }
+            else {
                 if (idList.length === 0) {
-                   var error = { 'title': 'Object not found', 'details': 'No object found for the given id?', 'code': null };
+                    // There were no items in the sublist, render empty list
+                    util.renderTemplate(config.objlistTemplate, { items: [], seriesId: stateMap.seriesId, objtype: stateMap.seriesAnchorMap.type }, jqueryMap.$content);
+                    setUpSublistUI();
                 }
                 else {
-                    //grab the name and discription for the objects corresponding ot the objectIds in result from collection
-                    var objId;
-                    var collList: any = queryResult;
-                    var arr = [];
-                    for (var j = 0; j < idList.length; j++) {
-                        objId = idList[j];
-                        for (var i = 0; i < collList.length; i++) {
-                            if (collList[i]._id === objId) {
-                                arr.push(collList[i]);
-                                break;
-                            }
+                    // Compose the url with correct query params and projection map
+                    var queryUrl = objToCollectionMap[stateMap.seriesAnchorMap.subtype] + "?properties=name,description&_id=";
+                    idList.forEach(function (item, index) {
+                        queryUrl = queryUrl.concat(item);
+                        if (index !== idList.length - 1) {
+                            queryUrl = queryUrl.concat(',');
                         }
+                    });
+
+                    util.getRequestAsync(queryUrl, function (err: any, queryResult: JSON) {
+                        util.renderTemplate(config.objsublistTemplate, { items: queryResult, seriesId: stateMap.seriesId, objtype: stateMap.seriesAnchorMap.type, subtype: stateMap.seriesAnchorMap.subtype }, jqueryMap.$content);
+                        setUpSublistUI();
+                    }, reqParams);
+                }
+            }
+        }
+
+        function setUpSublistUI() {
+            var addButton, deleteButton;
+            jqueryMap.$content.find('#objsublist').selectable({
+                stop: function () {
+                    var selectedItems, countSelect;
+                    selectedItems = jqueryMap.$content.find('li').filter(function () {
+                        return $(this).hasClass('ui-selected');
+                    });
+                    countSelect = selectedItems.length;
+                    //alert('count = ' + countSelect);
+                    // Disable appropriate buttons
+                    if (countSelect === 0) {
+                        jqueryMap.$content.find('#deleteSublistButton').prop('disabled', true);
                     }
-                    util.renderTemplate(config.objlistTemplate, { items: arr, seriesId: stateMap.seriesId, objtype: stateMap.seriesAnchorMap.type }, jqueryMap.$content);
-                } }, reqParams);
+                    else {
+                        jqueryMap.$content.find('#deleteSublistButton').prop('disabled', false);
+                    }
+                }
+            });
+            addButton = jqueryMap.$content.find('#addSublistButton');
+            deleteButton = jqueryMap.$content.find('#deleteSublistButton');
+            addButton.prop('disabled', false);
+            addButton.on('click', renderAddSublistTemplate);
+            deleteButton.prop('disabled', true);
+            deleteButton.on('click', openSublistRemoveDialogConfirm);
+            
+            $("#sublist-remove-dialog-confirm").dialog({
+                resizable: false,
+                autoOpen: false,
+                height: 300,
+                width: 600,
+                modal: true,
+                buttons: {
+                    "Remove all items": function () {
+                        $(this).dialog("close");
+                        deleteSublistObjects();
+                    },
+                    Cancel: function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+            $("#sublist-add-dialog").dialog({
+                resizable: true,
+                autoOpen: false,
+                //height: 300,
+                //width: 600,
+                modal: true,
+                buttons: {
+                    "Add items": function () {
+                        // Send the request to add sublist items
+                        // First get the list of selected items
+                        var selectedItems: JQuery = $("#objaddsublist").find('li').filter(function () {
+                            return $(this).hasClass('ui-selected');
+                        });
+                        if (selectedItems.length === 0) {
+                            alert("Please select items from the list to add");
+                        }
+                        else {
+                            $(this).dialog("close");
+                            addsublistItems(selectedItems);
+                        }
+                    },
+                    Cancel: function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
 
         }
-       
+
+        function addsublistItems(selectedItems: JQuery) {
+            var queryURL: string,
+                selectedIds: string[] = [],
+                requestParams: IRequestParameters;
+            // Compose the list of ids of the selected items
+            queryURL = config.adddeleteSublistObjUrl.replace('{id}', stateMap.seriesAnchorMap.id).replace('{type}', stateMap.seriesAnchorMap.type).
+                replace('{subtype}', objToCollectionMap[stateMap.seriesAnchorMap.subtype]);
+            for (var i = 0; i < selectedItems.length; i++) {
+                selectedIds.push(selectedItems[i].id);
+            }
+            requestParams = { session: stateMap.session, isAsync: true, loadPreloader: true };
+            //alert(" delete to be performed" + JSON.stringify(selectedIds));
+            util.putRequestAsync(queryURL, selectedIds, function (err: any, result: JSON) {
+                if (err) {
+                    jqueryMap.$content.find('#error').html(err.title);
+                }
+                loadObjSublist(stateMap.seriesAnchorMap.type, stateMap.seriesAnchorMap.id, stateMap.seriesAnchorMap.subtype);
+            }, requestParams);
+        }
+        function openSublistRemoveDialogConfirm() {
+            $("#sublist-remove-dialog-confirm").dialog("open");
+        }
+
+        function renderAddSublistTemplate() {
+            
+            var queryUrl: string,
+                requestParams: IRequestParameters = { session: stateMap.session, isAsync: true, loadPreloader: true },
+                currentIds: string[] = [],
+                currentItems = jqueryMap.$content.find('li');
+
+            // Compose the list of current ids
+            queryUrl = objToCollectionMap[stateMap.seriesAnchorMap.subtype] + "?properties=name,description,active";
+            for (var i = 0; i < currentItems.length; i++) {
+                currentIds.push(currentItems[i].id);
+            }
+            if (currentIds.length !== 0) {
+                // compose the query part of the url
+                queryUrl = queryUrl.concat("&!_id=");
+                currentIds.forEach(function (item, index) {
+                    queryUrl = queryUrl.concat(item);
+                    if (index !== currentIds.length - 1) {
+                        queryUrl = queryUrl.concat(',');
+                    }
+                });
+            }
+
+            util.getRequestAsync(queryUrl,
+                function (err: any, result: JSON) {
+                    if (err) {
+                        jqueryMap.$content.find('#error').html(err.title);
+                    }
+                    else {
+                        //TODO: prune out non-active items from the results array
+                        util.renderTemplate(config.objaddsublistTemplate, { items: result, seriesId: stateMap.seriesId, objtype: stateMap.seriesAnchorMap.type, subtype: stateMap.seriesAnchorMap.subtype }, $("#sublist-add-items-container"));
+                        $('#objaddsublist').selectable();
+                        $("#sublist-add-dialog").dialog("open");
+                    }
+                }, requestParams);
+        }
+
+        function deleteSublistObjects() {
+            var queryURL: string,
+                requestParams: IRequestParameters,
+                selectedIds: string[] = [],
+                //selectedNames: string[] = [],
+                selectedItems = jqueryMap.$content.find('li').filter(function () {
+                    return $(this).hasClass('ui-selected');
+                });
+            // Compose the list of ids of the selected items
+            queryURL = config.adddeleteSublistObjUrl.replace('{id}', stateMap.seriesAnchorMap.id).replace('{type}', stateMap.seriesAnchorMap.type).
+                replace('{subtype}', objToCollectionMap[stateMap.seriesAnchorMap.subtype]);
+            for(var i = 0 ; i < selectedItems.length; i++) {
+                selectedIds.push(selectedItems[i].id);
+            }
+            requestParams = { session: stateMap.session, isAsync: true, loadPreloader: true };
+            //alert(" delete to be performed" + JSON.stringify(selectedIds));
+            util.deleteRequestAsync(queryURL, selectedIds, function (err: any, result: JSON) {
+                if (err) {
+                    jqueryMap.$content.find('#error').html(err.title);
+                }
+                loadObjSublist(stateMap.seriesAnchorMap.type, stateMap.seriesAnchorMap.id, stateMap.seriesAnchorMap.subtype);
+            }, requestParams);
+        }
         function onLogout() {
 
             enableSignoutButton(/*enable*/false);

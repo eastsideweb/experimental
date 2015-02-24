@@ -27,6 +27,7 @@ module psdbClient {
             dust.render(templateName, data, function (err, out) {
                 var html = rendercallback ? rendercallback(out) : out;
                 $container.html(out);
+                $container.attr("templateId", templateName);
             });
         }
 
@@ -74,10 +75,21 @@ module psdbClient {
             makeRequest('post', url, data, callback, requestParams);
         }
 
-        export function deleteRequest(url: string, callback: (err: any, result: JSON) => void, requestParams?: IRequestParameters) {
+        export function deleteRequest(url: string, data: any, callback: (err: any, result: JSON) => void, requestParams?: IRequestParameters) {
             requestParams = checkRequestParams(requestParams);
             requestParams.isAsync = false;
-            makeRequest('delete', url, null, callback, requestParams);
+            makeRequest('delete', url, data, callback, requestParams);
+        }
+
+        // Synchronous put request
+        // Url: put request url
+        // data: The serialized data to be sent 
+        // loadPreloader: set true or false to launch a preloader
+        // call back function to return the result
+        export function putRequest(url: string, data: any, callback: (err: any, result: JSON) => void, requestParams?: IRequestParameters) {
+            requestParams = checkRequestParams(requestParams);
+            requestParams.isAsync = false;
+            makeRequest('put', url, data, callback, requestParams);
         }
 
         // Asynchronous get request
@@ -101,12 +113,21 @@ module psdbClient {
             makeRequest('post', url, data, callback, requestParams);
         }
 
-        export function deleteRequestAsync(url: string, callback: (err: any, result: JSON) => void, requestParams?: IRequestParameters) {
+        export function deleteRequestAsync(url: string, data: any, callback: (err: any, result: JSON) => void, requestParams?: IRequestParameters) {
             requestParams = checkRequestParams(requestParams);
             requestParams.isAsync = true;
-            makeRequest('delete', url, null, callback, requestParams);
+            makeRequest('delete', url, data, callback, requestParams);
         }
-        export function encodeData(data: string): string {            return encodeURIComponent(data).replace(/\-/g, "%2D").replace(/\_/g, "%5F").replace(/\./g, "%2E").replace(/\!/g, "%21").replace(/\~/g, "%7E").replace(/\*/g, "%2A").replace(/\'/g, "%27").replace(/\(/g, "%28").replace(/\)/g, "%29");        }
+        // Asynchronous put request
+        // Url: put request url
+        // Data: The serialized data to be sent 
+        // loadPreloader: set true or false to launch a preloader
+        // call back function to return the result
+        export function putRequestAsync(url: string, data: any, callback: (err: any, result: JSON) => void, requestParams?: IRequestParameters) {
+            requestParams = checkRequestParams(requestParams);
+            requestParams.isAsync = true;
+            makeRequest('put', url, data, callback, requestParams);
+        }        export function encodeData(data: string): string {            return encodeURIComponent(data).replace(/\-/g, "%2D").replace(/\_/g, "%5F").replace(/\./g, "%2E").replace(/\!/g, "%21").replace(/\~/g, "%7E").replace(/\*/g, "%2A").replace(/\'/g, "%27").replace(/\(/g, "%28").replace(/\)/g, "%29");        }
 
         export function decodeData(s: string): string {            try {                return decodeURIComponent(s.replace(/\%2D/g, "-").replace(/\%5F/g, "_").replace(/\%2E/g, ".").replace(/\%21/g, "!").replace(/\%7E/g, "~").replace(/\%2A/g, "*").replace(/\%27/g, "'").replace(/\%28/g, "(").replace(/\%29/g, ")"));            } catch (e) {            }            return "";        }
 
