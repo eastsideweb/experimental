@@ -370,6 +370,10 @@ class PuzzleSeries implements IPuzzleSeries {
                             }
                         });
                 }
+                else {
+                    callback(null);
+                    return;
+                }
                 break;
             case "players":
             case "instructors":
