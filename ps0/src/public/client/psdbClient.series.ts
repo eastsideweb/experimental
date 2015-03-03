@@ -332,10 +332,14 @@ module psdbClient {
             requestParams = { session: stateMap.session, isAsync: true, loadPreloader: true };
             //alert(" delete to be performed" + JSON.stringify(selectedIds));
             util.putRequestAsync(queryURL, selectedIds, function (err: any, result: JSON) {
+                var error;
                 if (err) {
-                    jqueryMap.$content.find('#error').html(err.title);
+                    error = { 'title': err.title, 'details': err.details, 'code': null };
+                    util.handleError(error, jqueryMap.$modal);
                 }
-                loadObjSublist(stateMap.seriesAnchorMap.type, stateMap.seriesAnchorMap.id, stateMap.seriesAnchorMap.subtype);
+                else {
+                    loadObjSublist(stateMap.seriesAnchorMap.type, stateMap.seriesAnchorMap.id, stateMap.seriesAnchorMap.subtype);
+                }
             }, requestParams);
         }
         function openSublistRemoveDialogConfirm() {
@@ -350,7 +354,7 @@ module psdbClient {
                 currentItems = jqueryMap.$content.find('li');
 
             // Compose the list of current ids
-            queryUrl = objToCollectionMap[stateMap.seriesAnchorMap.subtype] + "?properties=name,description,active";
+            queryUrl = objToCollectionMap[stateMap.seriesAnchorMap.subtype] + "?properties=name,description&active=true";
             for (var i = 0; i < currentItems.length; i++) {
                 currentIds.push(currentItems[i].id);
             }

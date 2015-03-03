@@ -418,7 +418,14 @@ var psdb: IPSDB = {
                     }
                     else {
                         queryOperator = null;
-                        values = query[fieldName];
+                        // Single value, see if it is a string corresponding to boolean value, if so set it to boolean value
+                        if (query[fieldName] === "true" || query[fieldName] === "false") {
+                            values = JSON.parse(query[fieldName]);
+                        }
+                        else {
+                            // Pass it on as is
+                            values = query[fieldName];
+                        }
                     }
                     if (fieldName.lastIndexOf('!') === 0) {
                         // The part starts with a negation sign, we should use the $nin query operator

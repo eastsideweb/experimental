@@ -87,7 +87,12 @@ var errors = {
     "initPending": {
         name: "initPending",
         message: "module initialization completion pending"
+    },
+    "playerInOtherTeam": {
+        name: "playerInOtherTeam",
+        message: "one or more players are already in other team"
     }
+
 };
 var getShortfileName = function (filename: string): string {
     var i = filename.lastIndexOf('\\');

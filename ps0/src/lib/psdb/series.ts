@@ -356,7 +356,7 @@ class PuzzleSeries implements IPuzzleSeries {
                                 for (var i = 0; i < updateFields.playerIds.length; i++) {
                                     if (playerIdsFlattened.lastIndexOf(updateFields.playerIds[i]) !== -1) {
                                         utils.log("checkObjectValidityForListUpdate detected existing playerId: " + updateFields.playerIds[i]);
-                                        callback(utils.errors.invalidItemId);
+                                        callback(utils.errors.playerInOtherTeam);
                                         return;
                                     }
                                 }
