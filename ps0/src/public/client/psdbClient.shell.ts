@@ -32,6 +32,18 @@ module psdbClient {
             login.initModule(jqueryMap.$modal);
             series.initModule(jqueryMap.$content, jqueryMap.$modal, jqueryMap.$signoutButton);
 
+            // We will have a blanket catch for dismissing any jQuery UI dialogs to be dismissed on page navigation
+//            if (typeof window.addEventListener === 'undefined') {
+//                window.addEventListener = function (e, callback) {
+//                    return window.attachEvent('on' + e, callback);
+//                }
+//}
+
+//            window.addEventListener('beforeunload', function () {
+//                //closeAllModalDialogs()
+//                return 'Are you sure you want to navigate away? You will lose any unsaved data';
+//            });
+
             // Subscribe for login events
             $.gevent.subscribe(jqueryMap.$acct, 'psdbClient-login', onSeriesLogin);
             $.gevent.subscribe(jqueryMap.$acct, 'psdbClient-logout', onSeriesLogout);
@@ -199,6 +211,8 @@ module psdbClient {
 
     // Begin Event handler /onHashChange/
     function onHashChange(event: any) {
+        //close any modal dialogs open
+        closeAllModalDialogs();
         var s_anchorMap: string;
         var
             _s_series_previous, _s_series_proposed, seriesId_proposed,seriesId_previous,
@@ -309,6 +323,16 @@ module psdbClient {
     // Returns copy of stored anchor map; minimizes overhead
     function copyAnchorMap() {
         return $.extend(true, {}, stateMap.anchor_map);
+    }
+
+    // function to close all JQuery UI dialogs and modal dialogs if they are up
+    function closeAllModalDialogs() {
+        // close all jquery UI dialogs
+        $("div:ui-dialog:visible").dialog("close");
+
+        // close the modal dialog if it is up
+        // TODO: do we need to check if modal dialog is up?
+        login.clearModal();
     }
   //-------------------- END UTILITY METHODS -------------------
 

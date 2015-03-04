@@ -124,16 +124,6 @@ module psdbClient {
 
         //---------------------------- DOM METHODS-------------------------------------------------
 
-        function onTapObject(event) {
-            stateMap.seriesAnchorMap.type = $(this).attr('id');
-            //remove the utap event from existing elements
-            jqueryMap.$content.find('a').off('utap.utap', onTapObject);
-            //get the list of the given object type for this series
-            var reqParams: IRequestParameters = { session: stateMap.session, loadPreloader: true };
-            util.getRequestAsync('/' + stateMap.seriesAnchorMap.type, renderObjectList, reqParams);
-            return false;
-        }
-
         function renderObject(err: any, result: JSON) {
             var error: IPSDBClientError, redirectUrl = {
                 series: stateMap.seriesId,

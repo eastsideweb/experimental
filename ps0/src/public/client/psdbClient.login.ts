@@ -54,6 +54,11 @@ module psdbClient {
 
         }
 
+        export function clearModal() {
+            cleanUp();
+            $('div.modal').remove();
+            $('#mask').remove();
+        }
         //---------------------- END PUBLIC METHODS -------------------------------------
 
         var jqueryMap = { $container: null };
@@ -92,11 +97,7 @@ module psdbClient {
             jqueryMap.$container.find('button.submit').unbind('click');
         }
 
-        function clearModal() {
-            cleanUp();
-            $('div.modal').remove();
-            $('#mask').remove();
-        }
+
         //----------------------END DOM METHODS-------------------------------------------------
 
         //------------------ UTILITY METHODS------------------------------------
