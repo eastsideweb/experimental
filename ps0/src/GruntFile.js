@@ -68,10 +68,22 @@ module.exports = function (grunt) {
                 src: ['styles/style.css', 'img/*', 'lib/*'],
                 dest:'../Debug/public/client/'
             },
+            //{
+            //    //copy index.html
+            //    src: 'public/index.html',
+            //    dest: '../Debug/'
+            //},
+            {
+                //copy files from public/modules
+                expand: true,
+                cwd: 'public/modules/',
+                src: ['users/**/*', 'instructors/**/*', 'core/**/*'],
+                dest: '../Debug/public/modules/'
+            },
             {
                 //copy index.html
-                src: 'public/index.html',
-                dest: '../Debug/'
+                src: 'public/indexMEAN.html',
+                dest: '../Debug/public/index.html'
             },
 	        {
 	            //copy json files from test dir
@@ -99,8 +111,8 @@ module.exports = function (grunt) {
                         cwd: '../Debug/',
                         src: ['lib/fakedb/*.js', 'lib/fakedb/*.json', 'lib/psdb/*.js', 'lib/*.js', 
                             'public/client/styles/* ', 'public/client/img/*', 'public/client/lib/*.js', 'public/schema/*.json', 'public/client/templates/*.js', 
-                            'public/*', 'public/client/*.js',
-                            'routes/*.js', '*.js', '*config*.json', 'package.json'],
+                            'public/*', 'public/client/*.js', 'public/modules/*/*.js', 
+                            'routes/*.js', '*.js', '*config*.json', 'package.json', 'bower.json'],
                         dest: '../../../psdbRoot/'
                     }
                 ]
