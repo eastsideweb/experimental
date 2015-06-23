@@ -20,7 +20,7 @@ angular.module('users').controller('AuthenticationController', ['$scope', '$http
 		};
 
 		$scope.signin = function () {
-		    var posturl = '/series/' + $scope.credentials.seriesId + '/session'
+		    var posturl = '/series/' + $scope.credentials.seriesId + '/session';
 			$http.post(posturl, $scope.credentials).success(function(response) {
 				// If successful we assign the response to the global user model
 			    $scope.authentication.user = {
@@ -31,8 +31,17 @@ angular.module('users').controller('AuthenticationController', ['$scope', '$http
 				// And redirect to the index page
 				$location.path('/');
 			}).error(function(response) {
-				$scope.error = response.message;
+				$scope.error = response.title;
 			});
 		};
+
+		$scope.findseries = function () {
+		    $http.get('/series').success(function(response) {
+		        // If successful we assign the response to series
+		        $scope.series = response;
+		    }).error(function(response) {
+		        $scope.error = response.title;
+		    });
+		}
 	}
 ]);
