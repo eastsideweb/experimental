@@ -19,11 +19,15 @@ angular.module('users').controller('AuthenticationController', ['$scope', '$http
 			});
 		};
 
-		$scope.signin = function() {
-			$http.post('/auth/signin', $scope.credentials).success(function(response) {
+		$scope.signin = function () {
+		    var posturl = '/series/' + $scope.credentials.seriesId + '/session'
+			$http.post(posturl, $scope.credentials).success(function(response) {
 				// If successful we assign the response to the global user model
-				$scope.authentication.user = response;
-
+			    $scope.authentication.user = {
+			        "username": $scope.credentials.username,
+			        "displayName": $scope.credentials.username
+			    };
+				$scope.token = response.token;
 				// And redirect to the index page
 				$location.path('/');
 			}).error(function(response) {
