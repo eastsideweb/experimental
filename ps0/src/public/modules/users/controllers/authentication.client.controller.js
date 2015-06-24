@@ -30,7 +30,8 @@ angular.module('users').controller('AuthenticationController', ['$scope', '$http
 			        "token": response.token,
                     "seriesId": $scope.credentials.seriesId
 			    };
-				$scope.token = response.token;
+                $scope.token = response.token;
+                $http.defaults.headers.common.token = $scope.token;                                
 				// And redirect to the index page
 				$location.path('/');
 			}).error(function(response) {
