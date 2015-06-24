@@ -167,7 +167,7 @@ router.get('/:type/:id', function (request, response,next) {
         }
         else {
             response.setHeader('Cache-Control', 'no-cache, no-store');
-            response.json(list);
+            response.json(list[0]);
         }
     });
 });
