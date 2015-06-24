@@ -161,7 +161,9 @@ module.exports = function (grunt) {
                 },
         },
     });
-    grunt.registerTask('default', ['typescript', 'copy:debugCopy', 'dust','concat' ]);
+    
+    grunt.registerTask('default', ['typescript', 'copy:debugCopy', 'dust', 'concat']);
+    grunt.registerTask('MEANClient', ['copy:debugCopy']);
     grunt.registerTask('CT', ['dust', 'concat']);
     grunt.registerTask('deploy', ['copy:deployCopy']);
 };
