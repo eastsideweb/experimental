@@ -28,7 +28,7 @@ angular.module('users').controller('AuthenticationController', ['$scope', '$http
 			        "username": $scope.credentials.username,
 			        "displayName": $scope.credentials.username,
 			        "token": response.token,
-                    "seriedId": $scope.credentials.seriedId
+                    "seriesId": $scope.credentials.seriesId
 			    };
 				$scope.token = response.token;
 				// And redirect to the index page
