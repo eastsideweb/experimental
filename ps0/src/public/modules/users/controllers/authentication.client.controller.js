@@ -28,7 +28,8 @@ angular.module('users').controller('AuthenticationController', ['$scope', '$http
 			        "username": $scope.credentials.username,
 			        "displayName": $scope.credentials.username,
 			        "token": response.token,
-                    "seriesId": $scope.credentials.seriesId
+			        "seriesId": $scope.credentials.seriesId,
+			        "roleType": $scope.credentials.roleType
 			    };
                 $scope.token = response.token;
                 $http.defaults.headers.common.token = $scope.token;                                

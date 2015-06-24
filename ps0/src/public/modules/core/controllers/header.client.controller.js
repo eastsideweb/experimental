@@ -14,6 +14,7 @@ angular.module('core').controller('HeaderController', ['$scope', '$http', '$loca
 		    var deleteUrl = '/series/' + $scope.authentication.user.seriesId + '/session/' + $scope.authentication.user.token;
 		    $http.delete(deleteUrl).success(function () {
 		        delete $scope.authentication.user;
+		        delete $http.defaults.headers.common.token;
 		        $location.path('/');
 		    }).error(function () {
 		        $location.path('/');
