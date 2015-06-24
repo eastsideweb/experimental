@@ -2,7 +2,8 @@
 
 angular.module('users').controller('AuthenticationController', ['$scope', '$http', '$location', 'Authentication',
 	function($scope, $http, $location, Authentication) {
-		$scope.authentication = Authentication;
+	    $scope.authentication = Authentication;
+	    $scope.credentials = {};
 
 		// If user is signed in then redirect back home
 		if ($scope.authentication.user) $location.path('/');
@@ -25,7 +26,9 @@ angular.module('users').controller('AuthenticationController', ['$scope', '$http
 				// If successful we assign the response to the global user model
 			    $scope.authentication.user = {
 			        "username": $scope.credentials.username,
-			        "displayName": $scope.credentials.username
+			        "displayName": $scope.credentials.username,
+			        "token": response.token,
+                    "seriedId": $scope.credentials.seriedId
 			    };
 				$scope.token = response.token;
 				// And redirect to the index page
@@ -39,6 +42,10 @@ angular.module('users').controller('AuthenticationController', ['$scope', '$http
 		    $http.get('/series').success(function(response) {
 		        // If successful we assign the response to series
 		        $scope.series = response;
+		        if (response && response[0] && response[0]._id) {
+		            $scope.credentials.seriesId = response[0]._id; // TODO - what if response is empty?
+		        }
+		        $scope.credentials.roleType = 'administrator';
 		    }).error(function(response) {
 		        $scope.error = response.title;
 		    });

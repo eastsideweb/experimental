@@ -31,13 +31,13 @@
                 </div>
                 <div class="form-group">
                     <label for="roleType">RoleType</label><br />
-                    <input id="roleType" name="roleType" value="administrator" type="radio" data-ng-model="credentials.roleType" checked /> administrator
-                    <input id="roleType" name="roleType" value="instructor" type="radio" data-ng-model="credentials.roleType" /> instructor
-                    <input id="roleType" name="roleType" value="player" type="radio" data-ng-model="credentials.roleType" /> player
+                    <input id="roleType" name="roleType" value="administrator" type="radio" data-ng-model="credentials.roleType" required /> administrator
+                    <input id="roleType" name="roleType" value="instructor" type="radio" data-ng-model="credentials.roleType" required /> instructor
+                    <input id="roleType" name="roleType" value="player" type="radio" data-ng-model="credentials.roleType" required /> player
                 </div>
                 <div class="form-group">
                     <label for="seriesId">Series</label><br />
-                    <select data-ng-model="credentials.seriesId">
+                    <select data-ng-model="credentials.seriesId" class="form-control" required>
                         <option data-ng-repeat="seriesItem in series" value="{{seriesItem._id}}"> {{seriesItem.name}}</option>
                     </select>
                 </div>
