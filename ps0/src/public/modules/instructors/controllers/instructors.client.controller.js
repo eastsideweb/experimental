@@ -9,7 +9,9 @@ angular.module('instructors').controller('InstructorsController', ['$scope', '$s
 		$scope.create = function() {
 			// Create new Instructor object
 			var instructor = new Instructors ({
-				name: this.name
+			    name: this.name,
+			    description: this.description,
+                active: this.active
 			});
 
 			// Redirect after save
@@ -43,11 +45,12 @@ angular.module('instructors').controller('InstructorsController', ['$scope', '$s
 		// Update existing Instructor
 		$scope.update = function() {
 			var instructor = $scope.instructor;
-
-			instructor.$update(function() {
-				$location.path('instructors/' + instructor._id);
+			var id = instructor._id;
+			instructor.$update(function () {
+			    // $location.path('instructors/' + instructor._id); <-- Doesn't work
+				$location.path('instructors/' + id);
 			}, function(errorResponse) {
-				$scope.error = errorResponse.data.message;
+				$scope.error = errorResponse.title;
 			});
 		};
 

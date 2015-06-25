@@ -2,20 +2,31 @@
 	<div class="page-header">
 		<h1 data-ng-bind="instructor.name"></h1>
 	</div>
-	<div class="pull-right" data-ng-show="((authentication.user) && (authentication.user.roleType === 'administrator'))">
-		<a class="btn btn-primary" href="/#!/instructors/{{instructor._id}}/edit">
-			<i class="glyphicon glyphicon-edit"></i>
-		</a>
-		<a class="btn btn-primary" data-ng-click="remove();">
-			<i class="glyphicon glyphicon-trash"></i>
-		</a>
-	</div>
-	<small>
-		<em class="text-muted">
-			Posted on
-			<span data-ng-bind="instructor.created | date:'mediumDate'"></span>
-			by
-			<span data-ng-bind="instructor.user.displayName"></span>
-		</em>
-	</small>
+    <div class="list-group">
+        <div class="list-group-item">
+            <label class="control-label" for="name">Description</label>
+            <div class="page-content"> {{instructor.description}}</div>
+        </div>
+        <div class="list-group-item">
+            <label class="control-label" for="name">Active</label>
+            <div class="page-content"> {{instructor.active}}</div>
+        </div>
+    </div>
+        <div class="pull-right" data-ng-show="((authentication.user) && (authentication.user.roleType === 'administrator'))">
+            <a class="btn btn-primary" href="/#!/instructors/{{instructor._id}}/edit">
+                <i class="glyphicon glyphicon-edit"></i>
+            </a>
+            <a class="btn btn-primary" data-ng-click="remove();">
+                <i class="glyphicon glyphicon-trash"></i>
+            </a>
+        </div>
+        <!--<small>
+            <em class="text-muted">
+                Posted on
+                <span data-ng-bind="instructor.created | date:'mediumDate'"></span>
+                by
+                <span data-ng-bind="instructor.user.displayName"></span>
+            </em>
+        </small>-->
+        <div class
 </section>

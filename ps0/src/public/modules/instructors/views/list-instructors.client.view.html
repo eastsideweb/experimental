@@ -4,12 +4,12 @@
     </div>
     <div class="list-group">
         <a data-ng-repeat="instructor in instructors" data-ng-href="#!/instructors/{{instructor._id}}" class="list-group-item">
-			<small class="list-group-item-text">
+			<!--<small class="list-group-item-text">
 				Posted on
 				<span data-ng-bind="instructor.created | date:'medium'"></span>
 				by
 				<span data-ng-bind="instructor.user.displayName"></span>
-			</small>
+			</small>-->
 			<h4 class="list-group-item-heading" data-ng-bind="instructor.name"></h4>
         </a>
     </div>

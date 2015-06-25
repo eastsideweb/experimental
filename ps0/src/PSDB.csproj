@@ -17,6 +17,7 @@
     <IISExpressUseClassicPipelineMode />
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="public\application.js" />
     <Content Include="public\client\img\close.png" />
     <Content Include="public\client\img\preloader.gif" />
     <Content Include="public\client\lib\dust-full.min.js" />
@@ -43,9 +44,57 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="public\client\templates\addobjTemplate.tl" />
+    <Content Include="bower.json" />
+    <Content Include=".bowerrc" />
     <None Include="public\client\templates\listTemplate.tl" />
     <TypeScriptCompile Include="public\client\psdbClient.login.ts" />
+    <Content Include="public\config.js" />
+    <Content Include="public\humans.txt" />
     <Content Include="public\index.html" />
+    <Content Include="public\indexMEAN.html" />
+    <Content Include="public\modules\core\config\core.client.routes.js" />
+    <Content Include="public\modules\core\controllers\header.client.controller.js" />
+    <Content Include="public\modules\core\controllers\home.client.controller.js" />
+    <Content Include="public\modules\core\core.client.module.js" />
+    <Content Include="public\modules\core\css\core.css" />
+    <Content Include="public\modules\core\img\brand\favicon.ico" />
+    <Content Include="public\modules\core\img\brand\logo.png" />
+    <Content Include="public\modules\core\img\loaders\loader.gif" />
+    <Content Include="public\modules\core\services\menus.client.service.js" />
+    <Content Include="public\modules\core\tests\header.client.controller.test.js" />
+    <Content Include="public\modules\core\tests\home.client.controller.test.js" />
+    <Content Include="public\modules\core\views\header.client.view.html" />
+    <Content Include="public\modules\core\views\home.client.view.html" />
+    <Content Include="public\modules\instructors\config\instructors.client.config.js" />
+    <Content Include="public\modules\instructors\config\instructors.client.routes.js" />
+    <Content Include="public\modules\instructors\controllers\instructors.client.controller.js" />
+    <Content Include="public\modules\instructors\instructors.client.module.js" />
+    <Content Include="public\modules\instructors\services\instructors.client.service.js" />
+    <Content Include="public\modules\instructors\tests\instructors.client.controller.test.js" />
+    <Content Include="public\modules\instructors\views\create-instructor.client.view.html" />
+    <Content Include="public\modules\instructors\views\edit-instructor.client.view.html" />
+    <Content Include="public\modules\instructors\views\list-instructors.client.view.html" />
+    <Content Include="public\modules\instructors\views\view-instructor.client.view.html" />
+    <Content Include="public\modules\users\config\users.client.config.js" />
+    <Content Include="public\modules\users\config\users.client.routes.js" />
+    <Content Include="public\modules\users\controllers\authentication.client.controller.js" />
+    <Content Include="public\modules\users\controllers\password.client.controller.js" />
+    <Content Include="public\modules\users\controllers\settings.client.controller.js" />
+    <Content Include="public\modules\users\css\users.css" />
+    <Content Include="public\modules\users\services\authentication.client.service.js" />
+    <Content Include="public\modules\users\services\users.client.service.js" />
+    <Content Include="public\modules\users\tests\authentication.client.controller.test.js" />
+    <Content Include="public\modules\users\users.client.module.js" />
+    <Content Include="public\modules\users\views\authentication\signin.client.view.html" />
+    <Content Include="public\modules\users\views\authentication\signup.client.view.html" />
+    <Content Include="public\modules\users\views\password\forgot-password.client.view.html" />
+    <Content Include="public\modules\users\views\password\reset-password-invalid.client.view.html" />
+    <Content Include="public\modules\users\views\password\reset-password-success.client.view.html" />
+    <Content Include="public\modules\users\views\password\reset-password.client.view.html" />
+    <Content Include="public\modules\users\views\settings\change-password.client.view.html" />
+    <Content Include="public\modules\users\views\settings\edit-profile.client.view.html" />
+    <Content Include="public\modules\users\views\settings\social-accounts.client.view.html" />
+    <Content Include="public\robots.txt" />
     <Content Include="test\initTestDB\testSeriesId1\teams.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
