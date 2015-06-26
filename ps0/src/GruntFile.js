@@ -77,7 +77,7 @@ module.exports = function (grunt) {
                 //copy files from public/modules
                 expand: true,
                 cwd: 'public/modules/',
-                src: ['users/**/*', 'instructors/**/*', 'players/**/*', 'puzzles/**/*', 'core/**/*'],
+                src: ['users/**/*', 'instructors/**/*', 'players/**/*', 'puzzles/**/*', 'teams/**/*','core/**/*'],
                 dest: '../Debug/public/modules/'
             },
             {
