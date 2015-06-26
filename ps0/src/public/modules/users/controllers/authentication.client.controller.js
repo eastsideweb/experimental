@@ -21,17 +21,19 @@ angular.module('users').controller('AuthenticationController', ['$scope', '$http
 		};
 
 		$scope.signin = function () {
-		    var posturl = '/series/' + $scope.credentials.seriesId + '/session';
+		    var posturl = '/series/' + $scope.series[$scope.credentials.seriesItemIndex]._id + '/session';
 			$http.post(posturl, $scope.credentials).success(function(response) {
 				// If successful we assign the response to the global user model
 			    $scope.authentication.user = {
 			        "username": $scope.credentials.username,
 			        "displayName": $scope.credentials.username,
 			        "token": response.token,
-			        "seriesId": $scope.credentials.seriesId,
+			        "seriesId": $scope.series[$scope.credentials.seriesItemIndex]._id,
+			        "seriesName": $scope.series[$scope.credentials.seriesItemIndex].name,
 			        "roleType": $scope.credentials.roleType
 			    };
-                $scope.token = response.token;
+			    $scope.token = response.token;
+                // Add the token to the default header being sent with each http request
                 $http.defaults.headers.common.token = $scope.token;                                
 				// And redirect to the index page
 				$location.path('/');
@@ -45,7 +47,7 @@ angular.module('users').controller('AuthenticationController', ['$scope', '$http
 		        // If successful we assign the response to series
 		        $scope.series = response;
 		        if (response && response[0] && response[0]._id) {
-		            $scope.credentials.seriesId = response[0]._id; // TODO - what if response is empty?
+		            $scope.credentials.seriesItemIndex = 0; 
 		        }
 		        $scope.credentials.roleType = 'administrator';
 		    }).error(function(response) {

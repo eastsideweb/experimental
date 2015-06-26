@@ -37,8 +37,8 @@
                 </div>
                 <div class="form-group">
                     <label for="seriesId">Series</label><br />
-                    <select data-ng-model="credentials.seriesId" class="form-control" required>
-                        <option data-ng-repeat="seriesItem in series" value="{{seriesItem._id}}"> {{seriesItem.name}}</option>
+                    <select data-ng-model="credentials.seriesItemIndex" class="form-control" required>
+                        <option data-ng-repeat="seriesItem in series" value="{{$index}}"> {{seriesItem.name}}</option>
                     </select>
                 </div>
                 <div class="text-center form-group">
