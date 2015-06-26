@@ -17,7 +17,7 @@
   "scripts": {
     "start": "node server.js",
     "test": "mocha test",
-	"postinstall": "bower install --config.interactive=false"
+    "postinstall": "bower install --config.interactive=false"
   },
   "dependencies": {
     "express": "~4.0.0",
@@ -32,6 +32,7 @@
     "grunt-contrib-concat": "^0.5.0",
     "grunt-contrib-copy": "^0.5.0",
     "grunt-contrib-jshint": "^0.10.0",
+    "grunt-contrib-watch": "^0.6.1",
     "grunt-dustjs-linkedin": "^0.5.0",
     "grunt-typescript": "^0.3.7",
     "mocha": "^1.19.0",
