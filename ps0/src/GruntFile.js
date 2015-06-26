@@ -68,18 +68,21 @@ module.exports = function (grunt) {
                 src: ['styles/style.css', 'img/*', 'lib/*'],
                 dest:'../Debug/public/client/'
             },
-            //{
-            //    //copy index.html
-            //    src: 'public/index.html',
-            //    dest: '../Debug/'
-            //},
             {
                 //copy files from public/modules
                 expand: true,
                 cwd: 'public/modules/',
-                src: ['users/**/*', 'instructors/**/*', 'players/**/*', 'puzzles/**/*', 'teams/**/*','core/**/*'],
+                src: '**',
                 dest: '../Debug/public/modules/'
-            },
+             },
+             {
+               //copy .js files
+               expand: true,
+               cwd: 'public',
+               src: '*.js',
+               dest: '../Debug/public'
+               },
+           
             {
                 //copy index.html
                 src: 'public/indexMEAN.html',
