@@ -28,6 +28,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-dustjs-linkedin');
     grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-contrib-watch');
 
     //project configuration
     grunt.initConfig({
@@ -163,10 +164,19 @@ module.exports = function (grunt) {
 		        dest: '../debug/public/client/templates/templates.js'   
                 },
         },
+        watch: {
+            target1: {
+                files: ['public/*.*','public/modules/**/*','lib/**/*.ts','routes/*.ts'],
+                tasks:['typescript', 'copy:debugCopy', 'dust', 'concat']
+            },
+            target2: {
+                files: ['public/*.*','public/modules/**/*'],
+                tasks:['copy:debugCopy']
+            }
+        },
     });
-    
-    grunt.registerTask('default', ['typescript', 'copy:debugCopy', 'dust', 'concat']);
-    grunt.registerTask('MEANClient', ['copy:debugCopy']);
+    grunt.registerTask('default', ['watch:target1']);
+    grunt.registerTask('MEANClient', ['watch:target2']);
     grunt.registerTask('CT', ['dust', 'concat']);
     grunt.registerTask('deploy', ['copy:deployCopy']);
 };
