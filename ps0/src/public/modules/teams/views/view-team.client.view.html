@@ -11,8 +11,25 @@
             <label class="control-label" for="name">Active</label>
             <div class="page-content"> {{team.active}}</div>
         </div>
+        <div class="list-group-item">
+            <label class="control-label" for="name">Team Lead</label>
+            <div class="page-content"> {{teamLead.name}}</div>
+        </div>
+        <div class="list-group-item">
+            <label class="control-label" for="name">List of Players</label>
+            <button type="button" class="btn btn-primary btn-sm" data-ng-click="togglePlayerMenu();">{{showPlayerMenu? "Hide" : "View"}}</button>
+            <div ng-show="showPlayerMenu">
+                <ul>
+                    <li ng-repeat="player in team.players">
+                        {{player.name}}
+                    </li>
+                    <!--<li> one</li>
+                    <li> two</li>-->
+                </ul>
+            </div>
+        </div>
     </div>
-        <div class="pull-right" data-ng-show="((authentication.user) && (authentication.user.roleType === 'administrator'))">
+        <div class="pull-right" data-ng-show="((authentication.user) && (authentication.user.roleType !== 'player'))">
             <a class="btn btn-primary" href="/#!/teams/{{team._id}}/edit">
                 <i class="glyphicon glyphicon-edit"></i>
             </a>
@@ -28,5 +45,4 @@
                 <span data-ng-bind="team.user.displayName"></span>
             </em>
         </small>-->
-        <div class
 </section>
