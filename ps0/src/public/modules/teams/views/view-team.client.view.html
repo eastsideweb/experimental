@@ -28,6 +28,17 @@
                 </ul>
             </div>
         </div>
+        <div class="list-group-item">
+            <label class="control-label" for="name">List of Puzzles</label>
+            <button type="button" class="btn btn-primary btn-sm" data-ng-click="togglePuzzleMenu();">{{showPuzzleMenu? "Hide" : "View"}}</button>
+            <div ng-show="showPuzzleMenu">
+                <ul>
+                    <li ng-repeat="puzzle in team.puzzles">
+                        {{puzzle.name}}
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>
         <div class="pull-right" data-ng-show="((authentication.user) && (authentication.user.roleType !== 'player'))">
             <a class="btn btn-primary" href="/#!/teams/{{team._id}}/edit">

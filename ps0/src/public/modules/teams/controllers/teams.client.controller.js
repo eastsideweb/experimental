@@ -1,10 +1,11 @@
 'use strict';
 
 // Teams controller
-angular.module('teams').controller('TeamsController', ['$scope', '$stateParams', '$location','Authentication', 'Teams', 'Players',
-	function($scope, $stateParams, $location, Authentication, Teams, Players) {
+angular.module('teams').controller('TeamsController', ['$scope', '$stateParams', '$location','Authentication', 'Teams', 'Players', 'Puzzles',
+	function($scope, $stateParams, $location, Authentication, Teams, Players, Puzzles) {
 		$scope.authentication = Authentication;
-		$scope.showPlayerMenu = false;
+        $scope.showPlayerMenu = false;
+        $scope.showPuzzleMenu = false;
 		// Create new Team
 		$scope.create = function() {
 			// Create new Team object
@@ -13,7 +14,8 @@ angular.module('teams').controller('TeamsController', ['$scope', '$stateParams',
 			    description: this.description,
 			    active: this.active,
                 teamLeadId: this.teamLeadId,
-                playerIds: this.playerIds
+                playerIds: this.playerIds,
+                puzzleIds: this.puzzleIds
 			});
 
 			// Redirect after save
@@ -25,7 +27,8 @@ angular.module('teams').controller('TeamsController', ['$scope', '$stateParams',
 				$scope.description = '';
 				delete $scope.teamLeadId;
 				$scope.playerIds = [];
-				$scope.players = [];
+                $scope.players = [];
+                $scope.puzzleIds = [];                                              
 
 			}, function(errorResponse) {
 				$scope.error = errorResponse.data.message;
@@ -93,12 +96,31 @@ angular.module('teams').controller('TeamsController', ['$scope', '$stateParams',
                 {
                     $scope.team.players = [];
                 }
-
+                // get the names of the puzzles
+                if ($scope.team.puzzleIds.length !== 0) {
+                    var puzzleIds = "";
+                    $scope.team.puzzleIds.forEach(function (item, index) {
+                        puzzleIds = puzzleIds.concat(item);
+                        if (index !== $scope.team.puzzleIds.length - 1) {
+                            puzzleIds = puzzleIds.concat(',');
+                        }
+                    });
+                    $scope.team.puzzles = Puzzles.query({
+                        "properties": "name",
+                        "_id": puzzleIds
+                    });
+                }
+                else {
+                    $scope.team.puzzles = [];
+                }
 			});
 		};
 
 		$scope.togglePlayerMenu = function () {
 		    $scope.showPlayerMenu = !$scope.showPlayerMenu;
-		}
+        }
+        $scope.togglePuzzleMenu = function () {
+            $scope.showPuzzleMenu = !$scope.showPuzzleMenu;
+        }
 	}
 ]);
