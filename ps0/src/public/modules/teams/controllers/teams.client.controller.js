@@ -87,14 +87,14 @@ angular.module('teams').controller('TeamsController', ['$scope', '$stateParams',
                             playerIds = playerIds.concat(',');
                         }
                     });
-                    $scope.team.players = Players.query({
+                    $scope.players = Players.query({
                         "properties": "name",
                         "_id": playerIds
                     });
                 }
                 else 
                 {
-                    $scope.team.players = [];
+                    $scope.players = [];
                 }
                 // get the names of the puzzles
                 if ($scope.team.puzzleIds.length !== 0) {
@@ -105,13 +105,13 @@ angular.module('teams').controller('TeamsController', ['$scope', '$stateParams',
                             puzzleIds = puzzleIds.concat(',');
                         }
                     });
-                    $scope.team.puzzles = Puzzles.query({
+                    $scope.puzzles = Puzzles.query({
                         "properties": "name",
                         "_id": puzzleIds
                     });
                 }
                 else {
-                    $scope.team.puzzles = [];
+                    $scope.puzzles = [];
                 }
 			});
 		};

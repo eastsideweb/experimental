@@ -20,7 +20,7 @@
             <button type="button" class="btn btn-primary btn-sm" data-ng-click="togglePlayerMenu();">{{showPlayerMenu? "Hide" : "View"}}</button>
             <div ng-show="showPlayerMenu">
                 <ul>
-                    <li ng-repeat="player in team.players">
+                    <li ng-repeat="player in players">
                         {{player.name}}
                     </li>
                     <!--<li> one</li>
@@ -33,7 +33,7 @@
             <button type="button" class="btn btn-primary btn-sm" data-ng-click="togglePuzzleMenu();">{{showPuzzleMenu? "Hide" : "View"}}</button>
             <div ng-show="showPuzzleMenu">
                 <ul>
-                    <li ng-repeat="puzzle in team.puzzles">
+                    <li ng-repeat="puzzle in puzzles">
                         {{puzzle.name}}
                     </li>
                 </ul>
