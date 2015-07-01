@@ -11,6 +11,51 @@
             <label class="control-label" for="name">Active</label>
             <div class="page-content"> {{event.active}}</div>
         </div>
+        <div class="list-group-item">
+            <label class="control-label" for="name">Status</label>
+            <div class="page-content"> {{event.status}}</div>
+        </div>
+        <div class="list-group-item">
+            <label class="control-label" for="name">List of Players</label>
+            <button type="button" class="btn btn-primary btn-sm" data-ng-click="togglePlayerMenu();">{{showPlayerMenu? "Hide" : "View"}}</button>
+            <div ng-show="showPlayerMenu">
+                <ul>
+                    <li ng-repeat="player in players">
+                        {{player.name}}
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="list-group-item">
+            <label class="control-label" for="name">List of Puzzles</label>
+            <button type="button" class="btn btn-primary btn-sm" data-ng-click="togglePuzzleMenu();">{{showPuzzleMenu? "Hide" : "View"}}</button>
+            <div ng-show="showPuzzleMenu">
+                <ul>
+                        {{puzzle.name}}
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="list-group-item">
+            <label class="control-label" for="name">List of Teams</label>
+            <button type="button" class="btn btn-primary btn-sm" data-ng-click="toggleTeamMenu();">{{showTeamMenu? "Hide" : "View"}}</button>
+            <div ng-show="showTeamMenu">
+                <ul>
+                        {{team.name}}
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="list-group-item">
+            <label class="control-label" for="name">List of Instructors</label>
+            <button type="button" class="btn btn-primary btn-sm" data-ng-click="toggleInstructorMenu();">{{showInstructorMenu? "Hide" : "View"}}</button>
+            <div ng-show="showInstructorMenu">
+                <ul>
+                        {{instructor.name}}
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>
         <div class="pull-right" data-ng-show="((authentication.user) && (authentication.user.roleType === 'administrator'))">
             <a class="btn btn-primary" href="/#!/events/{{event._id}}/edit">
