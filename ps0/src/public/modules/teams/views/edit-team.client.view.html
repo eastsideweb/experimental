@@ -21,6 +21,7 @@
                     </div>
                     <label for="name">Team Lead</label><br />
                     <select data-ng-model="team.teamLeadId" class="form-control" required>
+                        <option data-ng-repeat="player in players" value="{{player._id}}"> {{player.name}}</option>
                     </select>
                 </div>
                 <div class="form-group">
