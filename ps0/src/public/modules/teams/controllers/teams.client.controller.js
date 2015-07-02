@@ -129,22 +129,33 @@ angular.module('teams').controller('TeamsController', ['$scope', '$stateParams',
 			});
 		};
 
-	    /**** Start  Player sublist support ***/
-		$scope.initPlayers = function () {
+	    /**** Start  sublist support ***/
+		$scope.initSublist = function () {
 
 		    $scope.team = Teams.get({
 		        teamId: $stateParams.teamId
 		    },
             function () {
-
-                $scope.allActivePlayers = Players.query({
+                $scope.sublist = {};
+                $scope.sublist.subtype = $stateParams.subtype;
+                switch ($stateParams.subtype) {
+                    case 'players':
+                        $scope.sublist.service = Players;
+                        $scope.sublist.currentItemList = $scope.team.playerIds;
+                        break;
+                    case 'puzzles':
+                        $scope.sublist.service = Puzzles;
+                        $scope.sublist.currentItemList = $scope.team.puzzleIds;
+                        break;
+                }
+                $scope.allActiveItemList = $scope.sublist.service.query({
                     "properties": "name",
                     "active": true,
                 }, function () {
-                    if ($scope.team.playerIds.length !== 0) {
+                    if ($scope.sublist.currentItemList.length !== 0) {
                         //Adding a timeout to let the page render. Ideally should use viewContentLoaded event
                         setTimeout(function () {
-                            $scope.team.playerIds.forEach(function (item, index) {
+                            $scope.sublist.currentItemList.forEach(function (item, index) {
                                 var temp = document.getElementById(item);
                                 temp.checked = true;
                             });
@@ -154,64 +165,59 @@ angular.module('teams').controller('TeamsController', ['$scope', '$stateParams',
             });
 		}
 
-		$scope.updatePlayers = function () {
-		    var addedPlayers = [], removedPlayers = [];
-		    $scope.allActivePlayers.forEach(function(item, index) {
+		$scope.updateSublist = function () {
+		    var addedItems = [], removedItems = [];
+		    $scope.allActiveItemList.forEach(function(item, index) {
 		        var elem = document.getElementById(item._id);
-		        if ($scope.team.playerIds.indexOf(item._id) !== -1) {
-		            // item was part of the current playerIds
+		        if ($scope.sublist.currentItemList.indexOf(item._id) !== -1) {
+		            // item was part of the current item Ids
 		            if (!elem.checked) {
 		                // item should be removed
-		                removedPlayers.push(item._id);
+		                removedItems.push(item._id);
 		            }
 		        }
 		        else if (elem.checked) {
 		            // item needs to be added
-		            addedPlayers.push(item._id);
+		            addedItems.push(item._id);
 		        }
 		    });
 
-		    addRemoveItemsToTeam($scope.team._id, 'players', removedPlayers, addedPlayers);
+		    addRemoveItemsToTeam($scope.team._id, $scope.sublist.subtype, addedItems, removedItems);
 		}
 
-		var addRemoveItemsToTeam = function (teamId, itemType, listRemovedItems, listAddedItems) {
+		var addRemoveItemsToTeam = function (teamId, itemType, listAddedItems, listRemovedItems) {
 		    if (listRemovedItems.length !== 0) {
 		        // Send a delete request 
-		        //$http.delete('teams/' + teamId + '/' + itemType, { data: listRemovedItems , 'Content-Type': 'application/json'}).success(function (response) {
-		        var req = {
-		            method: 'DELETE',
-		            url: 'teams/' + teamId + '/' + itemType,
-		            headers: {
-		                'Content-Type': 'application/json',
-		            },
-		            data: listRemovedItems
-		        }
-		        $http(req).success(function (response) {
-		            // Now send add request if there are any players to be added
+		        $http.delete('teams/' + teamId + '/' + itemType,
+                    {
+                        data: listRemovedItems,
+                        headers: { 'Content-Type': 'application/json' }
+                    }).success(function (response) {
+		            // Now send add request if there are any items to be added
 		            if (listAddedItems.length !== 0) {
-		                $http.put('teams/' + $scope.team._id + '/players', listAddedItems).success(function (response) {
-		                    $location.path('teams/' + $scope.team._id);
+		                $http.put('teams/' + teamId + '/' + $scope.sublist.subtype, listAddedItems).success(function (response) {
+		                    $location.path('teams/' + teamId);
 		                }).error(function (response) {
 		                    $scope.error = response.message;
 		                });
 		            }
 		            else {
-		                $location.path('teams/' + $scope.team._id);
+		                $location.path('teams/' + teamId);
 		            }
 		        }).error(function (response) {
 		            $scope.error = response.message;
 		        });
 		    }
 		    else if (listAddedItems.length !== 0) {
-		        $http.put('teams/' + $scope.team._id + '/players', listAddedItems).success(function (response) {
-		            $location.path('teams/' + $scope.team._id);
+		        $http.put('teams/' + teamId + '/' + $scope.sublist.subtype, listAddedItems).success(function (response) {
+		            $location.path('teams/' + teamId);
 		        }).error(function (response) {
 		            $scope.error = response.message;
 		        });
 		    }
 		    else {
                 //There was no change in the items - navigate back
-		        $location.path('teams/' + $scope.team._id);
+		        $location.path('teams/' + teamId);
 		    }
 		}
 		$scope.togglePlayerMenu = function () {

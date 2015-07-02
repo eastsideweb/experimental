@@ -21,9 +21,9 @@ angular.module('teams').config(['$stateProvider',
 			url: '/teams/:teamId/edit',
 			templateUrl: 'modules/teams/views/edit-team.client.view.html',
 			controller: 'TeamsController'
-		}).state('editTeamPlayers', {
+		}).state('editTeamSublist', {
 		    url: '/teams/:teamId/:subtype/edit',
-		    templateUrl: 'modules/teams/views/edit-team-players.client.view.html',
+		    templateUrl: 'modules/teams/views/edit-team-sublist.client.view.html',
 		    controller: 'TeamsController'
 		});
 

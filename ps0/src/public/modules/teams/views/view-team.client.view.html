@@ -32,6 +32,9 @@
         <div class="list-group-item">
             <label class="control-label" for="name">List of Puzzles</label>
             <button type="button" class="btn btn-primary btn-sm" data-ng-click="togglePuzzleMenu();">{{showPuzzleMenu? "Hide" : "View"}}</button>
+            <a class="btn btn-primary" href="/#!/teams/{{team._id}}/puzzles/edit">
+                <i class="glyphicon glyphicon-edit"></i>
+            </a>
             <div ng-show="showPuzzleMenu">
                 <ul>
                     <li ng-repeat="puzzle in puzzles">
