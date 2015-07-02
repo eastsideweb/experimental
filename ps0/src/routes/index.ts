@@ -350,14 +350,19 @@ router.delete('/:type/:id/:associatedtype', function (request, response, next) {
     var token = request.header('token');
     var series = psdb.series(token);
     var itemList = request.body;
-    series.removeItemsFromObj(itemList, request.params.associatedtype, request.params.id, request.params.type, function (err: Error, count: number) {
-        if (err !== null) {
-            next(err);
-        }
-        else {
-            response.json(200, { "count": count });
-        }
-    });
+    if (itemList === null || itemList.length === 0) {
+        next(new Error('Empty delete id list encountered'));
+    }
+    else {
+        series.removeItemsFromObj(itemList, request.params.associatedtype, request.params.id, request.params.type, function (err: Error, count: number) {
+            if (err !== null) {
+                next(err);
+            }
+            else {
+                response.json(200, { "count": count });
+            }
+        });
+    }
 });
 
 /// End region for subcollections

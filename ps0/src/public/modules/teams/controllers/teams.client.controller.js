@@ -1,12 +1,25 @@
 'use strict';
 
 // Teams controller
-angular.module('teams').controller('TeamsController', ['$scope', '$stateParams', '$location','Authentication', 'Teams', 'Players', 'Puzzles',
-	function($scope, $stateParams, $location, Authentication, Teams, Players, Puzzles) {
+angular.module('teams').controller('TeamsController', ['$scope', '$stateParams', '$location', '$http', 'Authentication', 'Teams', 'Players', 'Puzzles',
+	function($scope, $stateParams, $location, $http, Authentication, Teams, Players, Puzzles) {
 		$scope.authentication = Authentication;
         $scope.showPlayerMenu = false;
         $scope.showPuzzleMenu = false;
-		// Create new Team
+
+	    // Following was added to make sure that the elements corresponding to the players currently in the team are checked.
+	    // This doesnt work because the event is fired when the DOM is ready but not when the ng-repeat is executed and the elements
+	    // added to the DOM. $scope.team is still just a promise
+	    //$scope.$on('$viewContentLoaded', function () {
+	    //    if ($scope.team.playerIds.length !== 0) {
+	    //        $scope.team.playerIds.forEach(function (item, index) {
+	    //            var temp = document.getElementById(item);
+	    //            temp.checked = true;
+	    //        });
+	    //    }
+	    //});
+
+	    // Create new Team
 		$scope.create = function() {
 			// Create new Team object
 			var team = new Teams ({
@@ -116,11 +129,102 @@ angular.module('teams').controller('TeamsController', ['$scope', '$stateParams',
 			});
 		};
 
+	    /**** Start  Player sublist support ***/
+		$scope.initPlayers = function () {
+
+		    $scope.team = Teams.get({
+		        teamId: $stateParams.teamId
+		    },
+            function () {
+
+                $scope.allActivePlayers = Players.query({
+                    "properties": "name",
+                    "active": true,
+                }, function () {
+                    if ($scope.team.playerIds.length !== 0) {
+                        //Adding a timeout to let the page render. Ideally should use viewContentLoaded event
+                        setTimeout(function () {
+                            $scope.team.playerIds.forEach(function (item, index) {
+                                var temp = document.getElementById(item);
+                                temp.checked = true;
+                            });
+                        }, 150);
+                    }
+                });
+            });
+		}
+
+		$scope.updatePlayers = function () {
+		    var addedPlayers = [], removedPlayers = [];
+		    $scope.allActivePlayers.forEach(function(item, index) {
+		        var elem = document.getElementById(item._id);
+		        if ($scope.team.playerIds.indexOf(item._id) !== -1) {
+		            // item was part of the current playerIds
+		            if (!elem.checked) {
+		                // item should be removed
+		                removedPlayers.push(item._id);
+		            }
+		        }
+		        else if (elem.checked) {
+		            // item needs to be added
+		            addedPlayers.push(item._id);
+		        }
+		    });
+
+		    addRemoveItemsToTeam($scope.team._id, 'players', removedPlayers, addedPlayers);
+		}
+
+		var addRemoveItemsToTeam = function (teamId, itemType, listRemovedItems, listAddedItems) {
+		    if (listRemovedItems.length !== 0) {
+		        // Send a delete request 
+		        //$http.delete('teams/' + teamId + '/' + itemType, { data: listRemovedItems , 'Content-Type': 'application/json'}).success(function (response) {
+		        var req = {
+		            method: 'DELETE',
+		            url: 'teams/' + teamId + '/' + itemType,
+		            headers: {
+		                'Content-Type': 'application/json',
+		            },
+		            data: listRemovedItems
+		        }
+		        $http(req).success(function (response) {
+		            // Now send add request if there are any players to be added
+		            if (listAddedItems.length !== 0) {
+		                $http.put('teams/' + $scope.team._id + '/players', listAddedItems).success(function (response) {
+		                    $location.path('teams/' + $scope.team._id);
+		                }).error(function (response) {
+		                    $scope.error = response.message;
+		                });
+		            }
+		            else {
+		                $location.path('teams/' + $scope.team._id);
+		            }
+		        }).error(function (response) {
+		            $scope.error = response.message;
+		        });
+		    }
+		    else if (listAddedItems.length !== 0) {
+		        $http.put('teams/' + $scope.team._id + '/players', listAddedItems).success(function (response) {
+		            $location.path('teams/' + $scope.team._id);
+		        }).error(function (response) {
+		            $scope.error = response.message;
+		        });
+		    }
+		    else {
+                //There was no change in the items - navigate back
+		        $location.path('teams/' + $scope.team._id);
+		    }
+		}
 		$scope.togglePlayerMenu = function () {
 		    $scope.showPlayerMenu = !$scope.showPlayerMenu;
         }
-        $scope.togglePuzzleMenu = function () {
+	    /**** End  Player sublist support ***/
+
+	    /**** Start  Puzzle sublist support ***/
+
+		$scope.togglePuzzleMenu = function () {
             $scope.showPuzzleMenu = !$scope.showPuzzleMenu;
-        }
+		}
+	    /**** End  Puzzle sublist support ***/
+
 	}
 ]);
