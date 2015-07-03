@@ -17,7 +17,10 @@
         </div>
         <div class="list-group-item">
             <label class="control-label" for="name">List of Players</label>
-            <button type="button" class="btn btn-primary btn-sm" data-ng-click="togglePlayerMenu();">{{showPlayerMenu? "Hide" : "View"}}</button>
+            <button type="button" class="btn btn-primary btn-sm" data-ng-click="showPlayerMenu = !showPlayerMenu;;">{{showPlayerMenu? "Hide" : "View"}}</button>
+            <a class="btn btn-primary" href="/#!/events/{{event._id}}/players/edit">
+                <i class="glyphicon glyphicon-edit"></i>
+            </a>
             <div ng-show="showPlayerMenu">
                 <ul>
                     <li ng-repeat="player in players">
@@ -28,9 +31,13 @@
         </div>
         <div class="list-group-item">
             <label class="control-label" for="name">List of Puzzles</label>
-            <button type="button" class="btn btn-primary btn-sm" data-ng-click="togglePuzzleMenu();">{{showPuzzleMenu? "Hide" : "View"}}</button>
+            <button type="button" class="btn btn-primary btn-sm" data-ng-click="showPuzzleMenu = !showPuzzleMenu;">{{showPuzzleMenu? "Hide" : "View"}}</button>
+            <a class="btn btn-primary" href="/#!/events/{{event._id}}/puzzles/edit">
+                <i class="glyphicon glyphicon-edit"></i>
+            </a>
             <div ng-show="showPuzzleMenu">
                 <ul>
+                    <li ng-repeat="puzzle in puzzles">
                         {{puzzle.name}}
                     </li>
                 </ul>
@@ -38,9 +45,13 @@
         </div>
         <div class="list-group-item">
             <label class="control-label" for="name">List of Teams</label>
-            <button type="button" class="btn btn-primary btn-sm" data-ng-click="toggleTeamMenu();">{{showTeamMenu? "Hide" : "View"}}</button>
+            <button type="button" class="btn btn-primary btn-sm" data-ng-click="showTeamMenu = !showTeamMenu;">{{showTeamMenu? "Hide" : "View"}}</button>
+            <a class="btn btn-primary" href="/#!/events/{{event._id}}/teams/edit">
+                <i class="glyphicon glyphicon-edit"></i>
+            </a>
             <div ng-show="showTeamMenu">
                 <ul>
+                    <li ng-repeat="team in teams">
                         {{team.name}}
                     </li>
                 </ul>
@@ -48,9 +59,13 @@
         </div>
         <div class="list-group-item">
             <label class="control-label" for="name">List of Instructors</label>
-            <button type="button" class="btn btn-primary btn-sm" data-ng-click="toggleInstructorMenu();">{{showInstructorMenu? "Hide" : "View"}}</button>
+            <button type="button" class="btn btn-primary btn-sm" data-ng-click="showInstructorMenu = !showInstructorMenu;">{{showInstructorMenu? "Hide" : "View"}}</button>
+            <a class="btn btn-primary" href="/#!/events/{{event._id}}/instructors/edit">
+                <i class="glyphicon glyphicon-edit"></i>
+            </a>
             <div ng-show="showInstructorMenu">
                 <ul>
+                    <li ng-repeat="instructor in instructors">
                         {{instructor.name}}
                     </li>
                 </ul>
@@ -65,12 +80,4 @@
                 <i class="glyphicon glyphicon-trash"></i>
             </a>
         </div>
-        <!--<small>
-            <em class="text-muted">
-                Posted on
-                <span data-ng-bind="event.created | date:'mediumDate'"></span>
-                by
-                <span data-ng-bind="event.user.displayName"></span>
-            </em>
-        </small>-->
 </section>

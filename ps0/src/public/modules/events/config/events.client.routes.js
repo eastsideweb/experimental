@@ -20,6 +20,10 @@ angular.module('events').config(['$stateProvider',
 		state('editEvent', {
 			url: '/events/:eventId/edit',
 			templateUrl: 'modules/events/views/edit-event.client.view.html'
+		}).state('editEventSublist', {
+		    url: '/events/:eventId/:subtype/edit',
+		    templateUrl: 'modules/events/views/edit-event-sublist.client.view.html',
+		    controller: 'EventsController'
 		});
 	}
 ]);

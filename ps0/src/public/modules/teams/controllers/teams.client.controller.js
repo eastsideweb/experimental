@@ -220,17 +220,7 @@ angular.module('teams').controller('TeamsController', ['$scope', '$stateParams',
 		        $location.path('teams/' + teamId);
 		    }
 		}
-		$scope.togglePlayerMenu = function () {
-		    $scope.showPlayerMenu = !$scope.showPlayerMenu;
-        }
-	    /**** End  Player sublist support ***/
-
-	    /**** Start  Puzzle sublist support ***/
-
-		$scope.togglePuzzleMenu = function () {
-            $scope.showPuzzleMenu = !$scope.showPuzzleMenu;
-		}
-	    /**** End  Puzzle sublist support ***/
+	    /**** End  sublist support ***/
 
 	}
 ]);
