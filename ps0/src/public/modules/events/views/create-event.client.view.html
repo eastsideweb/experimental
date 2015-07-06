@@ -19,6 +19,11 @@
                         <input ng-model="active" ng-value="true" type="radio"> True
                         <input ng-model="active" ng-value="false" type="radio"> False
                     </div>
+                    <label class="control-label" for="name">Status</label>
+                    <div class="controls">
+                        <input data-ng-model="event.status" value="started" type="radio"> Started
+                        <input data-ng-model="event.status" value="notStarted" type="radio"> Not Started
+                    </div>
                 </div>
                 <div class="form-group">
                     <input type="submit" class="btn btn-default">
