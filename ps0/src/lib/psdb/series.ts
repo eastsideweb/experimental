@@ -281,9 +281,11 @@ class PuzzleSeries implements IPuzzleSeries {
             case "events":
                 if (updateFields.status) {
                     // Make sure the update of the status is valid: notStarted -> started -> ended
-                    if (currentObj.status === "ended" ||
+                    if (currentObj.status !== updateFields.status /* the status changed, make sure it is a valid change */ && 
+                        (currentObj.status === "ended" ||
                         (currentObj.status === "notStarted" && updateFields.status !== "started") ||
-                        (currentObj.status === "started" && updateFields.status !== "ended")) 
+                        (currentObj.status === "started" && updateFields.status !== "ended")
+                        ))
                     {
                         err.message = "Events: status update (from " + currentObj.status + " to " + updateFields.status +
                         ") is invalid";
