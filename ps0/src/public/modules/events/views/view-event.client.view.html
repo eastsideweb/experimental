@@ -17,7 +17,10 @@
         </div>
         <div class="list-group-item">
             <label class="control-label" for="name">List of Players</label>
-            <button type="button" class="btn btn-primary btn-sm" data-ng-click="showPlayerMenu = !showPlayerMenu;;">{{showPlayerMenu? "Hide" : "View"}}</button>
+            <button type="button" class="btn btn-primary btn-sm" data-ng-click="showPlayerMenu = !showPlayerMenu;;">
+                <i class="glyphicon glyphicon-chevron-up" ng-show="showPlayerMenu"></i>
+                <i class="glyphicon glyphicon-chevron-down" ng-show="!showPlayerMenu"></i>
+            </button>
             <a class="btn btn-primary" href="/#!/events/{{event._id}}/players/edit">
                 <i class="glyphicon glyphicon-edit"></i>
             </a>
@@ -31,7 +34,10 @@
         </div>
         <div class="list-group-item">
             <label class="control-label" for="name">List of Puzzles</label>
-            <button type="button" class="btn btn-primary btn-sm" data-ng-click="showPuzzleMenu = !showPuzzleMenu;">{{showPuzzleMenu? "Hide" : "View"}}</button>
+            <button type="button" class="btn btn-primary btn-sm" data-ng-click="showPuzzleMenu = !showPuzzleMenu;">
+                <i class="glyphicon glyphicon-chevron-up" ng-show="showPuzzleMenu"></i>
+                <i class="glyphicon glyphicon-chevron-down" ng-show="!showPuzzleMenu"></i>
+            </button>
             <a class="btn btn-primary" href="/#!/events/{{event._id}}/puzzles/edit">
                 <i class="glyphicon glyphicon-edit"></i>
             </a>
@@ -45,7 +51,10 @@
         </div>
         <div class="list-group-item">
             <label class="control-label" for="name">List of Teams</label>
-            <button type="button" class="btn btn-primary btn-sm" data-ng-click="showTeamMenu = !showTeamMenu;">{{showTeamMenu? "Hide" : "View"}}</button>
+            <button type="button" class="btn btn-primary btn-sm" data-ng-click="showTeamMenu = !showTeamMenu;">
+                <i class="glyphicon glyphicon-chevron-up" ng-show="showTeamMenu"></i>
+                <i class="glyphicon glyphicon-chevron-down" ng-show="!showTeamMenu"></i>
+            </button>
             <a class="btn btn-primary" href="/#!/events/{{event._id}}/teams/edit">
                 <i class="glyphicon glyphicon-edit"></i>
             </a>
@@ -59,7 +68,10 @@
         </div>
         <div class="list-group-item">
             <label class="control-label" for="name">List of Instructors</label>
-            <button type="button" class="btn btn-primary btn-sm" data-ng-click="showInstructorMenu = !showInstructorMenu;">{{showInstructorMenu? "Hide" : "View"}}</button>
+            <button type="button" class="btn btn-primary btn-sm" data-ng-click="showInstructorMenu = !showInstructorMenu;">
+                <i class="glyphicon glyphicon-chevron-up" ng-show="showInstructorMenu"></i>
+                <i class="glyphicon glyphicon-chevron-down" ng-show="!showInstructorMenu"></i>
+            </button>
             <a class="btn btn-primary" href="/#!/events/{{event._id}}/instructors/edit">
                 <i class="glyphicon glyphicon-edit"></i>
             </a>
