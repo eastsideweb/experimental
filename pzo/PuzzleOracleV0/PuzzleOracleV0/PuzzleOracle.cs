@@ -17,6 +17,7 @@ namespace PuzzleOracleV0
 
         public string tryGetName(string puzzleId)
         {
+            if (puzzleId == "007") return "Golden Eye";
             return null;
         }
 
@@ -27,7 +28,7 @@ namespace PuzzleOracleV0
 
         private void addPuzzles(SimpleSpreadsheetReader sr)
         {
-            throw new NotImplementedException();
+           
         }
     }
 }

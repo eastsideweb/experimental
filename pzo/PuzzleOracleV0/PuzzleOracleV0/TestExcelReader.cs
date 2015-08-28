@@ -6,15 +6,11 @@ using System.Threading.Tasks;
 
 namespace PuzzleOracleV0
 {
-    class TestExcelReader
+    class TestExcelReader 
     {
 
-        public TestExcelReader()
-        {
 
-        }
-
-        public SimpleSpreadsheetReader loadSpreadsheet(String pathName, String password = null)
+        public static SimpleSpreadsheetReader loadSpreadsheet(String pathName, String password = null)
         {
             return new MySimpleSpreadsheetReader();
         }
