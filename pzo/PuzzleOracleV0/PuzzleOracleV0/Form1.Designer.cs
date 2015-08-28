@@ -68,6 +68,8 @@
             // 
             // richTextBox_Response
             // 
+            this.richTextBox_Response.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.richTextBox_Response.Font = new System.Drawing.Font("Cooper Black", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.richTextBox_Response.Location = new System.Drawing.Point(17, 43);
             this.richTextBox_Response.Name = "richTextBox_Response";
             this.richTextBox_Response.ReadOnly = true;
@@ -75,7 +77,6 @@
             this.richTextBox_Response.TabIndex = 6;
             this.richTextBox_Response.TabStop = false;
             this.richTextBox_Response.Text = "";
-            this.richTextBox_Response.TextChanged += new System.EventHandler(this.richTextBox_Response_TextChanged);
             // 
             // label_Name
             // 
@@ -86,15 +87,15 @@
             this.label_Name.Size = new System.Drawing.Size(109, 20);
             this.label_Name.TabIndex = 7;
             this.label_Name.Text = "Puzzle Name";
-            this.label_Name.Click += new System.EventHandler(this.label5_Click);
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(169, 340);
+            this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
+            this.button1.Location = new System.Drawing.Point(148, 297);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(120, 30);
+            this.button1.Size = new System.Drawing.Size(162, 30);
             this.button1.TabIndex = 8;
-            this.button1.Text = "Verify";
+            this.button1.Text = "Ask the oracle";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Visible = false;
             this.button1.Click += new System.EventHandler(this.button1_Click);
@@ -132,9 +133,9 @@
             // textBox_PuzzleId
             // 
             this.textBox_PuzzleId.Font = new System.Drawing.Font("Lucida Console", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox_PuzzleId.Location = new System.Drawing.Point(94, 41);
+            this.textBox_PuzzleId.Location = new System.Drawing.Point(92, 41);
             this.textBox_PuzzleId.Name = "textBox_PuzzleId";
-            this.textBox_PuzzleId.Size = new System.Drawing.Size(44, 27);
+            this.textBox_PuzzleId.Size = new System.Drawing.Size(49, 27);
             this.textBox_PuzzleId.TabIndex = 5;
             this.textBox_PuzzleId.TextChanged += new System.EventHandler(this.textBox_PuzzleId_TextChanged);
             // 
@@ -144,7 +145,7 @@
             this.panel_Answer.Controls.Add(this.label4);
             this.panel_Answer.Location = new System.Drawing.Point(12, 212);
             this.panel_Answer.Name = "panel_Answer";
-            this.panel_Answer.Size = new System.Drawing.Size(435, 100);
+            this.panel_Answer.Size = new System.Drawing.Size(435, 79);
             this.panel_Answer.TabIndex = 11;
             this.panel_Answer.Visible = false;
             // 
@@ -162,9 +163,9 @@
             // 
             this.panel_Response.Controls.Add(this.label1);
             this.panel_Response.Controls.Add(this.richTextBox_Response);
-            this.panel_Response.Location = new System.Drawing.Point(-1, 381);
+            this.panel_Response.Location = new System.Drawing.Point(-1, 298);
             this.panel_Response.Name = "panel_Response";
-            this.panel_Response.Size = new System.Drawing.Size(457, 179);
+            this.panel_Response.Size = new System.Drawing.Size(457, 227);
             this.panel_Response.TabIndex = 13;
             this.panel_Response.Visible = false;
             // 
@@ -180,6 +181,7 @@
             // 
             // Form1
             // 
+            this.AcceptButton = this.button1;
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(459, 561);
@@ -190,6 +192,7 @@
             this.Controls.Add(this.button1);
             this.Name = "Form1";
             this.Text = "Puzzle Oracle";
+            this.Load += new System.EventHandler(this.Form1_Load);
             this.panel_Number.ResumeLayout(false);
             this.panel_Number.PerformLayout();
             this.panel_Answer.ResumeLayout(false);

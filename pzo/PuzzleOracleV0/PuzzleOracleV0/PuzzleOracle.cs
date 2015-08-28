@@ -21,9 +21,24 @@ namespace PuzzleOracleV0
             return null;
         }
 
-        public PuzzleResponse checkSolution(string puzzleId)
+        public PuzzleResponse checkSolution(string puzzleId, string solution)
         {
-            return null;
+            // TODO: Normalize solution...
+            // Actually lookup the puzzle...
+
+            if (puzzleId != "007")
+            {
+                throw new KeyNotFoundException("no such puzzleId: " + puzzleId);
+            }
+
+            if (solution == "ABC")
+            {
+                return new PuzzleResponse(PuzzleResponse.ResponseType.Correct, "CONGRATULATIONS!");
+            }
+            else
+            {
+                return new PuzzleResponse(PuzzleResponse.ResponseType.Incorrect, "NOPE!");
+            }
         }
 
         private void addPuzzles(SimpleSpreadsheetReader sr)
