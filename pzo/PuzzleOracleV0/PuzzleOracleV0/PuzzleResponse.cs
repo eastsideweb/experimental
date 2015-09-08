@@ -18,12 +18,14 @@ namespace PuzzleOracleV0
             AskLater
         };
 
-        public PuzzleResponse(ResponseType type, String response)
+        public PuzzleResponse(String pattern, ResponseType type, String response)
         {
+            this.pattern = pattern;
             this.type = type;
             this.response = response;
         }
 
+        public readonly String pattern;
         public readonly ResponseType type;
         public readonly string response;
     }

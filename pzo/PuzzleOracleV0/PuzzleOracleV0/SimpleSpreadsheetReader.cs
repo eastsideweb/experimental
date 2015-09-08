@@ -39,7 +39,7 @@ namespace PuzzleOracleV0
         /// <param name="toCol"></param>
         /// <param name="sheet"></param>
         /// <returns>Cell content as a string</returns>
-        string[] getRowCells(int fromCol, int toCol, int sheet = 0);
+        string[] getRowCells(int row, int fromCol, int toCol, int sheet = 0);
 
         /// <summary>
         /// Get range of cells in column between fromRow and toRow, inclusive.
@@ -48,6 +48,6 @@ namespace PuzzleOracleV0
         /// <param name="toRow"></param>
         /// <param name="sheet"></param>
         /// <returns>Cell content as a string</returns>
-        string[] getColCells(int fromRow, int toRow, int sheet = 0);
+        string[] getColCells(int col, int fromRow, int toRow, int sheet = 0);
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PuzzleOracleV0
 {
-    class TestExcelReader 
+    class TestExcelReader
     {
 
 
@@ -15,52 +15,73 @@ namespace PuzzleOracleV0
             return new MySimpleSpreadsheetReader();
         }
 
-        class MySimpleSpreadsheetReader :  SimpleSpreadsheetReader
+        class MySimpleSpreadsheetReader : SimpleSpreadsheetReader
         {
-
-
-            public MySimpleSpreadsheetReader()
-            {
-              string[][,] array = {
-                // sheet 1
-                new string[,] {{"Number", "Name", "Answer", "Hint1", "Hint2"}, 
-                 {"100", "Puzzle1", "ABC|DEF", "GHI|JKL:_KG", "LMN|OPQ:_WT"}
+            string[][,] data = {
+                // sheet 1 Special: _C (Correct!) _KG (Keep going, you're on the right track.)  _WT (You're on the wrong grack.)
+                new string[,] {{"Id ", "Name", "Answer", "Hint1", "Hint2"}, 
+                 {"100", "Puzzle1", "ABC|DEF", "GHI|JKL:_KG", "LMN|OPQ:_WT"},
+                 {"101", "Laser I", "BOWMANBAY: _C Congratulations! You have been awarded a challenge ticket for the GO BIOLOGY ", "GHI|JKL:_KG", "LMN|OPQ:_WT"}
                                  },
 
                 // sheet 2
                 new string[,] {{"2"}, {"4"}}
             };
-                int[, ,] array2 = { { { 1, 2, 3, 3 }}, { { 7, -1, 9, 0 } }, { { -1, 0, 7, 8 } 
+
+            String[] sheetNames = { "Sheet1", "Sheet2" };
 
 
-} }; // 3D 
+            public MySimpleSpreadsheetReader()
+            {
+   
+                /*int[, ,] array2 = { { { 1, 2, 3, 3 }}, { { 7, -1, 9, 0 } }, { { -1, 0, 7, 8 } 
+
+
+} };  */
 
             }
 
             public string[] getSheetNames()
             {
-                return null;
+                return sheetNames;
             }
 
             public int getNumRows(int sheet = 0)
             {
-                return 0;
+                string[,] sheetData = data[sheet];
+                return sheetData.GetUpperBound(0)+1;
             }
 
             public int getNumCols(int sheet = 0)
             {
-                return 0;
+                string[,] sheetData = data[sheet];
+                return sheetData.GetUpperBound(1)+1;
             }
 
-            public string[] getRowCells(int fromCol, int toCol, int sheet = 0)
+            public string[] getRowCells(int row, int fromCol, int toCol, int sheet = 0)
             {
-                return null;
+                string[,] sheetData = data[sheet];
+                int n = toCol - fromCol + 1;
+                string[] rows = new string[n];
+                for (int i = 0; i < n; i++)
+                {
+                    rows[i] = sheetData[row, fromCol + i];
+                }
+                return rows;
             }
 
 
-            public string[] getColCells(int fromRow, int toRow, int sheet = 0)
+            public string[] getColCells(int col, int fromRow, int toRow, int sheet = 0)
+
             {
-                return null;
+                string[,] sheetData = data[sheet];
+                int n = toRow - fromRow;
+                string[] cols = new string[n];
+                for (int i = 0; i < n; i++)
+                {
+                    cols[i] = sheetData[fromRow + i, col];
+                }
+                return cols;
             }
         }
     }

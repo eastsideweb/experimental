@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace PuzzleOracleV0
 {
@@ -11,24 +12,33 @@ namespace PuzzleOracleV0
     /// </summary>
     class PuzzleInfo
     {
-        public PuzzleInfo(String[] puzzleRow)
+        public PuzzleInfo(String id, String name, String answer)
         {
-            puzzleId = puzzleRow[0];
-            puzzleName = puzzleRow[1];
+            puzzleId = id;
+            puzzleName = name;
             previousQueryTime = new DateTime(2015, 1, 1); // some time in the past
-            responses = new Dictionary<string, PuzzleResponse>();
-
-            // Add all the responses from the 3rd row onwards...
-            addResponses(puzzleRow);
+            responses = new PuzzleResponse[1];
+            PuzzleResponse pr = new PuzzleResponse(answer, PuzzleResponse.ResponseType.Correct, "CONGRATULATIONS!");
+            responses[0] = pr;
         }
 
-        private void addResponses(string[] puzzleRow)
-        {
-            throw new NotImplementedException();
-        }
         public readonly string puzzleId;
         public readonly string puzzleName;
         public DateTime previousQueryTime;
-        public  Dictionary<String, PuzzleResponse> responses;
+ 
+        public PuzzleResponse matchResponse(String userSolution)
+        {
+            foreach (PuzzleResponse pr in responses)
+            {
+                if (Regex.IsMatch(userSolution, pr.pattern))
+                {
+                    return pr;
+                }
+            }
+            return null;
+        }
+
+        private PuzzleResponse[] responses;
+
     }
 }
