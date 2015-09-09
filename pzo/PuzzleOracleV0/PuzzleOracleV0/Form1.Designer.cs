@@ -73,7 +73,7 @@
             this.richTextBox_Response.Location = new System.Drawing.Point(17, 43);
             this.richTextBox_Response.Name = "richTextBox_Response";
             this.richTextBox_Response.ReadOnly = true;
-            this.richTextBox_Response.Size = new System.Drawing.Size(422, 111);
+            this.richTextBox_Response.Size = new System.Drawing.Size(422, 310);
             this.richTextBox_Response.TabIndex = 6;
             this.richTextBox_Response.TabStop = false;
             this.richTextBox_Response.Text = "";
@@ -165,7 +165,7 @@
             this.panel_Response.Controls.Add(this.richTextBox_Response);
             this.panel_Response.Location = new System.Drawing.Point(-1, 298);
             this.panel_Response.Name = "panel_Response";
-            this.panel_Response.Size = new System.Drawing.Size(457, 227);
+            this.panel_Response.Size = new System.Drawing.Size(457, 367);
             this.panel_Response.TabIndex = 13;
             this.panel_Response.Visible = false;
             // 
@@ -184,7 +184,7 @@
             this.AcceptButton = this.button1;
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(459, 561);
+            this.ClientSize = new System.Drawing.Size(459, 663);
             this.Controls.Add(this.panel_Response);
             this.Controls.Add(this.panel_Name);
             this.Controls.Add(this.panel_Answer);

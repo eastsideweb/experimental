@@ -17,6 +17,7 @@ namespace PuzzleOracleV0
     {
         const int MIN_PUZZLE_ID_LENGTH = 3;
         const int IDLE_TIMER_MS = 30000; // 30 seconds
+        const String ORACLE_DATA_FILENAME = "PuzzleOracle\\data.csv"; // Unencrypted: .csv, encrypted: .pod (for puzzle oracle date)
 
         PuzzleOracle oracle;
         SimpleSpreadsheetReader excelReader;
@@ -64,10 +65,11 @@ namespace PuzzleOracleV0
 
         private void initializeOracle()
         {
-            string pathName = "fooPath";
+            string pathName = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\" + ORACLE_DATA_FILENAME;
             string password = "oaktree";
-            excelReader = TestExcelReader.loadSpreadsheet(pathName, password);
-            oracle = new PuzzleOracle(excelReader);
+            SimpleSpreadsheetReader sr = CsvExcelReader.loadSpreadsheet(pathName, password);
+            //excelReader = TestExcelReader.loadSpreadsheet(pathName, password);
+            oracle = new PuzzleOracle(sr);
         }
 
         private void textBox_PuzzleId_TextChanged(object sender, EventArgs e)
