@@ -17,7 +17,9 @@ namespace PuzzleOracleV0
 {
     class PuzzleOracle
     {
-        const String SPREADSHEET_LABEL_ID = "ID";
+        const String SPREADSHEET_LABEL_ID = "ID"; // ID field of spreadsheet
+        const String NORMALIZAITION_STRIP_CHARS = @"(\s+)|([.,:;!""'-?]+)"; // ignored in user solutions
+
         Dictionary<String, PuzzleInfo> puzzles;
 
         // If present in the responses (after the ':') they are expanded into their corresponding long-form text.
@@ -73,7 +75,7 @@ namespace PuzzleOracleV0
         /// </summary>
         private string normalizeSolution(string solution)
         {
-            String s = Regex.Replace(solution, @"(\s+)|([\\.,:!""'-]+)", "");
+            String s = Regex.Replace(solution, NORMALIZAITION_STRIP_CHARS, "");
             s = s.ToUpperInvariant();
             Trace.WriteLine(String.Format("Normalizing solution [{0}] into [{1}]", solution, s));
             return s;
