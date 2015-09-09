@@ -21,7 +21,7 @@ namespace PuzzleOracleV0
                 // sheet 1 Special: _C (Correct!) _KG (Keep going, you're on the right track.)  _WT (You're on the wrong grack.)
                 new string[,] {{"Id ", "Name", "Answer", "Hint1", "Hint2"}, 
                  {"100", "Puzzle1", "ABC|DEF", "GHI|JKL:_KG", "LMN|OPQ:_WT"},
-                 {"101", "Laser I", "BOWMANBAY: _C Congratulations! You have been awarded a challenge ticket for the GO BIOLOGY ", "GHI|JKL:_KG", "LMN|OPQ:_WT"}
+                 {"101", "Laser I", "BOWMANBAY: _C\n\nCongratulations! You have been awarded a challenge ticket to challenge GO BIOLOGY. Entry code QWRTX.", "GHI|JKL:_KG", "LMN|OPQ:_WT"}
                                  },
 
                 // sheet 2

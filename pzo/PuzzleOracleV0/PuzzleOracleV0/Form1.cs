@@ -16,7 +16,7 @@ namespace PuzzleOracleV0
     public partial class Form1 : Form
     {
         const int MIN_PUZZLE_ID_LENGTH = 3;
-        const int IDLE_TIMER_MS = 10000; // 10 seconds
+        const int IDLE_TIMER_MS = 30000; // 30 seconds
 
         PuzzleOracle oracle;
         SimpleSpreadsheetReader excelReader;

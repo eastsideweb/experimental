@@ -1,4 +1,11 @@
-﻿using System;
+﻿//
+// MODULE: Puzzle Oracle - for A Puzzle Oracle for Puzzle Events
+// File: PuzzleInfo
+//
+// HISTORY
+//   September 2015 Joseph M. Joy Created
+//
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,14 +19,12 @@ namespace PuzzleOracleV0
     /// </summary>
     class PuzzleInfo
     {
-        public PuzzleInfo(String id, String name, String answer)
+        public PuzzleInfo(String id, String name)
         {
             puzzleId = id;
             puzzleName = name;
             previousQueryTime = new DateTime(2015, 1, 1); // some time in the past
-            responses = new PuzzleResponse[1];
-            PuzzleResponse pr = new PuzzleResponse(answer, PuzzleResponse.ResponseType.Correct, "CONGRATULATIONS!");
-            responses[0] = pr;
+            responses = new List<PuzzleResponse>();
         }
 
         public readonly string puzzleId;
@@ -38,7 +43,12 @@ namespace PuzzleOracleV0
             return null;
         }
 
-        private PuzzleResponse[] responses;
+        public void addResponse(PuzzleResponse pr)
+        {
+            responses.Add(pr);
+        }
+
+        private readonly List<PuzzleResponse> responses;
 
     }
 }
