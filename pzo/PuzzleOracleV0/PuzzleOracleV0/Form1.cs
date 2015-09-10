@@ -8,10 +8,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
-
+using System.Runtime.InteropServices.WindowsRuntime;  
 
 namespace PuzzleOracleV0
 {
+
 
     public partial class Form1 : Form
     {
@@ -21,6 +22,7 @@ namespace PuzzleOracleV0
 
         PuzzleOracle oracle;
         SimpleSpreadsheetReader excelReader;
+        Boolean fullScreen = false;
 
 
         #region UX_CONTROLS
@@ -34,19 +36,54 @@ namespace PuzzleOracleV0
 
         public Form1()
         {
+            if (trySwitchToOtherInstance())
+            {
+                Close();
+                return;
+            }
             InitializeComponent();
             initializeUx();
             initializeOracle();
         }
 
+        private bool trySwitchToOtherInstance()
+        {
+            var me = Process.GetCurrentProcess();
+            var otherMe = Process.GetProcessesByName(me.ProcessName).Where(p => p.Id != me.Id).FirstOrDefault();
+
+            if (otherMe != null)
+            {
+                MessageBox.Show("Exiting Duplicate Instance", "Puzzle Oracle", MessageBoxButtons.OK);
+#if false
+                //note IntPtr expected by API calls.
+                IntPtr hWnd = otherMe.MainWindowHandle;
+                //restore if minimized
+                ShowWindow(hWnd, 1);
+                //bring to the front
+                SetForegroundWindow(hWnd);
+#endif
+                return true;
+            }
+            else
+            {
+                //run your app here
+                return false;
+            }
+        }
+
         private void initializeUx()
         {
-            color_NotFound = Color.FromName("Orange");
-             color_Found = Color.FromName("Green");
+            // Handle keys (temporary - to capture the F1 key to experiment with full-screen mode, etc.)
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(KeyEvent);
+            this.KeyPreview = true;
 
-             color_CorrectAnswer = Color.FromName("Green");
-             color_IncorrectAnswer = Color.FromName("Orange");
-             color_DelayedAnswer = Color.FromName("Black");
+
+            color_NotFound = Color.FromName("Orange");
+            color_Found = Color.FromName("Green");
+
+            color_CorrectAnswer = Color.FromName("Green");
+            color_IncorrectAnswer = Color.FromName("Orange");
+            color_DelayedAnswer = Color.FromName("Black");
 
             myTimer = new System.Windows.Forms.Timer();
             myTimer.Tick += myTimer_Tick;
@@ -55,10 +92,22 @@ namespace PuzzleOracleV0
 
         }
 
+        private void KeyEvent(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.F1)
+            {
+                //MessageBox.Show("Function F6");
+                fullScreen = !fullScreen;
+                GoFullscreen(fullScreen);
+            }
+
+        }
+
+
         void myTimer_Tick(object sender, EventArgs e)
         {
             Debug.WriteLine("IDLE TIMER HIT!");
-             this.textBox_PuzzleId.Text = "";
+            this.textBox_PuzzleId.Text = "";
             uxClearAndHideSubmission();
             myTimer.Enabled = false;
         }
@@ -74,7 +123,7 @@ namespace PuzzleOracleV0
 
         private void textBox_PuzzleId_TextChanged(object sender, EventArgs e)
         {
-            Debug.WriteLine("Something was typed! [" + this.textBox_PuzzleId.Text+"]");
+            Debug.WriteLine("Something was typed! [" + this.textBox_PuzzleId.Text + "]");
             uxResetIdleTimer();
 
             // Check that what was typed is a valid puzzle ID...
@@ -156,7 +205,7 @@ namespace PuzzleOracleV0
         private void textBox_Answer_TextChanged(object sender, EventArgs e)
         {
             String text = this.textBox_Answer.Text;
-            Debug.WriteLine("Something was typed! ["+text+"]");
+            Debug.WriteLine("Something was typed! [" + text + "]");
             uxResetIdleTimer();
 
             if (text.Length == 0)
@@ -182,7 +231,7 @@ namespace PuzzleOracleV0
             this.button1.Hide();
         }
 
-        
+
         private void button1_Click(object sender, EventArgs e)
         {
             Debug.WriteLine("Verify button clicked!");
@@ -214,6 +263,49 @@ namespace PuzzleOracleV0
 
         private void Form1_Load(object sender, EventArgs e)
         {
+
+        }
+
+        private void GoFullscreen(bool fullscreen)
+        {
+            if (fullscreen)
+            {
+                this.WindowState = FormWindowState.Normal;
+                this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+                this.Bounds = Screen.PrimaryScreen.Bounds;
+            }
+            else
+            {
+                this.WindowState = FormWindowState.Maximized;
+                this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
+            }
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            Boolean cancel = false;
+
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                string message = "Confirm close?";
+                string caption = "Close Puzzle Oracle";
+                MessageBoxButtons buttons = MessageBoxButtons.YesNo;
+                var result = MessageBox.Show(message, caption, buttons);
+
+                if (result == System.Windows.Forms.DialogResult.No)
+                {
+                    cancel = true;
+                }
+            }
+
+            if (cancel)
+            {
+                e.Cancel = true;
+            }
+            else
+            {
+                base.OnFormClosing(e);
+            }
 
         }
 
