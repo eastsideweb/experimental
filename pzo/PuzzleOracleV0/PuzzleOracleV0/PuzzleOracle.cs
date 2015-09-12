@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using System.IO;
 
 namespace PuzzleOracleV0
 {
@@ -21,16 +22,21 @@ namespace PuzzleOracleV0
         const String NORMALIZAITION_STRIP_CHARS = @"(\s+)|([.,:;!""'-?]+)"; // ignored in user solutions
 
         Dictionary<String, PuzzleInfo> puzzles;
+        Dictionary<String, String> properties;
+        List<String> puzzleIDs; // For diagnostic purposes. In order that they were read in from the file.
 
         // If present in the responses (after the ':') they are expanded into their corresponding long-form text.
         String[,] responseAliases = {
 {"_C", "Correct!"},
 {"_KG", "Keep going. You're on the right track."},
-{"_WT", "You're on the wrong track."}
+{"_WT", "You're on the wrong track."},
+{"_RTIC", "Read the puzzle instructions carefully."}
                                   };
         public PuzzleOracle(SimpleSpreadsheetReader sr)
         {
             puzzles = new Dictionary<string, PuzzleInfo>();
+            properties = new Dictionary<string, string>();
+            puzzleIDs = new List<string>();
             addPuzzles(sr);
         }
 
@@ -46,6 +52,148 @@ namespace PuzzleOracleV0
                 return pi.puzzleName;
             }
             return null;
+        }
+
+        /// <summary>
+        /// This is used for debugging purposes - be sure NOT to write out the decrypted
+        /// data file in the production version of the app! The directory is the same as where the
+        /// data file was loaded, and the name is hardcoded.
+        /// </summary>
+        /// <param name="encrypted"></param>
+        public void writeCsvFile(String basePath, Boolean encrypted)
+        {
+            const string ENCRYPTED_PROPERTY = "encrypted";
+            String fileName = "data-out-FREETEXT.csv";
+            if (encrypted)
+            {
+                fileName = "data-out-ENCRYPTED.csv";
+            }
+            else
+            {
+                Trace.WriteLine("WARNING: Writing UNENCRYPTED data to file!");
+            }
+            String pathName = basePath + @"\" + fileName;
+            using (TextWriter tw = new StreamWriter(pathName))
+            {
+                // Write header properties
+                tw.Write("POD,Version:1.0");
+                foreach (KeyValuePair<String, String> kvp in properties)
+                {
+                    String k = kvp.Key;
+                    if (!k.Equals("version") && !k.Equals("pod"))
+                    {
+                        if (!k.Equals(ENCRYPTED_PROPERTY)) // we selectively add it later
+                        {
+                            String s = (kvp.Value.Length == 0) ? "" : ":" + kvp.Value;
+                            appendCell(tw, k + s);
+                        }
+                    }
+                }
+                int nProps = properties.Count;
+
+                // Add the "encrypted" property if we need to...
+                if (encrypted)
+                {
+                    appendCell(tw, ENCRYPTED_PROPERTY);
+                    nProps++;
+                }
+
+                int maxHints = computeMaxHints();
+                int maxCols = maxHints + 3; // 3 for ID, Answer and Name
+                if (maxCols < nProps)
+                {
+                    maxCols = nProps;
+                }
+                else
+                {
+                    writeCommas(tw, maxCols - nProps);
+                }
+                tw.WriteLine("");
+
+
+                // Write Table headers
+                tw.Write("Id,Name,Answer");
+                for (int i = 0; i < maxHints; i++)
+                {
+                    tw.Write(",Hint" + (i + 1));
+                }
+                int colsWritten = maxHints + 3; // 3 for ID, Name and Answer
+                if (colsWritten < maxCols)
+                {
+                    writeCommas(tw, maxCols - colsWritten);
+                }
+                tw.WriteLine("");
+
+                // Write Puzzle rows
+                foreach (String id in puzzleIDs)
+                {
+                    PuzzleInfo pi = puzzles[id];
+
+                    // Write ID and Name
+                    tw.Write(id);
+                    appendCell(tw, pi.puzzleName);
+
+                    // Write responses... (Answer comes first
+                    foreach (var pr in pi.responses)
+                    {
+                        String s = pr.pattern + (pr.response.Length == 0 ? "" : ":" + compressAliases(pr.response));
+                        if (encrypted)
+                        {
+                            s = "[" + permute(s, true) + "]"; // true == encrypt
+                        }
+                        appendCell(tw, s);
+                    }
+                    colsWritten = 2 + pi.responses.Count; // 2 for ID and Name
+                    if (colsWritten < maxCols)
+                    {
+                        writeCommas(tw, maxCols - colsWritten);
+                    }
+                    tw.WriteLine("");
+                }
+                tw.Flush();
+                tw.Close();
+            }
+        }
+
+        // ADD a cell  - assumes the 1st cell in the row has already been written.
+        // Escapes s if needed.
+        void appendCell(TextWriter tw, String s)
+        {
+            const String q = "\"";
+            const String qq = q + q;
+            if (Regex.IsMatch(s, @"\n|\r|,|"""))
+            { // removed \s for space because it seems space in cells is not quoted.
+                // S needs excaping.
+                s = Regex.Replace(s, q, qq);
+                s = q + s + q;
+            }
+            tw.Write("," + s);
+        }
+
+        private void writeCommas(TextWriter tw, int n)
+        {
+            // Write extra commas if required
+            for (int i = 0; i < n; i++)
+            {
+                tw.Write(",");
+            }
+        }
+
+        // Go through list of puzzles and compute the max number of hints addded to any particular puzzle.
+        // Used to write out the CSV file with enough commas.
+        private int computeMaxHints()
+        {
+            int max = 0;
+            foreach (var kpr in puzzles)
+            {
+                PuzzleInfo pi = kpr.Value;
+                int n = pi.responses.Count;
+                if (n > max)
+                {
+                    max = n;
+                }
+            }
+            return max;
         }
 
         /// <summary>
@@ -68,6 +216,13 @@ namespace PuzzleOracleV0
                 pr = new PuzzleResponse(solution, PuzzleResponse.ResponseType.Incorrect, "NOPE!");
             }
             return pr;
+        }
+
+        public String lookupProperty(String key)
+        {
+            String value = null;
+            properties.TryGetValue(key.ToUpperInvariant(), out value);
+            return value;
         }
 
         /// <summary>
@@ -93,38 +248,69 @@ namespace PuzzleOracleV0
         /// <param name="sr"></param>
         private void addPuzzles(SimpleSpreadsheetReader sr)
         {
-            // Find origin by looking for "Id" (ignoring case)
-            int startRow = -1;
-            int startCol = -1;
+            // We expect that the first row contains the signature ("POD") followed by "version:1.0" followed by 
+            // additional properties (which we ignore for now)
+            const int HEADER_ROWS = 2;
+            const int MIN_COLS = 3;
+            const String FILE_SIGNATURE = "POD";
+            const String PROP_ENCRYPTED = "encrypted";
             int sheet = 0;
+            bool encrypted = false; // whether answers and hints are encrypted or not.
             int numRows = sr.getNumRows(sheet);
             int numCols = sr.getNumCols(sheet);
-            if (numRows < 2 || numCols < 3)
+            if (numRows < HEADER_ROWS || numCols < MIN_COLS)
             {
-                Trace.WriteLine("spread sheet is too small!");
+                Trace.WriteLine("spread sheet is too small! Abandoning.");
                 return;
             }
-            String[] header = sr.getRowCells(0, 0, numCols - 1, sheet);
-            // We expect the first cell to be "id"
+            String[] propertyRow = sr.getRowCells(0, 0, numCols - 1, sheet);
+            String[] header = sr.getRowCells(1, 0, numCols - 1, sheet);
+
+            // We expect the first property cell to be POD (all caps)
+            if (!stripEndBlanks(propertyRow[0]).Equals(FILE_SIGNATURE))
+            {
+                Trace.WriteLine("Spread sheet missing signature. Abandoning.");
+                return;
+            }
+
+            // Read rest of properties
+            readProperties(propertyRow);
+
+            // Check if answer keys are encrypted.
+            if (properties.ContainsKey(PROP_ENCRYPTED))
+            {
+                encrypted = true;
+            }
+
+            // We expect the first header cell to be "id"
             String headerId = stripEndBlanks(header[0]);
             if (!headerId.Equals(SPREADSHEET_LABEL_ID, StringComparison.CurrentCultureIgnoreCase))
             {
-                Trace.WriteLine("spread sheet 1st cell is not 'ID'");
+                Trace.WriteLine("spread sheet 1st cell is not 'ID'. Abandoning.");
                 return;
             }
-            startRow = 1; startCol = 0; // for now we hardcode the location of the puzzle rows w.r.t. spreadsheet origin - 2nd row onwards is puzzles.
+            int startRow = HEADER_ROWS; // First row of puzzle data
+            int startCol = 0; // First col of puzzle data 
+            //int puzzleCount = numRows - HEADER_ROWS; // could be zero; it's valid to have 0 puzzles.
             for (int i = startRow; i < numRows; i++)
             {
                 String[] sRow = sr.getRowCells(i, startCol, numCols - 1, sheet);
                 const String REGEX_ID = @"^[0-9][0-9][0-9]$"; // For now, IDs must be 3-digit numbers.
                 String id = stripBlanks(sRow[0]);
-                 if (!Regex.IsMatch(id, REGEX_ID))
+                if (!Regex.IsMatch(id, REGEX_ID))
                 {
                     Trace.WriteLine(String.Format("Skipping row {0}: invalid ID", i));
                     continue;
                 }
-  
-                // We got the ID, now let's get the remaining columns. For now, let's just get Name and Answer.
+
+                // We got the ID, if needed decrypt remaining fields after Name
+                if (encrypted)
+                {
+                    decryptCells(sRow, 2, numCols - 1); // 2 == skip Id and Name. False == descrypt
+                }
+
+                //  Now let's get the remaining columns. First,  get the first two: Name and Answer.
+
                 String name = stripEndBlanks(sRow[1]);
                 String answer = stripEndBlanks(sRow[2]);
                 // Neither should be blank.
@@ -146,18 +332,24 @@ namespace PuzzleOracleV0
                 // Add hints, if any...
                 for (int j = 3; j < sRow.Length; j++)
                 {
-                    PuzzleResponse pr = buildPuzzleResponse(sRow[j], PuzzleResponse.ResponseType.Incorrect);
-                    if (pr == null)
+                    String field = stripBlanks(sRow[j]);
+                    if (field.Length > 0)
                     {
-                        Trace.WriteLine(String.Format("Ignoring hint {0} on row {1}: Invalid hint content {2}", j, i));
+                        PuzzleResponse pr = buildPuzzleResponse(field, PuzzleResponse.ResponseType.Incorrect);
+                        if (pr == null)
+                        {
+                            Trace.WriteLine(String.Format("Ignoring hint {0} on row {1}: Invalid hint content", j, i));
+                            continue;
+                        }
+                        pi.addResponse(pr);
                     }
-                    pi.addResponse(pr);
                 }
 
                 try
                 {
 
                     puzzles.Add(id, pi);
+                    puzzleIDs.Add(id);
                     Trace.WriteLine(String.Format("Adding row {0}: Puzzle ID {1}, Answer {2}", i, id, answer));
 
                 }
@@ -167,7 +359,98 @@ namespace PuzzleOracleV0
                 }
 
             }
-           
+
+        }
+
+        /// <summary>
+        /// Decrypt the columns in the range (inclusive)
+        /// </summary>
+        /// <param name="sRow"></param>
+        /// <param name="fromCol"></param>
+        /// <param name="toCol"></param>
+        private void decryptCells(string[] sRow, int fromCol, int toCol)
+        {
+            for (int i = fromCol; i <= toCol && i < sRow.Length; i++)
+            {
+                String s = sRow[i];
+
+                if (s.Length < 2 || s[0] != '[' || s[s.Length - 1] != ']')
+                {
+                    Trace.WriteLine(String.Format("Ignoring attempt to decrypt unencrypted cell {0}", s));
+                    continue;
+                }
+                String t = permute(s.Substring(1, s.Length - 2), false); // false == derypt
+                sRow[i] = t;
+            }
+        }
+
+        private string permute(string s, Boolean encrypt)
+        {
+            String originalChars = ":,.-_;!|()[] 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"; // Add  :,.-_;!0123456789 and space
+            String permutedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ:,.-_;!|()[] 0123456789";
+            String p1 = originalChars;
+            String p2 = permutedChars;
+            Debug.Assert(p1.Length == p2.Length);
+            if (!encrypt)
+            {
+                p1 = permutedChars;
+                p2 = originalChars;
+            }
+            String t = "";
+            foreach (char c in s)
+            {
+                char c2 = c;
+                int i = p2.IndexOf(c);
+                if (i != -1)
+                {
+                    c2 = p1[i];
+                }
+                t += c2;
+            }
+
+            return t;
+        }
+
+        /// <summary>
+        /// Parse and populate the properties. The format of string is name[:value]. If value is not
+        /// present than the empty string (not null) is inserted. Duplicates are ignored (though they
+        /// generate a trace)
+        /// </summary>
+        /// <param name="propertyRow"></param>
+        private void readProperties(string[] propertyRow)
+        {
+            for (int i = 0; i < propertyRow.Length; i++)
+            {
+                String s = propertyRow[i];
+                int colonIndex = s.IndexOf(":");
+                String propName = s;
+                String propValue = "";
+                if (colonIndex != -1)
+                {
+                    propName = s.Substring(0, colonIndex);
+                    propValue = s.Substring(colonIndex + 1);
+                    propValue = stripEndBlanks(propValue);
+                }
+                propName = stripEndBlanks(propName);
+                propName = propName.ToLowerInvariant();
+                if (!Regex.IsMatch(propName, @"^[a-z_][0-9a-z_]*$"))
+                {
+                    if (propName.Length > 0)
+                    {
+                        Trace.WriteLine(String.Format("Invalid property {0}", propName));
+                    }
+                    continue;
+                }
+
+                if (properties.ContainsKey(propName))
+                {
+                    Trace.WriteLine(String.Format("Ignoring duplicate property {0}", propName));
+                    continue;
+                }
+
+                // Add to property table
+                properties.Add(propName, propValue);
+            }
         }
 
 
@@ -189,7 +472,9 @@ namespace PuzzleOracleV0
             {
                 pattern = s.Substring(0, i);
                 response = s.Substring(i + 1); // can be ""
-            } else {
+            }
+            else
+            {
                 pattern = s;
             }
             pattern = stripEndBlanks(pattern);
@@ -204,7 +489,7 @@ namespace PuzzleOracleV0
 
             try
             {
-               Regex.IsMatch("foo", pattern);
+                Regex.IsMatch("foo", pattern);
             }
             catch (ArgumentException)
             {
@@ -216,23 +501,40 @@ namespace PuzzleOracleV0
             response = expandAliases(response);
 
             return new PuzzleResponse(pattern, responseType, response);
-         }
+        }
 
         /// <summary>
         /// Expands embedded aliases (such as _KG) in-place. The alias table is responseAliases.
         /// </summary>
         /// <param name="response"></param>
         /// <returns></returns>
-        private  string expandAliases(string response)
+        private string expandAliases(string response)
         {
-            int numAliases = responseAliases.GetUpperBound(0);
-            for (int i = 0; i <= numAliases; i++)
+            int numAliases = responseAliases.GetUpperBound(0) + 1;
+            for (int i = 0; i < numAliases; i++)
             {
                 String alias = responseAliases[i, 0];
                 String expansion = responseAliases[i, 1];
-                response = Regex.Replace(response, alias, expansion);
+                response = response.Replace(alias, expansion);
             }
-            return response; 
+            return response;
+        }
+
+        /// <summary>
+        /// This is the inverse of expandAlias. It runs the patterns in inverse and in reverse order.
+        /// </summary>
+        /// <param name="response"></param>
+        /// <returns></returns>
+        private string compressAliases(string response)
+        {
+            int numAliases = responseAliases.GetUpperBound(0) + 1;
+            for (int i = numAliases - 1; i >= 0; i--)
+            {
+                String alias = responseAliases[i, 0];
+                String expansion = responseAliases[i, 1];
+                response = response.Replace(expansion, alias);
+            }
+            return response;
         }
 
         private string stripEndBlanks(string s)

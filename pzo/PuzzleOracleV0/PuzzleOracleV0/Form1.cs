@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
-using System.Runtime.InteropServices.WindowsRuntime;  
+using System.Text.RegularExpressions;
 
 namespace PuzzleOracleV0
 {
@@ -18,10 +18,10 @@ namespace PuzzleOracleV0
     {
         const int MIN_PUZZLE_ID_LENGTH = 3;
         const int IDLE_TIMER_MS = 30000; // 30 seconds
-        const String ORACLE_DATA_FILENAME = "PuzzleOracle\\data.csv"; // Unencrypted: .csv, encrypted: .pod (for puzzle oracle date)
+        const String ORACLE_DATA_DIR = "PuzzleOracle";
+        const String ORACLE_DATA_FILENAME = "data.csv"; 
 
         PuzzleOracle oracle;
-        SimpleSpreadsheetReader excelReader;
         Boolean fullScreen = false;
 
 
@@ -114,11 +114,31 @@ namespace PuzzleOracleV0
 
         private void initializeOracle()
         {
-            string pathName = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\" + ORACLE_DATA_FILENAME;
-            string password = "oaktree";
-            SimpleSpreadsheetReader sr = CsvExcelReader.loadSpreadsheet(pathName, password);
+
+            String basePath = getDataFileBasePath();
+            string pathName = basePath + "\\" + ORACLE_DATA_FILENAME;
+             SimpleSpreadsheetReader sr = CsvExcelReader.loadSpreadsheet(pathName);
             //excelReader = TestExcelReader.loadSpreadsheet(pathName, password);
             oracle = new PuzzleOracle(sr);
+            oracle.writeCsvFile(basePath, true);
+
+            // WARNING - writeToFile(false) writes out the decrypted contents!
+            // WARNING - do not enable this in the production build!
+            MessageBox.Show("WRITING UNENCRYPTED DATA", "WARNING", MessageBoxButtons.OKCancel);
+            oracle.writeCsvFile(basePath, false);
+        }
+
+        private string getDataFileBasePath()
+        {
+
+            string basePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            string cwd = Environment.CurrentDirectory;
+            string driveLetter = Regex.Replace(cwd, ":.*", "");
+            if (driveLetter.Length == 1)
+            {
+                basePath = driveLetter + ":";
+            }
+            return basePath + "\\" + ORACLE_DATA_DIR;
         }
 
         private void textBox_PuzzleId_TextChanged(object sender, EventArgs e)

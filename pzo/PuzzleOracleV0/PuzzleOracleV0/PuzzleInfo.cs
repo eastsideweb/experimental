@@ -30,7 +30,8 @@ namespace PuzzleOracleV0
         public readonly string puzzleId;
         public readonly string puzzleName;
         public DateTime previousQueryTime;
- 
+        public readonly List<PuzzleResponse> responses;
+
         public PuzzleResponse matchResponse(String userSolution)
         {
             foreach (PuzzleResponse pr in responses)
@@ -48,7 +49,6 @@ namespace PuzzleOracleV0
             responses.Add(pr);
         }
 
-        private readonly List<PuzzleResponse> responses;
 
     }
 }

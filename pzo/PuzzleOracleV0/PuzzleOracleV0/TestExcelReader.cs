@@ -10,7 +10,7 @@ namespace PuzzleOracleV0
     {
 
 
-        public static SimpleSpreadsheetReader loadSpreadsheet(String pathName, String password = null)
+        public static SimpleSpreadsheetReader loadSpreadsheet(String pathName)
         {
             return new MySimpleSpreadsheetReader();
         }

@@ -19,7 +19,7 @@ namespace PuzzleOracleV0
             this.cells = cells; this.maxCols = maxCols;
         }
 
-        public static SimpleSpreadsheetReader loadSpreadsheet(String pathName, String password = null)
+        public static SimpleSpreadsheetReader loadSpreadsheet(String pathName)
         {
             using (TextReader tr = new StreamReader(pathName)) {
                 String allText = tr.ReadToEnd();
