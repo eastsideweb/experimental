@@ -37,6 +37,7 @@ namespace PuzzleOracleV0
 
         PuzzleOracle oracle;
         Boolean fullScreen = false;
+        Boolean okToClose = false;
 
         // Basic modes of operation (with different layout)
         enum Mode
@@ -452,11 +453,12 @@ namespace PuzzleOracleV0
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            if (mode == Mode.modeOracle && e.CloseReason == CloseReason.UserClosing)
+            if (e.CloseReason == CloseReason.UserClosing && !okToClose && mode != Mode.modeInit)
             {
                 e.Cancel = true; // we defer closing to when the mode is Mode.modeExit
-                uxSwitchModeToExit();
-
+                if (mode == Mode.modeOracle) { 
+                 uxSwitchModeToExit();
+                }
             }
             else
             {
@@ -488,6 +490,7 @@ namespace PuzzleOracleV0
                     {
                         Trace.WriteLine("Closing Form!");
                         mode = Mode.modeExit;
+                        okToClose = true;
                         this.Close(); // Somethis is not doing the trick!
                         //Application.Exit();
                     }
@@ -498,10 +501,7 @@ namespace PuzzleOracleV0
                     codeTextBox.BackColor = color_IncorrectCode;
                 }
             }
-            else
-            {
-                uxSetIncompletePuzzleId();
-            }
+
         }
 
         private void codeCancelButton_Click(object sender, EventArgs e)

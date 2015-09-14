@@ -21,17 +21,32 @@ namespace PuzzleOracleV0
         const String SPREADSHEET_LABEL_ID = "ID"; // ID field of spreadsheet
         const String NORMALIZAITION_STRIP_CHARS = @"(\s+)|([.,:;!""'-?]+)"; // ignored in user solutions
 
+
+        // Various user-visible strings
+        const String GENERIC_INCORRECT_RESPONSE = "Unfortunately, your answer is incorrect.";
+        const String INCORRECT_BUT_PUZZLE_ANSWERED_BEFORE = "Your answer is incorrect, however someone else in your team has answered this puzzle. "
+                       + "Submit the correct answer to get important additional instructions.";
+        const String BLACKLISTED_RESPONSE = "Your team has submitted too many incorrect answers for this puzzle.\nPlease wait {0} before submitting"
+            +" an answer to puzzle {1}"; // Note FORMAT placeholders (two) - duration and puzzle ID.
+        
+
+
+
+
         Dictionary<String, PuzzleInfo> puzzles;
         Dictionary<String, String> properties;
         List<String> puzzleIDs; // For diagnostic purposes. In order that they were read in from the file.
 
         // If present in the responses (after the ':') they are expanded into their corresponding long-form text.
-        String[,] responseAliases = {
+        readonly String[,] responseAliases = {
 {"_C", "Correct!"},
 {"_KG", "Keep going. You're on the right track."},
 {"_WT", "You're on the wrong track."},
 {"_RTIC", "Read the puzzle instructions carefully."}
                                   };
+
+        
+
         public PuzzleOracle(SimpleSpreadsheetReader sr)
         {
             puzzles = new Dictionary<string, PuzzleInfo>();
@@ -206,15 +221,56 @@ namespace PuzzleOracleV0
         /// <returns></returns>
         public PuzzleResponse checkSolution(string puzzleId, string solution)
         {
-            // TODO: Normalize solution...
-            // Actually lookup the puzzle...
+            // Lookup puzzle...
             solution = normalizeSolution(solution);
             PuzzleInfo pi = puzzles[puzzleId];
-            PuzzleResponse pr = pi.matchResponse(solution);
+            PuzzleResponse pr = null;
+
+            // Check blacklist state (<0 means we're ok)
+            int delay = pi.blacklister.submitDelay;
+
+            // Have we solved this before?
+            Boolean alreadySolved = pi.puzzleSolved;
+
+
+            // If we are not already solved, and we are blacklisted, we return a special "try later" message.
+            if (!alreadySolved && delay > 0)
+            {
+                // Blacklisted! 
+                String sDelay = delay + " seconds";
+                if (delay > 60)
+                {
+                    int minutes = delay / 60;
+                    int seconds = delay % 60;
+                    sDelay = minutes + " minute" + ((minutes==1) ? "" : "s");
+                    if (seconds > 0)
+                    {
+                        sDelay += " and " + seconds + " seconds";
+                    }
+                }
+                String sResponse = String.Format(BLACKLISTED_RESPONSE, sDelay, pi.puzzleId);
+                pr = new PuzzleResponse(solution, PuzzleResponse.ResponseType.AskLater, sResponse);
+                return pr; // ***************** EARLY RETURN *******************
+            }
+
+            pr = pi.matchResponse(solution);
             if (pr == null)
             {
-                pr = new PuzzleResponse(solution, PuzzleResponse.ResponseType.Incorrect, "NOPE!");
+                pr = new PuzzleResponse(solution, PuzzleResponse.ResponseType.Incorrect, GENERIC_INCORRECT_RESPONSE);
             }
+            pi.blacklister.registerSubmission();
+
+            // If already solved, but solution is not correct, we put a special message.
+            if (!alreadySolved)
+            {
+                pi.puzzleSolved = (pr.type == PuzzleResponse.ResponseType.Correct);
+
+            } else if (pr.type != PuzzleResponse.ResponseType.Correct)
+            {
+                // Puzzle has been solved before but there is a new, incorrect submission. We give a helpful message to the user.
+                pr = new PuzzleResponse(solution, PuzzleResponse.ResponseType.Incorrect, INCORRECT_BUT_PUZZLE_ANSWERED_BEFORE);
+            }
+
             return pr;
         }
 
