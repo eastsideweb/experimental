@@ -24,13 +24,14 @@ namespace PuzzleOracleV0
             puzzleId = id;
             puzzleName = name;
             responses = new List<PuzzleResponse>();
+            blacklister = new Blacklister(id);
         }
 
         public readonly string puzzleId;
         public readonly string puzzleName;
         public readonly List<PuzzleResponse> responses;
         public Boolean puzzleSolved = false;
-        public Blacklister blacklister = new Blacklister();
+        public Blacklister blacklister;
 
         public PuzzleResponse matchResponse(String userSolution)
         {

@@ -24,10 +24,11 @@ namespace PuzzleOracleV0
 
         // Various user-visible strings
         const String GENERIC_INCORRECT_RESPONSE = "Unfortunately, your answer is incorrect.";
-        const String INCORRECT_BUT_PUZZLE_ANSWERED_BEFORE = "Your answer is incorrect, however someone else in your team has answered this puzzle. "
+        const String INCORRECT_BUT_PUZZLE_ANSWERED_BEFORE = "Your answer is incorrect, however someone else in your team has already answered this puzzle. "
                        + "Submit the correct answer to get important additional instructions.";
-        const String BLACKLISTED_RESPONSE = "Your team has submitted too many incorrect answers for this puzzle.\nPlease wait {0} before submitting"
+        const String BLACKLISTED_RESPONSE = "Your team has already made many submission attempts for this puzzle.\n Please wait {0} before submitting"
             +" an answer to puzzle {1}"; // Note FORMAT placeholders (two) - duration and puzzle ID.
+        const String PERMANENT_BLACKLISTED_RESPONSE = "Your team has exceeded the number of allowed submissions for this puzzle.\n Please contact an instructor.";
         
 
 
@@ -236,19 +237,29 @@ namespace PuzzleOracleV0
             // If we are not already solved, and we are blacklisted, we return a special "try later" message.
             if (!alreadySolved && delay > 0)
             {
+                String sResponse;
+
                 // Blacklisted! 
-                String sDelay = delay + " seconds";
-                if (delay > 60)
+                Boolean permanentlyBlacklisted = delay == Blacklister.BLACKLIST_FOREVER_TIME;
+                if (permanentlyBlacklisted)
                 {
-                    int minutes = delay / 60;
-                    int seconds = delay % 60;
-                    sDelay = minutes + " minute" + ((minutes==1) ? "" : "s");
-                    if (seconds > 0)
-                    {
-                        sDelay += " and " + seconds + " seconds";
-                    }
+                    sResponse = PERMANENT_BLACKLISTED_RESPONSE;
                 }
-                String sResponse = String.Format(BLACKLISTED_RESPONSE, sDelay, pi.puzzleId);
+                else
+                {
+                    String sDelay = delay + " seconds";
+                    if (delay > 60)
+                    {
+                        int minutes = delay / 60;
+                        int seconds = delay % 60;
+                        sDelay = minutes + " minute" + ((minutes == 1) ? "" : "s");
+                        if (seconds > 0)
+                        {
+                            sDelay += " and " + seconds + " seconds";
+                        }
+                    }
+                     sResponse = String.Format(BLACKLISTED_RESPONSE, sDelay, pi.puzzleId);
+                }
                 pr = new PuzzleResponse(solution, PuzzleResponse.ResponseType.AskLater, sResponse);
                 return pr; // ***************** EARLY RETURN *******************
             }
