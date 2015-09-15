@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Blacklister.cs" />
+    <Compile Include="CryptoHelper.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -58,7 +59,9 @@
     <Compile Include="PuzzleOracle.cs" />
     <Compile Include="PuzzleResponse.cs" />
     <Compile Include="SimpleSpreadsheetReader.cs" />
+    <Compile Include="TeamInfo.cs" />
     <Compile Include="TestExcelReader.cs" />
+    <Compile Include="Utils.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

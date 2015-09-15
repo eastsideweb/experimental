@@ -10,9 +10,12 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 
+
+
+
 namespace PuzzleOracleV0
 {
-
+    
 
     public partial class Form1 : Form
     {
@@ -22,6 +25,7 @@ namespace PuzzleOracleV0
         const int IDLE_TIMER_MS = 30000; // 30 seconds
         const String ORACLE_DATA_DIR = "PuzzleOracle";
         const String ORACLE_DATA_FILENAME = "data.csv";
+        const String TEAM_DATA_FILENAME = "teamData.csv";
 
         // To store relative position of top-level controls
         class RelativePosition
@@ -35,6 +39,7 @@ namespace PuzzleOracleV0
             }
         }
 
+        TeamInfo teamInfo = new TeamInfo("999", "Team: UNDEFINED");
         PuzzleOracle oracle;
         Boolean fullScreen = false;
         Boolean okToClose = false;
@@ -75,6 +80,7 @@ namespace PuzzleOracleV0
             }
             InitializeComponent();
             initializeUx();
+            initializeTeamInfo();
             initializeOracle();
         }
 
@@ -192,12 +198,24 @@ namespace PuzzleOracleV0
             myTimer.Enabled = false;
         }
 
+        private void initializeTeamInfo()
+        {
+            String basePath = getDataFileBasePath();          
+            String teamInfoPathName = basePath + "\\" + TEAM_DATA_FILENAME;
+            SimpleSpreadsheetReader srTeam = CsvExcelReader.loadSpreadsheet(teamInfoPathName);
+            teamInfo = Utils.getTeamInfoForMachine(srTeam);
+            if (teamInfo == null)
+            {
+                teamInfo = new TeamInfo("999", "NO TEAM ASSIGNED TO THIS MACHINE");
+            }
+        }
         private void initializeOracle()
         {
 
             String basePath = getDataFileBasePath();
             string pathName = basePath + "\\" + ORACLE_DATA_FILENAME;
             SimpleSpreadsheetReader sr = CsvExcelReader.loadSpreadsheet(pathName);
+
             //excelReader = TestExcelReader.loadSpreadsheet(pathName, password);
             oracle = new PuzzleOracle(sr);
             oracle.writeCsvFile(basePath, true);
@@ -245,6 +263,7 @@ namespace PuzzleOracleV0
         private void uxSwitchModeToInit()
         {
             uxReset();
+            titleLabel.Text = teamInfo.teamName;
             uxPositionControl(codePanel, 0.5);
             codePanel.Show();
             codeTextBox.Select();

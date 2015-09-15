@@ -334,7 +334,7 @@ namespace PuzzleOracleV0
             String[] header = sr.getRowCells(1, 0, numCols - 1, sheet);
 
             // We expect the first property cell to be POD (all caps)
-            if (!stripEndBlanks(propertyRow[0]).Equals(FILE_SIGNATURE))
+            if (!Utils.stripEndBlanks(propertyRow[0]).Equals(FILE_SIGNATURE))
             {
                 Trace.WriteLine("Spread sheet missing signature. Abandoning.");
                 return;
@@ -350,7 +350,7 @@ namespace PuzzleOracleV0
             }
 
             // We expect the first header cell to be "id"
-            String headerId = stripEndBlanks(header[0]);
+            String headerId = Utils.stripEndBlanks(header[0]);
             if (!headerId.Equals(SPREADSHEET_LABEL_ID, StringComparison.CurrentCultureIgnoreCase))
             {
                 Trace.WriteLine("spread sheet 1st cell is not 'ID'. Abandoning.");
@@ -363,7 +363,7 @@ namespace PuzzleOracleV0
             {
                 String[] sRow = sr.getRowCells(i, startCol, numCols - 1, sheet);
                 const String REGEX_ID = @"^[0-9][0-9][0-9]$"; // For now, IDs must be 3-digit numbers.
-                String id = stripBlanks(sRow[0]);
+                String id = Utils.stripBlanks(sRow[0]);
                 if (!Regex.IsMatch(id, REGEX_ID))
                 {
                     Trace.WriteLine(String.Format("Skipping row {0}: invalid ID", i));
@@ -378,8 +378,8 @@ namespace PuzzleOracleV0
 
                 //  Now let's get the remaining columns. First,  get the first two: Name and Answer.
 
-                String name = stripEndBlanks(sRow[1]);
-                String answer = stripEndBlanks(sRow[2]);
+                String name = Utils.stripEndBlanks(sRow[1]);
+                String answer = Utils.stripEndBlanks(sRow[2]);
                 // Neither should be blank.
                 if (name.Equals("") || answer.Equals(""))
                 {
@@ -399,7 +399,7 @@ namespace PuzzleOracleV0
                 // Add hints, if any...
                 for (int j = 3; j < sRow.Length; j++)
                 {
-                    String field = stripBlanks(sRow[j]);
+                    String field = Utils.stripBlanks(sRow[j]);
                     if (field.Length > 0)
                     {
                         PuzzleResponse pr = buildPuzzleResponse(field, PuzzleResponse.ResponseType.Incorrect);
@@ -496,9 +496,9 @@ namespace PuzzleOracleV0
                 {
                     propName = s.Substring(0, colonIndex);
                     propValue = s.Substring(colonIndex + 1);
-                    propValue = stripEndBlanks(propValue);
+                    propValue = Utils.stripEndBlanks(propValue);
                 }
-                propName = stripEndBlanks(propName);
+                propName = Utils.stripEndBlanks(propName);
                 propName = propName.ToLowerInvariant();
                 if (!Regex.IsMatch(propName, @"^[a-z_][0-9a-z_]*$"))
                 {
@@ -544,8 +544,8 @@ namespace PuzzleOracleV0
             {
                 pattern = s;
             }
-            pattern = stripEndBlanks(pattern);
-            response = stripEndBlanks(response);
+            pattern = Utils.stripEndBlanks(pattern);
+            response = Utils.stripEndBlanks(response);
 
             // Verify that the pattern is a valid Regex pattern!
             if (pattern.Length == 0)
@@ -604,14 +604,5 @@ namespace PuzzleOracleV0
             return response;
         }
 
-        private string stripEndBlanks(string s)
-        {
-            return Regex.Replace(Regex.Replace(s, @"^\s+", ""), @"\s+$", "");
-        }
-
-        private string stripBlanks(string s)
-        {
-            return Regex.Replace(s, @"\s+", "");
-        }
     }
 }
