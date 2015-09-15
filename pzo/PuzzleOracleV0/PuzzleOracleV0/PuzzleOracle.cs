@@ -261,14 +261,15 @@ namespace PuzzleOracleV0
                      sResponse = String.Format(BLACKLISTED_RESPONSE, sDelay, pi.puzzleId);
                 }
                 pr = new PuzzleResponse(solution, PuzzleResponse.ResponseType.AskLater, sResponse);
-                return pr; // ***************** EARLY RETURN *******************
+                  return pr; // ***************** EARLY RETURN *******************
             }
 
             pr = pi.matchResponse(solution);
             if (pr == null)
             {
-                pr = new PuzzleResponse(solution, PuzzleResponse.ResponseType.Incorrect, GENERIC_INCORRECT_RESPONSE);
+                pr = new PuzzleResponse(solution, PuzzleResponse.ResponseType.NotFound, GENERIC_INCORRECT_RESPONSE);
             }
+
             pi.blacklister.registerSubmission();
 
             // If already solved, but solution is not correct, we put a special message.
@@ -279,7 +280,7 @@ namespace PuzzleOracleV0
             } else if (pr.type != PuzzleResponse.ResponseType.Correct)
             {
                 // Puzzle has been solved before but there is a new, incorrect submission. We give a helpful message to the user.
-                pr = new PuzzleResponse(solution, PuzzleResponse.ResponseType.Incorrect, INCORRECT_BUT_PUZZLE_ANSWERED_BEFORE);
+                pr = new PuzzleResponse(solution, pr.type, INCORRECT_BUT_PUZZLE_ANSWERED_BEFORE);
             }
 
             return pr;
@@ -295,7 +296,7 @@ namespace PuzzleOracleV0
         /// <summary>
         /// Upper-cases and strips extraneous characters from the user solution.
         /// </summary>
-        private string normalizeSolution(string solution)
+        public static string normalizeSolution(string solution)
         {
             String s = Regex.Replace(solution, NORMALIZAITION_STRIP_CHARS, "");
             s = s.ToUpperInvariant();

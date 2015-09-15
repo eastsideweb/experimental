@@ -26,6 +26,7 @@ namespace PuzzleOracleV0
         const String ORACLE_DATA_DIR = "PuzzleOracle";
         const String ORACLE_DATA_FILENAME = "data.csv";
         const String TEAM_DATA_FILENAME = "teamData.csv";
+        const String LOG_DATA_FILENAME = "submissionLog.csv";
 
         // To store relative position of top-level controls
         class RelativePosition
@@ -39,8 +40,9 @@ namespace PuzzleOracleV0
             }
         }
 
-        TeamInfo teamInfo = new TeamInfo("999", "Team: UNDEFINED");
+        TeamInfo teamInfo;
         PuzzleOracle oracle;
+        OracleStatusLogger oracleLogger;
         Boolean fullScreen = false;
         Boolean okToClose = false;
 
@@ -82,7 +84,17 @@ namespace PuzzleOracleV0
             initializeUx();
             initializeTeamInfo();
             initializeOracle();
+            initializeOracleLogger();
         }
+
+        private void initializeOracleLogger()
+        {
+            String basePath = getDataFileBasePath();
+            String logPathName = basePath + "\\" + LOG_DATA_FILENAME;
+            oracleLogger = new OracleStatusLogger(logPathName, teamInfo.teamId, teamInfo.teamName);
+         }
+
+
 
         private bool trySwitchToOtherInstance()
         {
@@ -421,6 +433,7 @@ namespace PuzzleOracleV0
             if (id.Length > 0)
             {
                 PuzzleResponse pr = oracle.checkSolution(id, answer);
+                oracleLogger.LogSolveAttempt(id, answer, pr);
                 uxDisplayResponse(pr);
             }
         }
@@ -481,6 +494,11 @@ namespace PuzzleOracleV0
             }
             else
             {
+                if (oracleLogger != null)
+                {
+                    oracleLogger.Dispose();
+                    oracleLogger = null;
+                }
                 base.OnFormClosing(e);
             }
         }
