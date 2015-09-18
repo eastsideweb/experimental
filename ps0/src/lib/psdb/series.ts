@@ -771,7 +771,7 @@ class PuzzleSeries implements IPuzzleSeries {
     //      "InvalidTeamId"         "Invalid team id"
     //      "PuzzleNotInEvent"      "puzzle not assigned to the team"
     //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
-    updatePuzzleState(teamID: string, puzzleID: string, puzzleStateSolved: string, callback: SimpleCallBack): void {
+    updatePuzzleState(teamID: string, puzzleID: string, puzzleState: any, callback: SimpleCallBack): void {
         var self = this, pzStateId, puzzleStateCollectionName, eventId /* TODO: which eventId to use? the one and only active event? */;
 
         //Figure out the eventId
@@ -810,7 +810,7 @@ class PuzzleSeries implements IPuzzleSeries {
                                     pzStateId = PuzzleSeries.composePuzzleStateId(teamID, puzzleID);
                                     puzzleStateCollectionName = global.config.psdb.puzzleStatesCollectionNamePrefix + eventId;
                                     // Use upsert:true option so it will create a document with this id if it is already not present
-                                    self.crudHandle.updateObj(puzzleStateCollectionName, { "_id": pzStateId }, { "_id": pzStateId, "teamId": teamID, "puzzleId": puzzleID, "solved": puzzleStateSolved },
+                                    self.crudHandle.updateObj(puzzleStateCollectionName, { "_id": pzStateId }, { "_id": pzStateId, "teamId": teamID, "puzzleId": puzzleID, "solved": puzzleState.solved },
                                         function (err1: Error, count: number) {
                                             if (err1) {
                                                 // Something went wrong in the update!!

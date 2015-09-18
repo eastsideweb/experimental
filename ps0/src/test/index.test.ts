@@ -16,7 +16,7 @@ var request = require('supertest'),
     express = require('express'),
     assert = require('assert'),
     app = require('../app.js'),
-    //psdb = require('../lib/psdb/psdb'),
+    psdb = require('../lib/psdb/psdb'),
     agent = request.agent(app);
 
 
@@ -42,16 +42,16 @@ describe('Server REST API', function () {
     // Tests involving series (valid type)
     describe('GET /series', function () {
         // DO we need to make sure psdb is initialized?
-        //before(function (done) {
-        //    psdb.Init(function (err: Error) {
-        //        if (err) {
-        //            done(err);
-        //        }
-        //        else {
-        //            done();
-        //        }
-        //    });
-        //});
+        before(function (done) {
+            psdb.Init(function (err: Error) {
+                if (err) {
+                    done(err);
+                }
+                else {
+                    done();
+                }
+            });
+        });
         // Get series list
         it('this should return an array of the type series if found valid', function (done) {
             request.get('/series')
@@ -216,7 +216,9 @@ describe('Server REST API', function () {
                 "puzzlestates": {
                     "puzzleIdInvalid": "puzzles5",
                     "puzzleIdValid": "puzzles1",
-                    "teamIdValid": "teams1"
+                    "teamIdValid": "teams1",
+                    "attemptedSolution": "ABC",
+                    "clientTimeStamp": "Nov23-1957"
                 },
                 "teams": {
                     teamId: "teams1",
@@ -584,7 +586,11 @@ describe('Server REST API', function () {
                 request.put("/teams/" + testAccount.series.puzzlestates.teamIdValid + "/puzzleStates/" +
                     testAccount.series.puzzlestates.puzzleIdValid)
                     .set('token', testAccount.sessionToken)
-                    .send({ "puzzleStateSolved": "false" })
+                    .send({
+                        "solved": true,
+                        "attemptedSolution": testAccount.series.puzzlestates.attemptedSolution,
+                        "clientTimeStamp": testAccount.series.puzzlestates.clientTimeStamp
+                    })
                     .expect(200)
                     .end(function (err, res) {
                         if (err) {
@@ -596,23 +602,8 @@ describe('Server REST API', function () {
                     });
 
             });
-            // Reset the puzzlestate
-            it('Tests for updating puzzleStates - reset valid puzzleId', function (done) {
-                request.put("/teams/" + testAccount.series.puzzlestates.teamIdValid + "/puzzleStates/" +
-                    testAccount.series.puzzlestates.puzzleIdValid)
-                    .set('token', testAccount.sessionToken)
-                    .send({ "puzzleStateSolved": "false" })
-                    .expect(200)
-                    .end(function (err, res) {
-                        if (err) {
-                            done(err);
-                        }
-                        else {
-                            done();
-                        }
-                    });
-
-            });
+            // Reset the puzzlestate <-- cannot as per new spec. You cannot reset the solved field from true to false Removed the reset step
+            // TODO: verify that the solved field indeed get changed. No way to do so currently in the REST api
 
 
         });

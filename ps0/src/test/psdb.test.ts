@@ -404,7 +404,7 @@ describe("series apis test with administrator role", function () {
         eventId = handleToSeriesDatabase[global.config.psdb.eventsCollectionName][0]._id;
         teamId = handleToSeriesDatabase[global.config.psdb.teamsCollectionName][0]._id;
         eventUpdateObj = {
-            "status": "started"
+            "status": "notstarted"
         };
         teamUpdateObj = {
             "teamLeadId": newteamLeadId,

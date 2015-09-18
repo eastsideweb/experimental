@@ -222,7 +222,8 @@ router.post('/:type', function (request, response, next) {
 router.put('/teams/:teamId/puzzlestates/:puzzleId', function (request, response, next) {
     var token = request.header('token');
     var series = psdb.series(token);
-    var puzzlestate: string = request.body.puzzleStateSolved;
+    var puzzlestate = request.body;
+    //console.log("updatestate received " + JSON.stringify(request.body));
     series.updatePuzzleState(request.params.teamId, request.params.puzzleId, puzzlestate, function (err: Error) {
         if (err !== null) {
             next(err);

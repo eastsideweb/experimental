@@ -211,7 +211,7 @@ var psdb: IPSDB = {
 
     Init(initComplete: (err: Error) => void) {
         var self = this;
-        console.log("******* psdb module init called ***********");
+    console.log("******* psdb module init called with initCalled =  " + initCalled + " ***********" );
         if (initCalled === true) {
             // Init is called one more time. Check if all is ok - 
             var checkErr = this.checkAllOk();
