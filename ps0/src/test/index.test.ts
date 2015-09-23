@@ -597,15 +597,41 @@ describe('Server REST API', function () {
                             done(err);
                         }
                         else {
-                            done();
-                        }
+                            // Reset the puzzlestate <-- cannot as per new spec. You cannot reset the solved field from true to false Removed the reset step
+                            // Verify that the solved field indeed got changed. 
+                            request.get('/event/' + testAccount.series.events.id + '/team/' + testAccount.series.puzzlestates.teamIdValid + "/puzzleStates/")
+                                .set('token', testAccount.sessionToken)
+                                .expect(200)
+                                .expect('Content-Type', /json/)
+                                .end(function (err1, res) {
+                                    if (err1) {
+                                        done(err1);
+                                    }
+                                    else {
+                                        var found = false;
+                                        console.log(">>>>>>>>>>>>> res.body = " + JSON.stringify(res.body));
+                                        if (res.body.length === 0) {
+                                            done({ message: "findPuzzleStates failed", name: "findPuzzleStatesfailed" });
+                                        }
+                                        else {
+                                            res.body.forEach(function (item, index) {
+                                                if (item.puzzleId === testAccount.series.puzzlestates.puzzleIdValid && item.solved === true) {
+                                                    // found the state for the puzzleId and found that it was set to be true
+                                                    found = true;
+                                                    done();
+                                                }
+                                            });
+
+                                            if (!found) {
+                                                done({ message: "findPuzzleStates failed", name: "findPuzzleStatesfailed" });
+                                            }
+                                        }
+                                    }
+                                });
+                        }                       
                     });
 
             });
-            // Reset the puzzlestate <-- cannot as per new spec. You cannot reset the solved field from true to false Removed the reset step
-            // TODO: verify that the solved field indeed get changed. No way to do so currently in the REST api
-
-
         });
     });
 });

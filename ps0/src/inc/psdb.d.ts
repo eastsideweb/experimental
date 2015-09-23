@@ -180,4 +180,11 @@ interface IPuzzleSeries {
     //      clientTimeStamp: string
     updatePuzzleState(teamID: string, puzzleID: string, puzzleState: any, callback: SimpleCallBack): void;
 
+    // Get the state of all the puzzles for a given team and event
+    // Possible errors:
+    //      "InvalidTeamId"         "Invalid team id"
+    //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
+    // Returns list of all the puzzlestates for given team. 
+    findTeamPuzzleStates(eventId: string, teamID: string, callback: (err: Error, list: any[]) => void): void;
+
 }

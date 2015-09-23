@@ -216,6 +216,23 @@ router.post('/:type', function (request, response, next) {
     });
 });
 
+// Handles the reqest for getting the puzzle states associated with a team for a given event
+// Request: GET containing the teamId and eventId
+// Response: list of all the puzzlestates records with the given team id in the event's puzzlestates database.
+router.get('/event/:eventId/team/:teamId/puzzleStates', function (request, response, next) {
+    var token = request.header('token');
+    var series = psdb.series(token);
+    series.findTeamPuzzleStates(request.params.eventId, request.params.teamId, function (err: Error, list: any[]) {
+        if (err) {
+            next(err);
+        }
+        else {
+            response.setHeader('Cache-Control', 'no-cache, no-store');
+            response.json(200, list);
+        }
+    });
+});
+
 // Handles the reqest for modifying puzzle states associated to a team
 // Request: PUT containing json puzzle state string
 // Response: status ok

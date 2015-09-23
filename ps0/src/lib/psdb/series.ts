@@ -392,6 +392,24 @@ class PuzzleSeries implements IPuzzleSeries {
         }
     }
 
+
+    // Utility to add a system annotation for the current series
+    addSystemAnnotation(annotation: any, callback: (err: Error, obj: any) => void): void {
+        annotation.annotatorId = "NewSystem";
+        this.addAnnotation(annotation, callback);
+    }
+
+    // Utility to add a system annotation for the current series
+    addAnnotation(annotation: any, callback: (err: Error, obj: any) => void): void {
+        this.crudHandle.insertObj(global.config.psdb.annotationsCollectionName, annotation,
+            function (err2, obj2) {
+                if (err2 !== null) {
+                    // We will not report any error here - but will just log it
+                    utils.log("Adding annotation failed for " + JSON.stringify(annotation) + " " + err2.name);
+                }
+                callback(null, obj2);
+            });
+    }
     // end utility methods
 
     //------------------ Begin PuzzleSeries interface methods ------------------
@@ -775,6 +793,7 @@ class PuzzleSeries implements IPuzzleSeries {
         var self = this, pzStateId, puzzleStateCollectionName, eventId /* TODO: which eventId to use? the one and only active event? */;
 
         //Figure out the eventId
+        // TODO: This is an overkill to get the eventId from the DB for each updatepuzzlestate - we should maintain it in memory atleast?
         this.findObj(global.config.psdb.eventsCollectionName, { "status": "started", "active": true }, {}, function (err0: Error, eventList: any[]) {
             if (err0 !== null) {
                 callback(err0);
@@ -787,7 +806,6 @@ class PuzzleSeries implements IPuzzleSeries {
                 }
                 else {
                     eventId = eventList[0]._id;
-                    //TODO: Need to confirm that the team and puzzle are part of the event
                     if (eventList[0].teamIds.lastIndexOf(teamID) === -1) {
                         callback(utils.errors.invalidteamId);
                     }
@@ -809,6 +827,11 @@ class PuzzleSeries implements IPuzzleSeries {
                                 else {
                                     pzStateId = PuzzleSeries.composePuzzleStateId(teamID, puzzleID);
                                     puzzleStateCollectionName = global.config.psdb.puzzleStatesCollectionNamePrefix + eventId;
+                                    // We will update the DB only if the new value of solved is true, else we will ignore. No entry in the db is as good as solved=false.
+                                    if (!puzzleState.solved) {
+                                        // We will ignore this update - 
+                                        callback(null);
+                                    }
                                     // Use upsert:true option so it will create a document with this id if it is already not present
                                     self.crudHandle.updateObj(puzzleStateCollectionName, { "_id": pzStateId }, { "_id": pzStateId, "teamId": teamID, "puzzleId": puzzleID, "solved": puzzleState.solved },
                                         function (err1: Error, count: number) {
@@ -823,7 +846,17 @@ class PuzzleSeries implements IPuzzleSeries {
                                                 }
                                                 else {
                                                     // Success!!
-                                                    callback(null);
+                                                    // We will add an entry in the annotations db for this update
+                                                    self.addSystemAnnotation(
+                                                        {
+                                                            "name": "PuzzleStateUpdate",
+                                                            "description": '{"solved": ' + puzzleState.solved + ', "attemptedSolution": ' + puzzleState.attemptedSolution + ', "clientTimeStamp" : ' + puzzleState.clientTimeStamp,
+                                                            "teamId": [teamID],
+                                                            "puzzleId": [puzzleID]
+                                                        },
+                                                        function (err2, obj2) {
+                                                            callback(null);
+                                                        });
                                                 }
                                             }
                                         }, { upsert: true });
@@ -834,6 +867,45 @@ class PuzzleSeries implements IPuzzleSeries {
             }
         });
     }
+
+    // Get the state of all the puzzles for a given team and event
+    // Possible errors:
+    //      "InvalidTeamId"         "Invalid team id"
+    //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
+    // Returns list of all the puzzlestates for given team. puzzleState is a JSON object with the following fields:
+    //      solved: boolean
+    //      attemptedSolution: string
+    //      clientTimeStamp: string
+    findTeamPuzzleStates(eventId: string, teamId: string, callback: (err: Error, puzzleStateslist: any[]) => void): void {
+        var self = this, puzzleStateCollectionName,
+            prunedFieldsReturned = PuzzleSeries.pruneFields({}, "puzzleStates", this.token.role);
+
+        this.findObj(global.config.psdb.eventsCollectionName, { "_id": eventId}, {}, function (err0: Error, eventList: any[]) {
+            if (err0 !== null) {
+                callback(err0, null);
+            }
+            else {
+                if (eventList[0].teamIds.lastIndexOf(teamId) === -1) {
+                    callback(utils.errors.invalidteamId, null);
+                }
+                else {
+                    puzzleStateCollectionName = global.config.psdb.puzzleStatesCollectionNamePrefix + eventId;
+                    self.crudHandle.findObj(puzzleStateCollectionName, { "teamId": teamId }, prunedFieldsReturned,
+                        function (err1: Error, list: any[]) {
+                            if (err1) {
+                                // Something went wrong in the findObj call!!
+                                callback(err1, null);
+                            }
+                            else {
+                                // Success!!
+                                callback(null, list);
+                            }
+                        });
+                }
+            }
+        });
+    }
+
     //------------------ End PuzzleSeries interface methods ------------------
 }
 export = PuzzleSeries;
