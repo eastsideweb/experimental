@@ -395,7 +395,7 @@ class PuzzleSeries implements IPuzzleSeries {
 
     // Utility to add a system annotation for the current series
     addSystemAnnotation(annotation: any, callback: (err: Error, obj: any) => void): void {
-        annotation.annotatorId = "NewSystem";
+        annotation.annotatorId = "System";
         this.addAnnotation(annotation, callback);
     }
 

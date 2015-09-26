@@ -1,0 +1,29 @@
+<section data-ng-controller="PuzzleStateController" data-ng-init="initPuzzleState()">
+    <div class="page-header">
+        <h2>Edit Puzzle State for Team: {{team.name}} and Puzzle: {{puzzle.name}}</h2>
+    </div>
+    <div class="col-md-12">
+        <form class="form-horizontal" data-ng-submit="updatePuzzleState()" novalidate>
+            <fieldset>
+                <div class="form-group">
+                    <!--<label class="control-label" for="name">Name: {{team.puzzle.name}}</label>-->
+                    <label class="control-label" for="name">PuzzleState</label>
+                    <div class="controls">
+                        <label class="control-label" for="name">Solved</label>
+                        <div class="controls borderbox">
+                            <input ng-model="puzzleState.solved" ng-value="true" type="radio"> True
+                            <input ng-model="puzzleState.solved" ng-value="false" type="radio"> False
+                        </div>
+                        <input type="text" data-ng-model="puzzleState.attemptedSolution" id="solution" class="form-control" placeholder="Solution" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Update" class="btn btn-default">
+                </div>
+                <div data-ng-show="error" class="text-danger">
+                    <strong data-ng-bind="error"></strong>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</section>
