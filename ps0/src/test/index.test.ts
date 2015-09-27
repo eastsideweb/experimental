@@ -597,7 +597,6 @@ describe('Server REST API', function () {
                             done(err);
                         }
                         else {
-                            // Reset the puzzlestate <-- cannot as per new spec. You cannot reset the solved field from true to false Removed the reset step
                             // Verify that the solved field indeed got changed. 
                             request.get('/event/' + testAccount.series.events.id + '/team/' + testAccount.series.puzzlestates.teamIdValid + "/puzzleStates/")
                                 .set('token', testAccount.sessionToken)
@@ -609,7 +608,6 @@ describe('Server REST API', function () {
                                     }
                                     else {
                                         var found = false;
-                                        console.log(">>>>>>>>>>>>> res.body = " + JSON.stringify(res.body));
                                         if (res.body.length === 0) {
                                             done({ message: "findPuzzleStates failed", name: "findPuzzleStatesfailed" });
                                         }
@@ -618,12 +616,30 @@ describe('Server REST API', function () {
                                                 if (item.puzzleId === testAccount.series.puzzlestates.puzzleIdValid && item.solved === true) {
                                                     // found the state for the puzzleId and found that it was set to be true
                                                     found = true;
-                                                    done();
                                                 }
                                             });
-
                                             if (!found) {
                                                 done({ message: "findPuzzleStates failed", name: "findPuzzleStatesfailed" });
+                                            }
+                                            else {
+                                                // Reset the puzzleState back to false.
+                                                request.put("/teams/" + testAccount.series.puzzlestates.teamIdValid + "/puzzleStates/" +
+                                                    testAccount.series.puzzlestates.puzzleIdValid)
+                                                    .set('token', testAccount.sessionToken)
+                                                    .send({
+                                                        "solved": false,
+                                                        "attemptedSolution": testAccount.series.puzzlestates.attemptedSolution,
+                                                        "clientTimeStamp": testAccount.series.puzzlestates.clientTimeStamp
+                                                    })
+                                                    .expect(200)
+                                                    .end(function (err, res) {
+                                                        if (err) {
+                                                            done(err);
+                                                        }
+                                                        else {
+                                                            done();
+                                                        }
+                                                    });
                                             }
                                         }
                                     }

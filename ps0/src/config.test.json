@@ -1,5 +1,8 @@
 {
-"Debug": true,
-"test": true,
-"printLog": false
+    "Debug": true,
+    "test": true,
+    "printLog": false,
+    "psdb": { 
+        "saveAllPuzzleStatePuzzles":  true
+    }
 }

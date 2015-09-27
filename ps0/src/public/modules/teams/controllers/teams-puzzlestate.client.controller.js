@@ -53,7 +53,7 @@ angular.module('teams').controller('PuzzleStateController', ['$scope', '$rootSco
 
 		// Update puzzleState
         $scope.updatePuzzleState = function () {
-			var time = new Date().toJSON().slice(0,17);
+			var time = new Date().toJSON().slice(0,16);
             //var puzzleState = {
             //    "solved" :$scope.puzzleState.solved,
             //    "attemptedSolution" + $scope.puzzleState.attemptedSolution + " " + time);

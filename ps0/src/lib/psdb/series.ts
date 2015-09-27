@@ -828,7 +828,7 @@ class PuzzleSeries implements IPuzzleSeries {
                                     pzStateId = PuzzleSeries.composePuzzleStateId(teamID, puzzleID);
                                     puzzleStateCollectionName = global.config.psdb.puzzleStatesCollectionNamePrefix + eventId;
                                     // We will update the DB only if the new value of solved is true, else we will ignore. No entry in the db is as good as solved=false.
-                                    if (!puzzleState.solved) {
+                                    if (!puzzleState.solved && !global.config.psdb.saveAllPuzzleStatePuzzles) {
                                         // We will ignore this update - 
                                         callback(null);
                                     }
