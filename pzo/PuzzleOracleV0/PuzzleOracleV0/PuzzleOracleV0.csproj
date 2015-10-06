@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="Blacklister.cs" />
     <Compile Include="CryptoHelper.cs" />
+    <Compile Include="ErrorReport.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

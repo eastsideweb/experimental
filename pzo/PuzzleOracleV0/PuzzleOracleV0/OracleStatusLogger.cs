@@ -5,18 +5,24 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
 
 namespace PuzzleOracleV0
 {
-    class OracleStatusLogger : IDisposable
+    class OracleSubmissionLogger : IDisposable
     {
-        const String META_PUZZLE_ID = "999";
+        const String META_PUZZLE_ID = "000";
+        const String HASH_PASSWORD = "moxie";
  
         TextWriter tw = null;
         readonly String teamId;
         readonly String teamName;
+        readonly String transactionIdBase;
+        int transactionCount = 0;
 
-        public OracleStatusLogger(String logPathName, String teamId, String teamName)
+        //public static TextWriter generateNewLogger
+
+        public OracleSubmissionLogger(String logDir, String teamId, String teamName)
         {
             if (!Regex.IsMatch(teamId, "^[0-9]+$"))
             {
@@ -25,24 +31,47 @@ namespace PuzzleOracleV0
             teamName = Regex.Replace(teamName, "[\"',\\n\\r]", "");  // remove some troublesome characters if they happen to be there.
             this.teamId = teamId;
             this.teamName = teamName;
-            tw = new StreamWriter(logPathName, true); // true == append
 
-            logMetaSatus("LOG_STARTED");
+            // We seed the transaction ID with as much independent sources of bits we can get our hands on...
+            int seed = Environment.MachineName.GetHashCode() + teamId.GetHashCode() + (int)DateTime.Now.Ticks;
+            this.transactionIdBase = CryptoHelper.generateRandomSafeBase64string(seed, 6);
+            tw = newLogStream(logDir, teamId, transactionIdBase);
+
+            this.logMetaStatus("LOG_STARTED");
 
         }
 
-        private void logMetaSatus(string status)
+
+        private static TextWriter newLogStream(string logDir, string teamId, string transactonBase)
         {
-            LogSolveAttempt(META_PUZZLE_ID, status, new PuzzleResponse("", PuzzleResponse.ResponseType.Correct, ""));
+            // Log file format: T6-JOSEPHJ-HP-1666 .csv
+            String path = logDir + "\\" + teamId + "-" + Environment.MachineName + "-" + transactonBase + ".csv";
+            try
+            {
+                TextWriter tr = new StreamWriter(path, true); // true == append
+                return tr;
+            }
+            catch (System.IO.DirectoryNotFoundException e)
+            {
+                ErrorReport.logError(String.Format("Could not find path of the submission log file path [{0}]. Cannot continue.", path));
+                throw new ApplicationException("Submission log file path invalid", e);
+                throw e;
+            }
+
         }
 
-        public void LogSolveAttempt(String puzzleId, String attemptedSolution, PuzzleResponse response)
+        private void logMetaStatus(String status)
+        {
+            //extraText = extraText.Replace(",", ""); // Get rid of commas which can confuse the CSV format...
+            //logSolveAttempt(META_PUZZLE_ID, status, new PuzzleResponse("", PuzzleResponse.ResponseType.Correct, extraText));
+            rawLog(META_PUZZLE_ID, status, "On " + Environment.MachineName + " at " + Utils.getUTCTimeCode());
+        }
+
+        public void logSolveAttempt(String puzzleId, String attemptedSolution, PuzzleResponse response)
         {
             // We log the normalized attempt so that it doesn't have extraneous characters.
             attemptedSolution = PuzzleOracle.normalizeSolution(attemptedSolution);
-            // As an extra caution, strip out commas and double quotes (these should be stripped, but just in case...)
-            attemptedSolution = Regex.Replace(attemptedSolution, "[,\"]", "");
-
+ 
             String responseCode = "INVALID";
             switch (response.type)
             {
@@ -62,17 +91,33 @@ namespace PuzzleOracleV0
                     responseCode = "UNRECOGNIZED_CODE";
                     break;
             }
-            String timeStamp = DateTime.Now.ToUniversalTime()
-                         .ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffK"); // UTC web format - From stackoverflow example
-            tw.WriteLine(timeStamp + "," + teamId + "," + teamName + "," + puzzleId + "," + responseCode + "," + attemptedSolution);
-            tw.Flush();
+            rawLog(puzzleId, responseCode, attemptedSolution);
+            
         }
+
+        private void rawLog(string puzzleId, string responseCode, string extraText)
+
+        // Format:
+        // Transaction ID, time, 'T'+TeamID, TeamName, 'P'+PuzzleID, Code, Hash, Solution attempt (Hash is secret hash of teamID, puzzleID and responseCode)
+        // Az3409zz.1, 16:05:35.356, T6, ATDT rules again, P101, CORRECT, Qqz90, BOWMANBAY
+        // Note T added before team ID, and P added before puzzle ID. That's part of the submission log spec.
+        {
+            this.transactionCount++;
+            extraText = Regex.Replace(extraText, "[\"',\\n\\r]", ""); // strip CSV meta-chars, if any
+            String transaction = this.transactionIdBase + "." + this.transactionCount;
+            String timeStamp = DateTime.Now.ToString("HH:mm:ss");
+            String[] hashStrings = { teamId, puzzleId, responseCode };
+            String hash = CryptoHelper.MD5Base64Hash(HASH_PASSWORD, hashStrings).Substring(0,8);
+            this.tw.WriteLine(transaction + "," + timeStamp + ",T" + this.teamId + "," + this.teamName + ",P" + puzzleId + "," + responseCode + "," + hash + "," + extraText);
+            this.tw.Flush();
+        }
+
 
         public void Dispose()
         {
             if (tw != null)
             {
-                logMetaSatus("LOG_STOPPED");
+                logMetaStatus("LOG_STOPPED");
                 tw.Flush(); // sync
                 tw.Dispose();
                 tw = null;

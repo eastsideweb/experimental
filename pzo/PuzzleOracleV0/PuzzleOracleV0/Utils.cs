@@ -5,11 +5,23 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
+using System.IO;
 
 namespace PuzzleOracleV0
 {
     class Utils
     {
+        /// <summary>
+        /// Returns the current time in UTC (university coordinated time) in standard UTC time format (http://www.w3.org/TR/NOTE-datetime).
+        /// </summary>
+        /// <returns></returns>
+        public static String getUTCTimeCode()
+        {
+            // / UTC web format - From stackoverflow example
+            String timeStamp = DateTime.Now.ToUniversalTime()
+             .ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffK");
+            return timeStamp;
+        }
         /// <summary>
         /// Get's the team info (id, name) associated with the machine, if found. Returns null otherwise.
         /// Throws ArgumentException if there is an issue with the spreadsheet data.
@@ -103,5 +115,44 @@ namespace PuzzleOracleV0
             String s = Regex.Replace(mname.ToUpperInvariant(), "[^0-9A-Z_.-]", "");
             return s;
         }
+
+        /// <summary>
+        /// Checks if there is a team name to use regardless of machhine name...
+        /// </summary>
+        /// <param name="teamOverridePathName"></param>
+        /// <returns></returns>
+        internal static TeamInfo getOverrideTeamInfo(string teamOverridePathName)
+        {
+            TeamInfo info = null; 
+
+            try
+            {
+                using (TextReader tr = new StreamReader(teamOverridePathName))
+                {
+                    String allText = tr.ReadToEnd();
+                    // Expected format: teamID, team name.
+                    
+                    int commaPos = allText.IndexOf(',');
+                    if (commaPos != -1)
+                    {
+                        String teamId = Utils.stripEndBlanks(allText.Substring(0,commaPos));
+                        String teamName = Utils.stripEndBlanks(allText.Substring(commaPos + 1));
+                        if (teamId.Length != 1 && teamName.Length != 1)
+                        {
+                            info = new TeamInfo(teamId, teamName);
+                        }
+                    }
+                    if (info == null)
+                    {
+                        ErrorReport.logError(String.Format("Team override file [{0}]present but has invalid content.", teamOverridePathName));
+                    }
+                }
+            }
+            catch (FileNotFoundException e) {
+                return null;
+            }
+
+            return info;
+       }
     }
 }

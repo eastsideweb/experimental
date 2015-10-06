@@ -26,7 +26,10 @@ namespace PuzzleOracleV0
         const String ORACLE_DATA_DIR = "PuzzleOracle";
         const String ORACLE_DATA_FILENAME = "data.csv";
         const String TEAM_DATA_FILENAME = "teamData.csv";
-        const String LOG_DATA_FILENAME = "submissionLog.csv";
+        const String OVERRIDE_TEAM_DATA_FILENAME = "currentTeamOverride.txt";
+        const String LOG_DATA_DIRNAME = "logs";
+        const String INVALID_TEAM_ID = "T0";
+        const String INVALID_TEAM_NAME = "NO TEAM ASSIGNED TO THIS MACHINE";
 
         // To store relative position of top-level controls
         class RelativePosition
@@ -42,9 +45,10 @@ namespace PuzzleOracleV0
 
         TeamInfo teamInfo;
         PuzzleOracle oracle;
-        OracleStatusLogger oracleLogger;
+        OracleSubmissionLogger oracleLogger;
         Boolean fullScreen = false;
         Boolean okToClose = false;
+        Boolean fatalError = false; // close immediately
 
         // Basic modes of operation (with different layout)
         enum Mode
@@ -80,18 +84,27 @@ namespace PuzzleOracleV0
                 Close();
                 return;
             }
-            InitializeComponent();
-            initializeUx();
-            initializeTeamInfo();
-            initializeOracle();
-            initializeOracleLogger();
+            try
+            {
+                InitializeComponent();
+                initializeUx();            
+                initializeTeamInfo();
+                initializeOracleLogger();
+                initializeOracle();
+            }
+            catch (ApplicationException e)
+            {
+                MessageBox.Show(this, ErrorReport.getLogAsText(), "THE ORACLE HAS STOPPED");
+                okToClose = true;
+                fatalError = true;
+            }
         }
 
         private void initializeOracleLogger()
         {
             String basePath = getDataFileBasePath();
-            String logPathName = basePath + "\\" + LOG_DATA_FILENAME;
-            oracleLogger = new OracleStatusLogger(logPathName, teamInfo.teamId, teamInfo.teamName);
+            String logDirName = basePath + "\\" + LOG_DATA_DIRNAME;
+            oracleLogger = new OracleSubmissionLogger(logDirName, teamInfo.teamId, teamInfo.teamName);
          }
 
 
@@ -214,11 +227,18 @@ namespace PuzzleOracleV0
         {
             String basePath = getDataFileBasePath();          
             String teamInfoPathName = basePath + "\\" + TEAM_DATA_FILENAME;
-            SimpleSpreadsheetReader srTeam = CsvExcelReader.loadSpreadsheet(teamInfoPathName);
-            teamInfo = Utils.getTeamInfoForMachine(srTeam);
+            String teamOverridePathName = basePath + "\\" + OVERRIDE_TEAM_DATA_FILENAME;
+            // Check if there is a valid override ...
+            teamInfo = Utils.getOverrideTeamInfo(teamOverridePathName);
             if (teamInfo == null)
             {
-                teamInfo = new TeamInfo("999", "NO TEAM ASSIGNED TO THIS MACHINE");
+                SimpleSpreadsheetReader srTeam = CsvExcelReader.loadSpreadsheet(teamInfoPathName);
+                teamInfo = Utils.getTeamInfoForMachine(srTeam);
+            }
+            if (teamInfo == null)
+            {
+                ErrorReport.logError("Could not identify team.");
+                teamInfo = new TeamInfo(INVALID_TEAM_ID, INVALID_TEAM_NAME);
             }
         }
         private void initializeOracle()
@@ -433,7 +453,7 @@ namespace PuzzleOracleV0
             if (id.Length > 0)
             {
                 PuzzleResponse pr = oracle.checkSolution(id, answer);
-                oracleLogger.LogSolveAttempt(id, answer, pr);
+                oracleLogger.logSolveAttempt(id, answer, pr);
                 uxDisplayResponse(pr);
             }
         }
@@ -457,6 +477,11 @@ namespace PuzzleOracleV0
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            if (fatalError)
+            {
+                Close();
+                return;
+            }
             uxSwitchModeToInit();
         }
 
@@ -485,7 +510,7 @@ namespace PuzzleOracleV0
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            if (e.CloseReason == CloseReason.UserClosing && !okToClose && mode != Mode.modeInit)
+            if (e.CloseReason == CloseReason.UserClosing && !fatalError && !okToClose && mode != Mode.modeInit)
             {
                 e.Cancel = true; // we defer closing to when the mode is Mode.modeExit
                 if (mode == Mode.modeOracle) { 
