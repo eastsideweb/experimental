@@ -8,42 +8,28 @@
 		<br>
 		<div class="row">
 			<p class="lead">
-				Open-Source Full-Stack Solution For MEAN Applications
+				Welcome to ESA Puzzle Hunt Event November 2015
 			</p>
 		</div>
-		<div class="row">
+		<!--<div class="row">
 			<p>
 				<a class="btn btn-primary btn-lg" href="http://meanjs.org" target="_blank">Learn more</a>
 			</p>
-		</div>
+		</div>-->
 	</div>
-	<div>
-		<h2>Congrats! You've configured and run the sample application.</h2>
-		<p>MEAN.JS is a web application boilerplate, which means you should start changing everything :-)</p>
-		<p>This sample application tracks users and articles.</p>
-		<ul>
-			<li>
-				Click
-				<em>Signup</em>
-				to get started.
-			</li>
-			<li>
-				Configure your app to work with your social accounts, by editing the
-				<em>/config/env/*.js</em>
-				files.
-			</li>
-			<li>
-				Edit your users module.
-			</li>
-			<li>
-				Add new CRUD modules.
-			</li>
-			<li>
-				Have fun...
-			</li>
-		</ul>
-	</div>
-	<div class="row">
+    <div data-ng-hide="authentication.user">
+        <p>
+            To proceed
+            <br /><a href="/#!/signin">Sign In </a>if you already have an account OR
+            <br /><a href="/#!/signin">Sign Up </a> for a new account
+        </p>
+    </div>
+    <div data-ng-hide="!authentication.user">
+        <p>
+            Use above menu items to view/edit data.
+        </p>
+    </div>
+	<!--<div class="row">
 		<div class="col-md-3">
 			<h2>
 				<strong>M</strong>ongoDB
@@ -88,7 +74,7 @@
 				</li>
 			</ul>
 		</p>
-	</div>
-	<br>Enjoy &amp; Keep Us Updated,
-	<br>The MEAN.JS Team.
+	</div>-->
+	<br>Enjoy
+	<br>The RinWorks PuzzleHunt Team.
 </section>

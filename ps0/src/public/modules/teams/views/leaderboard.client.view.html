@@ -1,0 +1,36 @@
+<section data-ng-controller="TeamsController" data-ng-init="initLeaderboard()">
+    <div class="page-header">
+        <h1>Leaderboard</h1>
+    </div>
+    <div class="list-group">
+        <div class="list-group-item">
+            <table style="width:100%">
+                <tr>
+                    <td style="width:100px">
+                        Id
+                    </td>
+                    <td >Name</td>
+                    <td style="width:100px">Score</td>
+                </tr>
+            </table>
+            </div>
+            <a data-ng-repeat="teamScore in teamScores" data-ng-href="#!/teams/{{teamScore._id}}" class="list-group-item">
+                <table style="width:100%">
+                    <tr>
+                        <td style="width:100px"> 
+                            {{teamScore._id}}
+                        </td>
+                        <td>
+                            {{teamScore.name}}
+                        </td>
+                        <td style="width:100px">
+                         {{teamScore.score}}
+                        </td>
+                    </tr>
+                </table>
+            </a>
+        </div>
+    <div data-ng-show="error" class="text-danger">
+        <strong data-ng-bind="error"></strong>
+    </div>
+</section>

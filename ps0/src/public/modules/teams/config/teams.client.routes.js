@@ -13,6 +13,16 @@ angular.module('teams').config(['$stateProvider',
 		    url: '/teams/create',
 		    templateUrl: 'modules/teams/views/create-team.client.view.html'
 		}).
+	    state('leaderboard', {
+	        url: '/teams/leaderboard',
+	        templateUrl: 'modules/teams/views/leaderboard.client.view.html',
+	        onExit: function () {
+	            if (window.leadeboardTimeout) {
+	                clearInterval(window.leadeboardTimeout);
+	                window.leadeboardTimeout = null; 
+                }
+	        }
+	    }).
 		state('viewTeam', {
 		    url: '/teams/:teamId',
 		    templateUrl: 'modules/teams/views/view-team.client.view.html'
