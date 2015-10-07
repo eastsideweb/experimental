@@ -16,6 +16,7 @@ angular.module('teams').config(['$stateProvider',
 	    state('leaderboard', {
 	        url: '/teams/leaderboard',
 	        templateUrl: 'modules/teams/views/leaderboard.client.view.html',
+	        controller: 'LeaderboardController',
 	        onExit: function () {
 	            if (window.leadeboardTimeout) {
 	                clearInterval(window.leadeboardTimeout);
