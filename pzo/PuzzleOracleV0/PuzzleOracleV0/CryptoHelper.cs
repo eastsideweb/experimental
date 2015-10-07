@@ -86,15 +86,29 @@ namespace PuzzleOracleV0
 
         private static int[] generateRandomOffsets(string password, int sequenceNo, string encryptChars, int length)
         {
+            // Knuth LCG from https://en.wikipedia.org/wiki/Linear_congruential_generator
+            // Xn+1 = (8121 Xn + 28411) mod 134456
             int[] a = new int[length];
+            ulong x = (ulong) sequenceNo; // Seed using sequenceNo - so we include sequenceNo in the picture.
+            for (int i = 0; i < a.Length; i++)
+            {
+                foreach (char c in password)
+                {
+                    x += (uint)(ushort)c; // Jump by the next password char.
+                    x = (8121 * x + 28411) % 134456; // Knuth LCG
+                    Trace.WriteLine(String.Format("[{0}] {1}", c, x));
+                }
+                a[i] = (int) ((x >> 4)% (ulong) encryptChars.Length); // >> 4 is to shave off some LS bits, which are less random.
+            }
             return a;
         }
 
         public static void testSimpleEncryptDecrypt() {
             String input = "Hello!";
             String encryptChars = "abcdefghijklmnopqrstuvwxyz";
-            String encrypted = simpleEncryptDecrypt("foo", 0, encryptChars, input, true);
-            String decrypted = simpleEncryptDecrypt("foo", 0, encryptChars, encrypted, false);
+            String password = "fop";
+            String encrypted = simpleEncryptDecrypt(password, 0, encryptChars, input, true);
+            String decrypted = simpleEncryptDecrypt(password, 0, encryptChars, encrypted, false);
             Trace.WriteLine(input + "->" + encrypted + ">" + decrypted);
         }
     }
