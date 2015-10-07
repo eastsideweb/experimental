@@ -25,8 +25,8 @@ namespace PuzzleOracleV0
         const int IDLE_TIMER_MS = 30000; // 30 seconds
         const String ORACLE_DATA_DIR = "PuzzleOracle";
         const String ORACLE_DATA_FILENAME = "data.csv";
-        const String TEAM_DATA_FILENAME = "teamData.csv";
-        const String OVERRIDE_TEAM_DATA_FILENAME = "currentTeamOverride.txt";
+        const String TEAM_DATA_FILENAME = "team-data.csv";
+        const String OVERRIDE_TEAM_DATA_FILENAME = "current-team.txt";
         const String LOG_DATA_DIRNAME = "logs";
         const String INVALID_TEAM_ID = "T0";
         const String INVALID_TEAM_NAME = "NO TEAM ASSIGNED TO THIS MACHINE";
