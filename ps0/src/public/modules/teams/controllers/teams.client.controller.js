@@ -233,6 +233,7 @@ angular.module('teams').controller('TeamsController', ['$scope', '$stateParams',
 		                $scope.error = "Zero or more than one active events found. Using the first event";
 		            }
 		            $scope.activeEventId = responseEvent[0]._id;
+		            $scope.teamIds = responseEvent[0].teamIds;
                     // Save the setInterval return value, so we can clear the interval when moving away from this state
 		            window.leadeboardTimeout = setInterval($scope.updateLeaderboard, 5000);
 		            $scope.updateLeaderboard();
@@ -245,17 +246,20 @@ angular.module('teams').controller('TeamsController', ['$scope', '$stateParams',
 
 		$scope.updateLeaderboard = function () {
 		    $scope.teamStates = [];
-		    var teamCountNew = $scope.teams.length; //TODO: work on the case when there is a team which is not part of this event
+		    var teamCount = $scope.teamIds.length;
 		    $scope.teams.forEach(function (item, index) {
-		        $http.get('/event/' + $scope.activeEventId + "/team/" + item._id + "/puzzleStates").success(function (response) {
-		            $scope.teamStates.push({ "_id": item._id, "name": item.name, "puzzleStates": response });
-		            if ($scope.teamStates.length === teamCountNew) {
-		                $scope.teamScores = computeScores($scope.teamStates);
-		            }
-		        }).error(function (response) {
-		            $scope.teamStates.push({ "_id": item._id, "name": item.name, "puzzleStates": []});
-		            $scope.error = JSON.stringify(response);
-		        });
+		        if ($scope.teamIds.indexOf(item._id) !== -1) {
+                    //The team is part of the event, get the puzzlestates
+		            $http.get('/event/' + $scope.activeEventId + "/team/" + item._id + "/puzzleStates").success(function (response) {
+		                $scope.teamStates.push({ "_id": item._id, "name": item.name, "puzzleStates": response });
+		                if ($scope.teamStates.length === teamCount) {
+		                    $scope.teamScores = computeScores($scope.teamStates);
+		                }
+		            }).error(function (response) {
+		                $scope.teamStates.push({ "_id": item._id, "name": item.name, "puzzleStates": [] });
+		                $scope.error = JSON.stringify(response);
+		            });
+		        }
 		    });
 
 		}
