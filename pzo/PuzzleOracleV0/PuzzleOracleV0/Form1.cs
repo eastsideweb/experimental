@@ -24,7 +24,7 @@ namespace PuzzleOracleV0
         const int MIN_CODE_LENGTH = 5; // Instructor code
         const int IDLE_TIMER_MS = 30000; // 30 seconds
         const String ORACLE_DATA_DIR = "PuzzleOracle";
-        const String ORACLE_DATA_FILENAME = "data.csv";
+        const String ORACLE_DATA_FILENAME = "puzzle-data.csv";
         const String TEAM_DATA_FILENAME = "team-data.csv";
         const String OVERRIDE_TEAM_DATA_FILENAME = "current-team.txt";
         const String LOG_DATA_DIRNAME = "logs";
@@ -79,6 +79,8 @@ namespace PuzzleOracleV0
 
         public Form1()
         {
+            CryptoHelper.testSimpleEncryptDecrypt();
+
             if (trySwitchToOtherInstance())
             {
                 Close();
