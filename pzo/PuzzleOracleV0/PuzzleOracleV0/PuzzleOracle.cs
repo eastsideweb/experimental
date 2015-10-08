@@ -18,6 +18,8 @@ namespace PuzzleOracleV0
 {
     class PuzzleOracle
     {
+        const String ORACLE_PASSWORD = "benny"; // data files are encrypted with this password
+        const String ORACLE_ENCRYPT_CHARS = ".,:;?!_- 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
         const String SPREADSHEET_LABEL_ID = "ID"; // ID field of spreadsheet
         const String NORMALIZAITION_STRIP_CHARS = @"(\s+)|([.,:;!""'-?]+)"; // ignored in user solutions
 
@@ -155,7 +157,7 @@ namespace PuzzleOracleV0
                         String s = pr.pattern + (pr.response.Length == 0 ? "" : ":" + compressAliases(pr.response));
                         if (encrypted)
                         {
-                            s = "[" + permute(s, true) + "]"; // true == encrypt
+                            s = "[" + endecrypt(id, s, true) + "]"; // true == encrypt
                         }
                         appendCell(tw, s);
                     }
@@ -374,7 +376,7 @@ namespace PuzzleOracleV0
                 // We got the ID, if needed decrypt remaining fields after Name
                 if (encrypted)
                 {
-                    decryptCells(sRow, 2, numCols - 1); // 2 == skip Id and Name. False == descrypt
+                    decryptCells(id, sRow, 2, numCols - 1); // 2 == skip Id and Name. False == descrypt
                 }
 
                 //  Now let's get the remaining columns. First,  get the first two: Name and Answer.
@@ -436,7 +438,7 @@ namespace PuzzleOracleV0
         /// <param name="sRow"></param>
         /// <param name="fromCol"></param>
         /// <param name="toCol"></param>
-        private void decryptCells(string[] sRow, int fromCol, int toCol)
+        private void decryptCells(String id, string[] sRow, int fromCol, int toCol)
         {
             for (int i = fromCol; i <= toCol && i < sRow.Length; i++)
             {
@@ -447,11 +449,21 @@ namespace PuzzleOracleV0
                     Trace.WriteLine(String.Format("Ignoring attempt to decrypt unencrypted cell {0}", s));
                     continue;
                 }
-                String t = permute(s.Substring(1, s.Length - 2), false); // false == derypt
+                String t = endecrypt(id, s.Substring(1, s.Length - 2), false); // false == derypt
                 sRow[i] = t;
             }
         }
 
+        // Encrypts/decrypts given text using the oracle password, customized by the puzzle ID.
+        private string endecrypt(string id, string text, bool encrypt)
+        {
+            String eText = CryptoHelper.simpleEncryptDecrypt(ORACLE_PASSWORD, id, ORACLE_ENCRYPT_CHARS, text, encrypt);
+            return eText;
+        }
+
+        /*
+         * OBSOLETE
+         * 
         private string permute(string s, Boolean encrypt)
         {
             String originalChars = ":,.-_;!|()[] 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"; // Add  :,.-_;!0123456789 and space
@@ -478,7 +490,7 @@ namespace PuzzleOracleV0
 
             return t;
         }
-
+        */
         /// <summary>
         /// Parse and populate the properties. The format of string is name[:value]. If value is not
         /// present than the empty string (not null) is inserted. Duplicates are ignored (though they

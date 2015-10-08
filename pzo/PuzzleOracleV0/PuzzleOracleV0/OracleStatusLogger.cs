@@ -11,7 +11,7 @@ namespace PuzzleOracleV0
 {
     class OracleSubmissionLogger : IDisposable
     {
-        const String META_PUZZLE_ID = "000";
+        const String META_PUZZLE_ID = "0"; // for logging status messages
         const String LOG_PASSWORD = "moxie";
         const String LOG_ENCRYPT_CHARS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";// just alnum
  
