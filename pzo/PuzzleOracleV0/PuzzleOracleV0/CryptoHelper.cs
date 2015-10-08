@@ -59,8 +59,8 @@ namespace PuzzleOracleV0
             return s;
         }
 
-        public static String simpleEncryptDecrypt(String password, int sequenceNo, String  encryptChars, String input, Boolean encrypt)  {
-            int[] offsets = generateRandomOffsets(password, sequenceNo, encryptChars, input.Length);
+        public static String simpleEncryptDecrypt(String password, String customizer, String  encryptChars, String input, Boolean encrypt)  {
+            int[] offsets = generateRandomOffsets(password, customizer, encryptChars, input.Length);
             StringBuilder sb = new StringBuilder(input.Length);
             for (int i = 0; i < input.Length;i++)
             {
@@ -84,31 +84,50 @@ namespace PuzzleOracleV0
             return sb.ToString();
         }
 
-        private static int[] generateRandomOffsets(string password, int sequenceNo, string encryptChars, int length)
+        private static int[] generateRandomOffsets(string password, string customizer, string encryptChars, int length)
         {
-            // Knuth LCG from https://en.wikipedia.org/wiki/Linear_congruential_generator
-            // Xn+1 = (8121 Xn + 28411) mod 134456
+
             int[] a = new int[length];
-            ulong x = (ulong) sequenceNo; // Seed using sequenceNo - so we include sequenceNo in the picture.
+            ulong x = runLCG(customizer,0); // Prime the LCR with the customizer chars.
             for (int i = 0; i < a.Length; i++)
             {
-                foreach (char c in password)
-                {
-                    x += (uint)(ushort)c; // Jump by the next password char.
-                    x = (8121 * x + 28411) % 134456; // Knuth LCG
-                    Trace.WriteLine(String.Format("[{0}] {1}", c, x));
-                }
+                x = runLCG(password, x);
                 a[i] = (int) ((x >> 4)% (ulong) encryptChars.Length); // >> 4 is to shave off some LS bits, which are less random.
             }
             return a;
+        }
+
+        /// <summary>
+        /// Transorms xPrev into a new pseudorandom value by repeatedly using Knuth's LCG algorithm.
+        /// Password chars are used to make jumps before each successive LCG step.
+        /// Note: if password is empty, xPrev is returned unmodified.
+        /// </summary>
+        /// <param name="password"></param>
+        /// <param name="xPrev"></param>
+        /// <returns></returns>
+        public static ulong runLCG(String password, ulong xPrev)
+        {
+            // Knuth LCG from https://en.wikipedia.org/wiki/Linear_congruential_generator
+            // Xn+1 = (8121 Xn + 28411) mod 134456
+            ulong x = xPrev;
+            foreach (char c in password)
+            {
+                x += (ushort)c; // Jump by the next password char.
+                x = (8121 * x + 28411) % 134456; // Knuth LCG
+                Trace.WriteLine(String.Format("[{0}] {1}", c, x));
+            }
+            return x;
         }
 
         public static void testSimpleEncryptDecrypt() {
             String input = "Hello!";
             String encryptChars = "abcdefghijklmnopqrstuvwxyz";
             String password = "fop";
-            String encrypted = simpleEncryptDecrypt(password, 0, encryptChars, input, true);
-            String decrypted = simpleEncryptDecrypt(password, 0, encryptChars, encrypted, false);
+            String encrypted = simpleEncryptDecrypt(password, "0", encryptChars, input, true);
+            String decrypted = simpleEncryptDecrypt(password, "0", encryptChars, encrypted, false);
+            Trace.WriteLine(input + "->" + encrypted + ">" + decrypted);
+            encrypted = simpleEncryptDecrypt(password, "1", encryptChars, input, true);
+            decrypted = simpleEncryptDecrypt(password, "1", encryptChars, encrypted, false);
             Trace.WriteLine(input + "->" + encrypted + ">" + decrypted);
         }
     }

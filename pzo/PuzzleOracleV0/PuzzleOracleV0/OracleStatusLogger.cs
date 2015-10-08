@@ -12,7 +12,8 @@ namespace PuzzleOracleV0
     class OracleSubmissionLogger : IDisposable
     {
         const String META_PUZZLE_ID = "000";
-        const String HASH_PASSWORD = "moxie";
+        const String LOG_PASSWORD = "moxie";
+        const String LOG_ENCRYPT_CHARS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";// just alnum
  
         TextWriter tw = null;
         readonly String teamId;
@@ -24,9 +25,10 @@ namespace PuzzleOracleV0
 
         public OracleSubmissionLogger(String logDir, String teamId, String teamName)
         {
-            if (!Regex.IsMatch(teamId, "^[0-9]+$"))
+            if (!Regex.IsMatch(teamId, "^T[0-9]+$"))
             {
-                throw new ArgumentException("Team ID is malformed - should be all digits: " + teamId);
+                ErrorReport.logError("Team ID \""+teamId+"\" is malformed - should be T followed by all digits");
+                throw new ApplicationException();
             }
             teamName = Regex.Replace(teamName, "[\"',\\n\\r]", "");  // remove some troublesome characters if they happen to be there.
             this.teamId = teamId;
@@ -91,6 +93,12 @@ namespace PuzzleOracleV0
                     responseCode = "UNRECOGNIZED_CODE";
                     break;
             }
+
+            // Encrypt...
+            String customizer = teamId + puzzleId;
+            responseCode = CryptoHelper.simpleEncryptDecrypt(LOG_PASSWORD, customizer, LOG_ENCRYPT_CHARS, responseCode, true);
+            attemptedSolution = CryptoHelper.simpleEncryptDecrypt(LOG_PASSWORD, customizer, LOG_ENCRYPT_CHARS, attemptedSolution, true);
+            
             rawLog(puzzleId, responseCode, attemptedSolution);
             
         }
@@ -99,16 +107,17 @@ namespace PuzzleOracleV0
 
         // Format:
         // Transaction ID, time, 'T'+TeamID, TeamName, 'P'+PuzzleID, Code, Hash, Solution attempt (Hash is secret hash of teamID, puzzleID and responseCode)
-        // Az3409zz.1, 16:05:35.356, T6, ATDT rules again, P101, CORRECT, Qqz90, BOWMANBAY
+        // Az3409zz.1, 16:05:35.356, T6, ATDT rules again, P101, [CORRECT], [BOWMANBAY]
         // Note T added before team ID, and P added before puzzle ID. That's part of the submission log spec.
         {
             this.transactionCount++;
             extraText = Regex.Replace(extraText, "[\"',\\n\\r]", ""); // strip CSV meta-chars, if any
             String transaction = this.transactionIdBase + "." + this.transactionCount;
             String timeStamp = DateTime.Now.ToString("HH:mm:ss");
-            String[] hashStrings = { teamId, puzzleId, responseCode };
-            String hash = CryptoHelper.MD5Base64Hash(HASH_PASSWORD, hashStrings).Substring(0,8);
-            this.tw.WriteLine(transaction + "," + timeStamp + ",T" + this.teamId + "," + this.teamName + ",P" + puzzleId + "," + responseCode + "," + hash + "," + extraText);
+             //String[] hashStrings = { teamId, puzzleId, responseCode };
+            //String hash = CryptoHelper.MD5Base64Hash(HASH_PASSWORD, hashStrings).Substring(0,8);
+            this.tw.WriteLine(String.Format("{0},{1},{2},{3},{4},{5},{6}",
+                transaction,timeStamp,teamId,this.teamName,puzzleId,responseCode,extraText));
             this.tw.Flush();
         }
 

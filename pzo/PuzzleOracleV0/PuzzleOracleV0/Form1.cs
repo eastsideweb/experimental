@@ -607,5 +607,12 @@ namespace PuzzleOracleV0
         }
 
 
+
+        internal void handleApplicationError()
+        {
+            MessageBox.Show(this, ErrorReport.getLogAsText(), "THE ORACLE HAS STOPPED");
+            okToClose = true;
+            fatalError = true;
+        }
     }
 }
