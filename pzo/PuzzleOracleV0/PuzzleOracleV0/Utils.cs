@@ -123,7 +123,7 @@ namespace PuzzleOracleV0
         /// <returns></returns>
         internal static TeamInfo getOverrideTeamInfo(string teamOverridePathName)
         {
-            TeamInfo info = null; 
+            TeamInfo info = null;
 
             try
             {
@@ -131,11 +131,11 @@ namespace PuzzleOracleV0
                 {
                     String allText = tr.ReadToEnd();
                     // Expected format: teamID, team name.
-                    
+
                     int commaPos = allText.IndexOf(',');
                     if (commaPos != -1)
                     {
-                        String teamId = Utils.stripEndBlanks(allText.Substring(0,commaPos));
+                        String teamId = Utils.stripEndBlanks(allText.Substring(0, commaPos));
                         String teamName = Utils.stripEndBlanks(allText.Substring(commaPos + 1));
                         if (teamId.Length != 1 && teamName.Length != 1)
                         {
@@ -148,11 +148,12 @@ namespace PuzzleOracleV0
                     }
                 }
             }
-            catch (FileNotFoundException e) {
+            catch (FileNotFoundException e)
+            {
                 return null;
             }
 
             return info;
-       }
+        }
     }
 }

@@ -15,7 +15,7 @@ using System.Text.RegularExpressions;
 
 namespace PuzzleOracleV0
 {
-    
+
 
     public partial class Form1 : Form
     {
@@ -89,7 +89,7 @@ namespace PuzzleOracleV0
             try
             {
                 InitializeComponent();
-                initializeUx();            
+                initializeUx();
                 initializeTeamInfo();
                 initializeOracleLogger();
                 initializeOracle();
@@ -107,7 +107,7 @@ namespace PuzzleOracleV0
             String basePath = getDataFileBasePath();
             String logDirName = basePath + "\\" + LOG_DATA_DIRNAME;
             oracleLogger = new OracleSubmissionLogger(logDirName, teamInfo.teamId, teamInfo.teamName);
-         }
+        }
 
 
 
@@ -142,7 +142,7 @@ namespace PuzzleOracleV0
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(KeyEvent);
             this.KeyPreview = true;
             this.Resize += Form1_Resize;
- 
+
             // Add all hideable controls
             this.hideableControls.Add(idPanel);
             this.hideableControls.Add(codePanel);
@@ -196,7 +196,8 @@ namespace PuzzleOracleV0
             {
                 fullScreen = !fullScreen;
                 GoFullscreen(fullScreen);
-            } else if (e.KeyCode == Keys.Escape)
+            }
+            else if (e.KeyCode == Keys.Escape)
             {
                 if (mode == Mode.modeInit || mode == Mode.modeExit)
                 {
@@ -227,7 +228,7 @@ namespace PuzzleOracleV0
 
         private void initializeTeamInfo()
         {
-            String basePath = getDataFileBasePath();          
+            String basePath = getDataFileBasePath();
             String teamInfoPathName = basePath + "\\" + TEAM_DATA_FILENAME;
             String teamOverridePathName = basePath + "\\" + OVERRIDE_TEAM_DATA_FILENAME;
             // Check if there is a valid override ...
@@ -307,8 +308,8 @@ namespace PuzzleOracleV0
         private void uxSwitchModeToOracle()
         {
             uxReset();
-             idPanel.Show();
-             idTextBox.Select();
+            idPanel.Show();
+            idTextBox.Select();
             //uxClearAndHideSubmission();
             mode = Mode.modeOracle;
         }
@@ -317,8 +318,8 @@ namespace PuzzleOracleV0
         {
             uxReset();
             codeLabel.Text = "Exit code";
-             codePanel.Show();
-             codeTextBox.Select();
+            codePanel.Show();
+            codeTextBox.Select();
             mode = Mode.modeExit;
         }
 
@@ -328,8 +329,8 @@ namespace PuzzleOracleV0
         {
             Size curSize = this.Size;
             Trace.WriteLine(curSize);
-            int x = (int) (curSize.Width * 0.5 - c.Size.Width/2.0); // make *center* x at that position.
-            int y = (int) (curSize.Height * fractionFromTop - c.Size.Height/2.0); // make *center* y at that position
+            int x = (int)(curSize.Width * 0.5 - c.Size.Width / 2.0); // make *center* x at that position.
+            int y = (int)(curSize.Height * fractionFromTop - c.Size.Height / 2.0); // make *center* y at that position
             c.Location = new Point(x, y);
 
         }
@@ -515,8 +516,9 @@ namespace PuzzleOracleV0
             if (e.CloseReason == CloseReason.UserClosing && !fatalError && !okToClose && mode != Mode.modeInit)
             {
                 e.Cancel = true; // we defer closing to when the mode is Mode.modeExit
-                if (mode == Mode.modeOracle) { 
-                 uxSwitchModeToExit();
+                if (mode == Mode.modeOracle)
+                {
+                    uxSwitchModeToExit();
                 }
             }
             else

@@ -59,10 +59,11 @@ namespace PuzzleOracleV0
             return s;
         }
 
-        public static String simpleEncryptDecrypt(String password, String customizer, String  encryptChars, String input, Boolean encrypt)  {
+        public static String simpleEncryptDecrypt(String password, String customizer, String encryptChars, String input, Boolean encrypt)
+        {
             int[] offsets = generateRandomOffsets(password, customizer, encryptChars, input.Length);
             StringBuilder sb = new StringBuilder(input.Length);
-            for (int i = 0; i < input.Length;i++)
+            for (int i = 0; i < input.Length; i++)
             {
                 char c = input[i];
                 char c2 = c;
@@ -88,11 +89,11 @@ namespace PuzzleOracleV0
         {
 
             int[] a = new int[length];
-            ulong x = runLCG(customizer,0); // Prime the LCR with the customizer chars.
+            ulong x = runLCG(customizer, 0); // Prime the LCR with the customizer chars.
             for (int i = 0; i < a.Length; i++)
             {
                 x = runLCG(password, x);
-                a[i] = (int) ((x >> 4)% (ulong) encryptChars.Length); // >> 4 is to shave off some LS bits, which are less random.
+                a[i] = (int)((x >> 4) % (ulong)encryptChars.Length); // >> 4 is to shave off some LS bits, which are less random.
             }
             return a;
         }
@@ -119,7 +120,8 @@ namespace PuzzleOracleV0
             return x;
         }
 
-        public static void testSimpleEncryptDecrypt() {
+        public static void testSimpleEncryptDecrypt()
+        {
             String input = "Hello!";
             String encryptChars = "abcdefghijklmnopqrstuvwxyz";
             String password = "fop";

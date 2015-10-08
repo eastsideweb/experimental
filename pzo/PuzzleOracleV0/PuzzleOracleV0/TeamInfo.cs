@@ -10,9 +10,10 @@ namespace PuzzleOracleV0
     {
         public readonly String teamId;
         public readonly String teamName;
-        public TeamInfo(String id, String name) {
+        public TeamInfo(String id, String name)
+        {
             teamId = id;
-            teamName = name; 
+            teamName = name;
         }
     }
 }

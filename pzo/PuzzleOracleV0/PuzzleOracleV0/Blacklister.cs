@@ -41,7 +41,8 @@ namespace PuzzleOracleV0
         /// <returns>0 if ok to submit now. Else delay in *seconds*. Special value BLACKLIST_FOREVER_TIME means permanent blacklisting.</returns>
         public int submitDelay
         {
-            get {
+            get
+            {
                 if (!blacklisted)
                 {
                     return 0;
@@ -49,10 +50,12 @@ namespace PuzzleOracleV0
                 else if (permanentlyBlacklisted)
                 {
                     return BLACKLIST_FOREVER_TIME;
-                } else {                  
+                }
+                else
+                {
                     DateTime now = DateTime.Now;
                     TimeSpan delta = now.Subtract(blackListStartTime);
-                    int seconds = (int) (delta.Seconds+0.5); // round up
+                    int seconds = (int)(delta.Seconds + 0.5); // round up
                     if (seconds < BLACKLIST_TIME_SECONDS)
                     {
                         int d = BLACKLIST_TIME_SECONDS - seconds;
@@ -92,18 +95,19 @@ namespace PuzzleOracleV0
                 {
                     // Switching out of blacklist!
                     blacklisted = false;
-                    attemptsAtSessionStart = totalAttempts-1;
+                    attemptsAtSessionStart = totalAttempts - 1;
                 }
             }
             else
             {
                 Boolean attemptsTemporarilyExceeded = (totalAttempts - attemptsAtSessionStart) >= MAX_ATTEMPTS_PER_SESSION;
-                if  (attemptsTemporarilyExceeded) {
+                if (attemptsTemporarilyExceeded)
+                {
                     // Turn on blacklisting -- applies to NEXT submission, not this one.
                     blacklisted = true;
                     blackListStartTime = DateTime.Now;
-                } 
+                }
             }
-        }   
+        }
     }
 }

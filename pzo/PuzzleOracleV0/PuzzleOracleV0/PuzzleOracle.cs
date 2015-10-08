@@ -29,9 +29,9 @@ namespace PuzzleOracleV0
         const String INCORRECT_BUT_PUZZLE_ANSWERED_BEFORE = "Your answer is incorrect, however someone else in your team has already answered this puzzle. "
                        + "Submit the correct answer to get important additional instructions.";
         const String BLACKLISTED_RESPONSE = "Your team has already made many submission attempts for this puzzle.\n Please wait {0} before submitting"
-            +" an answer to puzzle {1}"; // Note FORMAT placeholders (two) - duration and puzzle ID.
+            + " an answer to puzzle {1}"; // Note FORMAT placeholders (two) - duration and puzzle ID.
         const String PERMANENT_BLACKLISTED_RESPONSE = "Your team has exceeded the number of allowed submissions for this puzzle.\n Please contact an instructor.";
-        
+
 
 
 
@@ -48,7 +48,7 @@ namespace PuzzleOracleV0
 {"_RTIC", "Read the puzzle instructions carefully."}
                                   };
 
-        
+
 
         public PuzzleOracle(SimpleSpreadsheetReader sr)
         {
@@ -260,10 +260,10 @@ namespace PuzzleOracleV0
                             sDelay += " and " + seconds + " seconds";
                         }
                     }
-                     sResponse = String.Format(BLACKLISTED_RESPONSE, sDelay, pi.puzzleId);
+                    sResponse = String.Format(BLACKLISTED_RESPONSE, sDelay, pi.puzzleId);
                 }
                 pr = new PuzzleResponse(solution, PuzzleResponse.ResponseType.AskLater, sResponse);
-                  return pr; // ***************** EARLY RETURN *******************
+                return pr; // ***************** EARLY RETURN *******************
             }
 
             pr = pi.matchResponse(solution);
@@ -279,7 +279,8 @@ namespace PuzzleOracleV0
             {
                 pi.puzzleSolved = (pr.type == PuzzleResponse.ResponseType.Correct);
 
-            } else if (pr.type != PuzzleResponse.ResponseType.Correct)
+            }
+            else if (pr.type != PuzzleResponse.ResponseType.Correct)
             {
                 // Puzzle has been solved before but there is a new, incorrect submission. We give a helpful message to the user.
                 pr = new PuzzleResponse(solution, pr.type, INCORRECT_BUT_PUZZLE_ANSWERED_BEFORE);

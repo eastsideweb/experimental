@@ -14,7 +14,7 @@ namespace PuzzleOracleV0
         const String META_PUZZLE_ID = "0"; // for logging status messages
         const String LOG_PASSWORD = "moxie";
         const String LOG_ENCRYPT_CHARS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";// just alnum
- 
+
         TextWriter tw = null;
         readonly String teamId;
         readonly String teamName;
@@ -27,7 +27,7 @@ namespace PuzzleOracleV0
         {
             if (!Regex.IsMatch(teamId, "^T[0-9]+$"))
             {
-                ErrorReport.logError("Team ID \""+teamId+"\" is malformed - should be T followed by all digits");
+                ErrorReport.logError("Team ID \"" + teamId + "\" is malformed - should be T followed by all digits");
                 throw new ApplicationException();
             }
             teamName = Regex.Replace(teamName, "[\"',\\n\\r]", "");  // remove some troublesome characters if they happen to be there.
@@ -73,7 +73,7 @@ namespace PuzzleOracleV0
         {
             // We log the normalized attempt so that it doesn't have extraneous characters.
             attemptedSolution = PuzzleOracle.normalizeSolution(attemptedSolution);
- 
+
             String responseCode = "INVALID";
             switch (response.type)
             {
@@ -98,9 +98,9 @@ namespace PuzzleOracleV0
             String customizer = teamId + puzzleId;
             responseCode = CryptoHelper.simpleEncryptDecrypt(LOG_PASSWORD, customizer, LOG_ENCRYPT_CHARS, responseCode, true);
             attemptedSolution = CryptoHelper.simpleEncryptDecrypt(LOG_PASSWORD, customizer, LOG_ENCRYPT_CHARS, attemptedSolution, true);
-            
+
             rawLog(puzzleId, responseCode, attemptedSolution);
-            
+
         }
 
         private void rawLog(string puzzleId, string responseCode, string extraText)
@@ -114,10 +114,10 @@ namespace PuzzleOracleV0
             extraText = Regex.Replace(extraText, "[\"',\\n\\r]", ""); // strip CSV meta-chars, if any
             String transaction = this.transactionIdBase + "." + this.transactionCount;
             String timeStamp = DateTime.Now.ToString("HH:mm:ss");
-             //String[] hashStrings = { teamId, puzzleId, responseCode };
+            //String[] hashStrings = { teamId, puzzleId, responseCode };
             //String hash = CryptoHelper.MD5Base64Hash(HASH_PASSWORD, hashStrings).Substring(0,8);
             this.tw.WriteLine(String.Format("{0},{1},{2},{3},{4},{5},{6}",
-                transaction,timeStamp,teamId,this.teamName,puzzleId,responseCode,extraText));
+                transaction, timeStamp, teamId, this.teamName, puzzleId, responseCode, extraText));
             this.tw.Flush();
         }
 
