@@ -31,5 +31,5 @@ namespace PuzzleOracleV0
         public readonly ResponseType type;
         public readonly string response;
 
-     }
+    }
 }

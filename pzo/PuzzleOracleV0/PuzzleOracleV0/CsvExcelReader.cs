@@ -21,9 +21,10 @@ namespace PuzzleOracleV0
 
         public static SimpleSpreadsheetReader loadSpreadsheet(String pathName)
         {
-            using (TextReader tr = new StreamReader(pathName)) {
+            using (TextReader tr = new StreamReader(pathName))
+            {
                 String allText = tr.ReadToEnd();
-                String[] delims = {"\r\n"};
+                String[] delims = { "\r\n" };
                 String[] lines = allText.Split(delims, StringSplitOptions.None);
                 String[][] cells = null;
                 int nrows = lines.Length;
@@ -63,8 +64,8 @@ namespace PuzzleOracleV0
             String quoteChar = "\001"; // "\0}
             String commaChar = "\002";
             // Replace "" by qCHar ("" represents a single ").
-            String s=Regex.Replace(p, "\"\"", quoteChar);
-              
+            String s = Regex.Replace(p, "\"\"", quoteChar);
+
             //s = Regex.Replace(s, "\r", "Y", RegexOptions.Multiline);
             String t = Regex.Replace(s, "\"[^\"]+\"", delegate(Match match)
             {
@@ -76,12 +77,13 @@ namespace PuzzleOracleV0
             String[] parts = t.Split(',');
             int nCols = parts.Length;
             // Strip ending empty part, if any
-            if (nCols > 0 && parts[nCols-1].Length==0)
+            if (nCols > 0 && parts[nCols - 1].Length == 0)
             {
                 nCols--;
             }
             String[] sCols = new String[nCols];
-            for (int i=0; i<nCols;i++) {
+            for (int i = 0; i < nCols; i++)
+            {
                 String x = Regex.Replace(parts[i], quoteChar, "\"");
                 String y = Regex.Replace(x, commaChar, ",");
                 sCols[i] = y;
@@ -100,7 +102,7 @@ namespace PuzzleOracleV0
         public int getNumRows(int sheet = 0)
         {
             checkSheet(sheet);
-            return cells == null ? 0: cells.Length;
+            return cells == null ? 0 : cells.Length;
         }
 
         private void checkSheet(int sheet)
@@ -162,7 +164,7 @@ namespace PuzzleOracleV0
             for (int i = 0; i < n; i++)
             {
                 String[] sRow = sheetData[fromRow + i];
-                cols[i] = (col<sRow.Length) ? sRow[col] : "";
+                cols[i] = (col < sRow.Length) ? sRow[col] : "";
             }
             return cols;
         }
