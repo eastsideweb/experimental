@@ -109,6 +109,7 @@
     <Content Include="public\modules\puzzles\views\view-puzzle.client.view.html" />
     <Content Include="public\modules\teams\config\teams.client.config.js" />
     <Content Include="public\modules\teams\config\teams.client.routes.js" />
+    <Content Include="public\modules\teams\controllers\teams-leaderboard.client.controller.js" />
     <Content Include="public\modules\teams\controllers\teams-puzzlestate.client.controller.js" />
     <Content Include="public\modules\teams\controllers\teams.client.controller.js" />
     <Content Include="public\modules\teams\services\teams.client.service.js" />
@@ -118,6 +119,7 @@
     <Content Include="public\modules\teams\views\edit-team-puzzlestate.client.view.html" />
     <Content Include="public\modules\teams\views\edit-team-sublist.client.view.html" />
     <Content Include="public\modules\teams\views\edit-team.client.view.html" />
+    <Content Include="public\modules\teams\views\leaderboard.client.view.html" />
     <Content Include="public\modules\teams\views\list-teams.client.view.html" />
     <Content Include="public\modules\teams\views\view-team.client.view.html" />
     <Content Include="public\modules\users\config\users.client.config.js" />
