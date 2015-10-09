@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PuzzleOracleV0", "PuzzleOracleV0\PuzzleOracleV0.csproj", "{4A863725-0A95-4627-9700-410BE7CA334B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogProcessorSample", "LogProcessorSample\LogProcessorSample.csproj", "{C93B14E2-D49B-43FC-BA18-29B36EB0D5FB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{4A863725-0A95-4627-9700-410BE7CA334B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4A863725-0A95-4627-9700-410BE7CA334B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4A863725-0A95-4627-9700-410BE7CA334B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C93B14E2-D49B-43FC-BA18-29B36EB0D5FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C93B14E2-D49B-43FC-BA18-29B36EB0D5FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C93B14E2-D49B-43FC-BA18-29B36EB0D5FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C93B14E2-D49B-43FC-BA18-29B36EB0D5FB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
