@@ -95,7 +95,7 @@ namespace PuzzleOracleV0
             }
 
             // Encrypt...
-            String customizer = teamId + puzzleId;
+            String customizer = teamId + puzzleId; // Important - this is the customizer format used for encryption.
             responseCode = CryptoHelper.simpleEncryptDecrypt(LOG_PASSWORD, customizer, LOG_ENCRYPT_CHARS, responseCode, true);
             attemptedSolution = CryptoHelper.simpleEncryptDecrypt(LOG_PASSWORD, customizer, LOG_ENCRYPT_CHARS, attemptedSolution, true);
 

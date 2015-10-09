@@ -51,8 +51,8 @@ namespace PuzzleOracleV0
                     String teamId = stripEndBlanks(row[0]);
                     String teamName = stripEndBlanks(row[1]);
 
-                    // FOR NOW - we expect team ID to be a digit sequence.
-                    if (!Regex.IsMatch(teamId, "^[0-9]+$"))
+                    // We expect team ID to be T followed by a digit sequence.
+                    if (!Regex.IsMatch(teamId, "^T[0-9]+$"))
                     {
                         throw new ArgumentException(String.Format("Matched Team ID doesn't appear to be a valid team ID (row={0})", r));
                     }
