@@ -43,9 +43,9 @@
             this.titleLabel = new System.Windows.Forms.Label();
             this.responsePanel = new System.Windows.Forms.Panel();
             this.codePanel = new System.Windows.Forms.Panel();
+            this.codeCancelButton = new System.Windows.Forms.Button();
             this.codeLabel = new System.Windows.Forms.Label();
             this.codeTextBox = new System.Windows.Forms.TextBox();
-            this.codeCancelButton = new System.Windows.Forms.Button();
             this.idPanel.SuspendLayout();
             this.answerPanel.SuspendLayout();
             this.namePanel.SuspendLayout();
@@ -57,7 +57,7 @@
             // 
             this.answerTextBox.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.answerTextBox.Font = new System.Drawing.Font("Lucida Console", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.answerTextBox.Location = new System.Drawing.Point(20, 42);
+            this.answerTextBox.Location = new System.Drawing.Point(12, 41);
             this.answerTextBox.Name = "answerTextBox";
             this.answerTextBox.Size = new System.Drawing.Size(406, 30);
             this.answerTextBox.TabIndex = 2;
@@ -91,7 +91,7 @@
             this.nameLabel.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.nameLabel.AutoSize = true;
             this.nameLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.nameLabel.Location = new System.Drawing.Point(50, 16);
+            this.nameLabel.Location = new System.Drawing.Point(150, 17);
             this.nameLabel.Name = "nameLabel";
             this.nameLabel.Size = new System.Drawing.Size(155, 29);
             this.nameLabel.TabIndex = 7;
@@ -103,7 +103,7 @@
             this.oracleButton.BackColor = System.Drawing.SystemColors.Control;
             this.oracleButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.oracleButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.oracleButton.Location = new System.Drawing.Point(389, 353);
+            this.oracleButton.Location = new System.Drawing.Point(389, 349);
             this.oracleButton.Name = "oracleButton";
             this.oracleButton.Size = new System.Drawing.Size(226, 38);
             this.oracleButton.TabIndex = 8;
@@ -116,11 +116,11 @@
             this.nameLabel2.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.nameLabel2.AutoSize = true;
             this.nameLabel2.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.nameLabel2.Location = new System.Drawing.Point(48, 44);
+            this.nameLabel2.Location = new System.Drawing.Point(24, 46);
             this.nameLabel2.Name = "nameLabel2";
-            this.nameLabel2.Size = new System.Drawing.Size(159, 32);
+            this.nameLabel2.Size = new System.Drawing.Size(384, 32);
             this.nameLabel2.TabIndex = 9;
-            this.nameLabel2.Text = "----------------";
+            this.nameLabel2.Text = "-----------------------------------------";
             this.nameLabel2.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // idPanel
@@ -161,7 +161,7 @@
             this.answerPanel.BackColor = System.Drawing.Color.Transparent;
             this.answerPanel.Controls.Add(this.answerTextBox);
             this.answerPanel.Controls.Add(this.answerLabel);
-            this.answerPanel.Location = new System.Drawing.Point(285, 262);
+            this.answerPanel.Location = new System.Drawing.Point(285, 260);
             this.answerPanel.Name = "answerPanel";
             this.answerPanel.Size = new System.Drawing.Size(435, 79);
             this.answerPanel.TabIndex = 11;
@@ -172,9 +172,9 @@
             this.namePanel.BackColor = System.Drawing.Color.Transparent;
             this.namePanel.Controls.Add(this.nameLabel2);
             this.namePanel.Controls.Add(this.nameLabel);
-            this.namePanel.Location = new System.Drawing.Point(378, 168);
+            this.namePanel.Location = new System.Drawing.Point(285, 162);
             this.namePanel.Name = "namePanel";
-            this.namePanel.Size = new System.Drawing.Size(248, 78);
+            this.namePanel.Size = new System.Drawing.Size(435, 88);
             this.namePanel.TabIndex = 12;
             this.namePanel.Visible = false;
             // 
@@ -196,7 +196,7 @@
             this.titleLabel.AutoSize = true;
             this.titleLabel.BackColor = System.Drawing.Color.Transparent;
             this.titleLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.titleLabel.Location = new System.Drawing.Point(420, 31);
+            this.titleLabel.Location = new System.Drawing.Point(355, 31);
             this.titleLabel.Name = "titleLabel";
             this.titleLabel.Size = new System.Drawing.Size(287, 32);
             this.titleLabel.TabIndex = 14;
@@ -224,6 +224,20 @@
             this.codePanel.Size = new System.Drawing.Size(232, 140);
             this.codePanel.TabIndex = 11;
             // 
+            // codeCancelButton
+            // 
+            this.codeCancelButton.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.codeCancelButton.BackColor = System.Drawing.SystemColors.Control;
+            this.codeCancelButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.codeCancelButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.codeCancelButton.Location = new System.Drawing.Point(17, 84);
+            this.codeCancelButton.Name = "codeCancelButton";
+            this.codeCancelButton.Size = new System.Drawing.Size(197, 38);
+            this.codeCancelButton.TabIndex = 16;
+            this.codeCancelButton.Text = "Cancel";
+            this.codeCancelButton.UseVisualStyleBackColor = false;
+            this.codeCancelButton.Click += new System.EventHandler(this.codeCancelButton_Click);
+            // 
             // codeLabel
             // 
             this.codeLabel.Anchor = System.Windows.Forms.AnchorStyles.Top;
@@ -246,20 +260,6 @@
             this.codeTextBox.Text = "ABCDE";
             this.codeTextBox.UseSystemPasswordChar = true;
             this.codeTextBox.TextChanged += new System.EventHandler(this.codeTextBox_TextChanged);
-            // 
-            // codeCancelButton
-            // 
-            this.codeCancelButton.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.codeCancelButton.BackColor = System.Drawing.SystemColors.Control;
-            this.codeCancelButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.codeCancelButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.codeCancelButton.Location = new System.Drawing.Point(17, 84);
-            this.codeCancelButton.Name = "codeCancelButton";
-            this.codeCancelButton.Size = new System.Drawing.Size(197, 38);
-            this.codeCancelButton.TabIndex = 16;
-            this.codeCancelButton.Text = "Cancel";
-            this.codeCancelButton.UseVisualStyleBackColor = false;
-            this.codeCancelButton.Click += new System.EventHandler(this.codeCancelButton_Click);
             // 
             // Form1
             // 

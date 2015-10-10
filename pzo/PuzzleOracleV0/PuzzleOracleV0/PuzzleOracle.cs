@@ -21,7 +21,7 @@ namespace PuzzleOracleV0
         const String ORACLE_PASSWORD = "benny"; // data files are encrypted with this password
         const String ORACLE_ENCRYPT_CHARS = ".,:;?!_- 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
         const String SPREADSHEET_LABEL_ID = "ID"; // ID field of spreadsheet
-        const String NORMALIZAITION_STRIP_CHARS = @"(\s+)|([.,:;!""'-?]+)"; // ignored in user solutions
+        const String NORMALIZAITION_STRIP_CHARS = @"(\s+)|([.,:;!""'?-]+)"; // ignored in user solutions
 
 
         // Various user-visible strings
@@ -403,7 +403,7 @@ namespace PuzzleOracleV0
                 // Add hints, if any...
                 for (int j = 3; j < sRow.Length; j++)
                 {
-                    String field = Utils.stripBlanks(sRow[j]);
+                    String field = Utils.stripEndBlanks(sRow[j]);
                     if (field.Length > 0)
                     {
                         PuzzleResponse pr = buildPuzzleResponse(field, PuzzleResponse.ResponseType.Incorrect);
