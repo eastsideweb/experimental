@@ -46,6 +46,7 @@
             this.codeCancelButton = new System.Windows.Forms.Button();
             this.codeLabel = new System.Windows.Forms.Label();
             this.codeTextBox = new System.Windows.Forms.TextBox();
+            this.resetButton = new System.Windows.Forms.Button();
             this.idPanel.SuspendLayout();
             this.answerPanel.SuspendLayout();
             this.namePanel.SuspendLayout();
@@ -261,6 +262,20 @@
             this.codeTextBox.UseSystemPasswordChar = true;
             this.codeTextBox.TextChanged += new System.EventHandler(this.codeTextBox_TextChanged);
             // 
+            // resetButton
+            // 
+            this.resetButton.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.resetButton.BackColor = System.Drawing.SystemColors.Control;
+            this.resetButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.resetButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.resetButton.Location = new System.Drawing.Point(348, 657);
+            this.resetButton.Name = "resetButton";
+            this.resetButton.Size = new System.Drawing.Size(283, 38);
+            this.resetButton.TabIndex = 16;
+            this.resetButton.Text = "Try another puzzle";
+            this.resetButton.UseVisualStyleBackColor = false;
+            this.resetButton.Click += new System.EventHandler(this.resetButton_Click);
+            // 
             // Form1
             // 
             this.AcceptButton = this.oracleButton;
@@ -268,7 +283,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImage = global::PuzzleOracleV0.Properties.Resources.c_curve2;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ClientSize = new System.Drawing.Size(998, 663);
+            this.ClientSize = new System.Drawing.Size(998, 704);
+            this.Controls.Add(this.resetButton);
             this.Controls.Add(this.codePanel);
             this.Controls.Add(this.oracleButton);
             this.Controls.Add(this.titleLabel);
@@ -315,6 +331,7 @@
         private System.Windows.Forms.Label codeLabel;
         private System.Windows.Forms.TextBox codeTextBox;
         private System.Windows.Forms.Button codeCancelButton;
+        private System.Windows.Forms.Button resetButton;
     }
 }
 

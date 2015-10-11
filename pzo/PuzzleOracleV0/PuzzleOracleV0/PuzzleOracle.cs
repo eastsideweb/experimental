@@ -26,8 +26,7 @@ namespace PuzzleOracleV0
 
         // Various user-visible strings
         const String GENERIC_INCORRECT_RESPONSE = "Unfortunately, your answer is incorrect.";
-        const String INCORRECT_BUT_PUZZLE_ANSWERED_BEFORE = "Your answer is incorrect, however someone else in your team has already answered this puzzle. "
-                       + "Submit the correct answer to get important additional instructions.";
+        const String INCORRECT_BUT_PUZZLE_ANSWERED_BEFORE = "Your answer is incorrect, however someone else in your team has already answered this puzzle. ";
         const String BLACKLISTED_RESPONSE = "Your team has already made many submission attempts for this puzzle.\n Please wait {0} before submitting"
             + " an answer to puzzle {1}"; // Note FORMAT placeholders (two) - duration and puzzle ID.
         const String PERMANENT_BLACKLISTED_RESPONSE = "Your team has exceeded the number of allowed submissions for this puzzle.\n Please contact an instructor.";

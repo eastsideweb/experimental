@@ -150,6 +150,8 @@ namespace PuzzleOracleV0
             this.hideableControls.Add(answerPanel);
             this.hideableControls.Add(oracleButton);
             this.hideableControls.Add(responsePanel);
+            this.hideableControls.Add(resetButton);
+
 
             // Add top-level positionable controls...
             this.relativePositions.Add(new RelativePosition(idPanel, 0.15));
@@ -158,14 +160,8 @@ namespace PuzzleOracleV0
             this.relativePositions.Add(new RelativePosition(answerPanel, 0.37));
             this.relativePositions.Add(new RelativePosition(oracleButton, 0.49));
             this.relativePositions.Add(new RelativePosition(responsePanel, 0.59));
+            this.relativePositions.Add(new RelativePosition(resetButton, 0.85));
 
-
-
-            this.hideableControls.Add(codePanel);
-            this.hideableControls.Add(namePanel);
-            this.hideableControls.Add(answerPanel);
-            this.hideableControls.Add(oracleButton);
-            this.hideableControls.Add(responsePanel);
 
             // Add all clearable text controls
             this.clearableTextControls.Add(idTextBox);
@@ -379,6 +375,7 @@ namespace PuzzleOracleV0
         {
             this.nameLabel2.Text = "";
             this.namePanel.Hide();
+            this.resetButton.Hide();
             uxClearAndHideSubmission();
 
         }
@@ -400,6 +397,7 @@ namespace PuzzleOracleV0
             this.nameLabel2.ForeColor = this.color_Found;
             this.nameLabel.Show();
             this.namePanel.Show();
+            this.resetButton.Show();
             uxEnableAnswer();
         }
 
@@ -416,6 +414,7 @@ namespace PuzzleOracleV0
             this.nameLabel2.ForeColor = this.color_NotFound;
             this.nameLabel.Hide();
             this.namePanel.Show();
+            this.resetButton.Hide();
             uxClearAndHideSubmission();
         }
 
@@ -619,6 +618,14 @@ namespace PuzzleOracleV0
             MessageBox.Show(this, ErrorReport.getLogAsText(), "THE ORACLE HAS STOPPED");
             okToClose = true;
             fatalError = true;
+        }
+
+        private void resetButton_Click(object sender, EventArgs e)
+        {
+            if (mode == Mode.modeOracle)
+            {
+                uxSwitchModeToOracle(); // will reset oracle ux
+            }
         }
     }
 }
