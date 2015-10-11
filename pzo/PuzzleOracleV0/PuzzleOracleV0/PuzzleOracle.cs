@@ -39,6 +39,7 @@ namespace PuzzleOracleV0
         Dictionary<String, PuzzleInfo> puzzles;
         Dictionary<String, String> properties;
         List<String> puzzleIDs; // For diagnostic purposes. In order that they were read in from the file.
+        Random rand = new Random();
 
         // If present in the responses (after the ':') they are expanded into their corresponding long-form text.
         readonly String[,] responseAliases = {
@@ -458,9 +459,53 @@ namespace PuzzleOracleV0
         // Encrypts/decrypts given text using the oracle password, customized by the puzzle ID.
         private string endecrypt(string id, string text, bool encrypt)
         {
+            if (encrypt) {
+                  // Add random chars to randomize text length.
+                  text = addRandomChars(text);
+            }
             String eText = CryptoHelper.simpleEncryptDecrypt(ORACLE_PASSWORD, id, ORACLE_ENCRYPT_CHARS, text, encrypt);
+            if (!encrypt)
+            {
+                // Remove previously added random chars to randomize text length.
+                eText = removeRandomChars(eText);
+            }
             return eText;
         }
+
+        /// <summary>
+        /// Add random chars to the beginning of the string - the first char is a digit (can be 0) that indicates how many
+        /// characters follow.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        private string addRandomChars(string text)
+        {
+            //ORACLE_ENCRYPT_CHARS
+            int n = rand.Next(10);
+            String prefix = "" + n; // n could be 0.
+            for (int i = 0; i < n; i++)
+            {
+                prefix += ORACLE_ENCRYPT_CHARS[rand.Next(ORACLE_ENCRYPT_CHARS.Length)];
+            }
+            return prefix + text;
+        }
+
+
+        /// <summary>
+        /// We expect the first char to be a digit. We remove that many following chars. 
+        /// Various exceptions thrown if this is not the case.
+        /// </summary>
+        /// <param name="eText"></param>
+        /// <returns></returns>
+        private string removeRandomChars(string eText)
+        {
+            int n = eText[0] - '0'; // n could be 0, in which no random chars follow.
+            if (n<0 || n>9) {
+                throw new ArgumentException("Expecting first char to be a digit!");
+            }
+            return eText.Substring(n + 1); // better be enough chars.
+        }
+        
 
         /*
          * OBSOLETE
