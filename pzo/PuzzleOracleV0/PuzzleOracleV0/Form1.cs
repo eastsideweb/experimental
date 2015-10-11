@@ -253,6 +253,10 @@ namespace PuzzleOracleV0
 
             //excelReader = TestExcelReader.loadSpreadsheet(pathName, password);
             oracle = new PuzzleOracle(sr);
+            if (!oracle.isSourceEncrypted)
+            {
+                MessageBox.Show(this, "ORACLE DATA FILE IS ***UNENCRYPTED****", "WARNING WARNING WARNING");
+            }
             oracle.writeCsvFile(basePath, true);
 
             // WARNING - writeToFile(false) writes out the decrypted contents!

@@ -21,7 +21,7 @@ namespace PuzzleOracleV0
         const String ORACLE_PASSWORD = "benny"; // data files are encrypted with this password
         const String ORACLE_ENCRYPT_CHARS = ".,:;?!_- 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
         const String SPREADSHEET_LABEL_ID = "ID"; // ID field of spreadsheet
-        const String NORMALIZAITION_STRIP_CHARS = @"(\s+)|([.,:;!""'?-]+)"; // ignored in user solutions
+        const String NORMALIZAITION_STRIP_CHARS = @"(\s+)|([.,:;!""'?-])"; // ignored in user solutions
 
 
         // Various user-visible strings
@@ -353,6 +353,7 @@ namespace PuzzleOracleV0
             {
                 encrypted = true;
             }
+            this.sourceIsEncrypted = encrypted;
 
             // We expect the first header cell to be "id"
             String headerId = Utils.stripEndBlanks(header[0]);
@@ -663,5 +664,8 @@ namespace PuzzleOracleV0
             return response;
         }
 
+
+        private bool sourceIsEncrypted=false;
+        public bool isSourceEncrypted { get { return sourceIsEncrypted; } }
     }
 }
