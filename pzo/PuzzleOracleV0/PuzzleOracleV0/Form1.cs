@@ -96,10 +96,21 @@ namespace PuzzleOracleV0
             }
             catch (ApplicationException e)
             {
-                MessageBox.Show(this, ErrorReport.getLogAsText(), "THE ORACLE HAS STOPPED");
-                okToClose = true;
-                fatalError = true;
+                handleFatalError(e);
+
             }
+            catch (ArgumentException e)
+            {
+                handleFatalError(e);
+            }
+        }
+
+        internal void handleFatalError(Exception e)
+        {
+            Trace.WriteLine("Exiting because of exception" + e);
+            MessageBox.Show(this, ErrorReport.getLogAsText() + "\n\nPLEASE CONTACT AN INSTRUCTOR IMMEDIATELY.", "THE ORACLE HAS STOPPED");
+            okToClose = true;
+            fatalError = true;
         }
 
         private void initializeOracleLogger()
@@ -459,8 +470,15 @@ namespace PuzzleOracleV0
             if (id.Length > 0)
             {
                 PuzzleResponse pr = oracle.checkSolution(id, answer);
-                oracleLogger.logSolveAttempt(id, answer, pr);
-                uxDisplayResponse(pr);
+                try
+                {
+                    oracleLogger.logSolveAttempt(id, answer, pr);
+                    uxDisplayResponse(pr);
+                }
+                catch (ApplicationException ex)
+                {
+                    handleFatalError(ex);
+                }
             }
         }
 
@@ -528,7 +546,14 @@ namespace PuzzleOracleV0
             {
                 if (oracleLogger != null)
                 {
-                    oracleLogger.Dispose();
+                    try
+                    {
+                        oracleLogger.Dispose();
+                    }
+                    catch (ApplicationException ex)
+                    {
+                        handleFatalError(ex);
+                    }
                     oracleLogger = null;
                 }
                 base.OnFormClosing(e);
@@ -612,13 +637,6 @@ namespace PuzzleOracleV0
         }
 
 
-
-        internal void handleApplicationError()
-        {
-            MessageBox.Show(this, ErrorReport.getLogAsText(), "THE ORACLE HAS STOPPED");
-            okToClose = true;
-            fatalError = true;
-        }
 
         private void resetButton_Click(object sender, EventArgs e)
         {

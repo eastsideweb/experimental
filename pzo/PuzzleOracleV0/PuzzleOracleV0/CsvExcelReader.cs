@@ -21,41 +21,54 @@ namespace PuzzleOracleV0
 
         public static SimpleSpreadsheetReader loadSpreadsheet(String pathName)
         {
-            using (TextReader tr = new StreamReader(pathName))
+            try
             {
-                String allText = tr.ReadToEnd();
-                String[] delims = { "\r\n" };
-                String[] lines = allText.Split(delims, StringSplitOptions.None);
-                String[][] cells = null;
-                int nrows = lines.Length;
-                int ncols = 0;
-                // don't count the final, empty string.
-                if (nrows > 0 && lines[nrows - 1].Length == 0)
+                using (TextReader tr = new StreamReader(pathName))
                 {
-                    nrows--;
-                }
-                if (nrows > 0)
-                {
-                    cells = new String[nrows][];
-                    ncols = 0;
-                    for (int i = 0; i < nrows; i++)
+                    String allText = tr.ReadToEnd();
+                    String[] delims = { "\r\n" };
+                    String[] lines = allText.Split(delims, StringSplitOptions.None);
+                    String[][] cells = null;
+                    int nrows = lines.Length;
+                    int ncols = 0;
+                    // don't count the final, empty string.
+                    if (nrows > 0 && lines[nrows - 1].Length == 0)
                     {
-                        String[] cols = parseRow(lines[i]);
-                        if (cols.Length > ncols)
-                        {
-                            ncols = cols.Length;
-                        }
-                        cells[i] = cols;
+                        nrows--;
                     }
-                }
+                    if (nrows > 0)
+                    {
+                        cells = new String[nrows][];
+                        ncols = 0;
+                        for (int i = 0; i < nrows; i++)
+                        {
+                            String[] cols = parseRow(lines[i]);
+                            if (cols.Length > ncols)
+                            {
+                                ncols = cols.Length;
+                            }
+                            cells[i] = cols;
+                        }
+                    }
 
-                if (nrows == 0 || ncols == 0)
+                    if (nrows == 0 || ncols == 0)
+                    {
+                        nrows = ncols = 0;
+                        cells = null;
+                    }
+                    return new CsvExcelReader(cells, ncols);
+                }
+            }
+            catch (IOException e)
+            {
+                String message = String.Format("IO exception attempting to process file [{0}]", pathName);
+                if (e is FileNotFoundException)
                 {
-                    nrows = ncols = 0;
-                    cells = null;
+                    message = String.Format("File [{0}] not found.", pathName);
                 }
-                return new CsvExcelReader(cells, ncols);
-
+                Trace.WriteLine(message + e);
+                ErrorReport.logError(message);
+                throw new ArgumentException(message);
             }
         }
 

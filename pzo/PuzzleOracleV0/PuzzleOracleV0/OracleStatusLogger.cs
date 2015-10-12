@@ -20,6 +20,7 @@ namespace PuzzleOracleV0
         readonly String teamName;
         readonly String transactionIdBase;
         int transactionCount = 0;
+        Boolean fatalError = false; // if true - don't log!
 
         //public static TextWriter generateNewLogger
 
@@ -110,15 +111,30 @@ namespace PuzzleOracleV0
         // Az3409zz.1, 16:05:35.356, T6, ATDT rules again, P101, [CORRECT], [BOWMANBAY]
         // Note T added before team ID, and P added before puzzle ID. That's part of the submission log spec.
         {
-            this.transactionCount++;
-            extraText = Regex.Replace(extraText, "[\"',\\n\\r]", ""); // strip CSV meta-chars, if any
-            String transaction = this.transactionIdBase + "." + this.transactionCount;
-            String timeStamp = DateTime.Now.ToString("HH:mm:ss");
-            //String[] hashStrings = { teamId, puzzleId, responseCode };
-            //String hash = CryptoHelper.MD5Base64Hash(HASH_PASSWORD, hashStrings).Substring(0,8);
-            this.tw.WriteLine(String.Format("{0},{1},{2},{3},{4},{5},{6}",
-                transaction, timeStamp, teamId, this.teamName, puzzleId, responseCode, extraText));
-            this.tw.Flush();
+            if (this.fatalError)
+            {
+                Trace.WriteLine("Ignoreing log attempt because internal state indicates earlier fatal error!");
+                return;
+            }
+            try
+            {
+                this.transactionCount++;
+                extraText = Regex.Replace(extraText, "[\"',\\n\\r]", ""); // strip CSV meta-chars, if any
+                String transaction = this.transactionIdBase + "." + this.transactionCount;
+                String timeStamp = DateTime.Now.ToString("HH:mm:ss");
+                //String[] hashStrings = { teamId, puzzleId, responseCode };
+                //String hash = CryptoHelper.MD5Base64Hash(HASH_PASSWORD, hashStrings).Substring(0,8);
+                this.tw.WriteLine(String.Format("{0},{1},{2},{3},{4},{5},{6}",
+                    transaction, timeStamp, teamId, this.teamName, puzzleId, responseCode, extraText));
+                this.tw.Flush();
+            }
+            catch (IOException e)
+            {
+                fatalError = true;
+                ErrorReport.logError("Error attempting to write to submission log. Exception = " + e.Message);
+                throw new ApplicationException("Cannot write to submission log!");
+                //this.ioExceptionCount
+            }
         }
 
 
@@ -126,10 +142,20 @@ namespace PuzzleOracleV0
         {
             if (tw != null)
             {
-                logMetaStatus("LOG_STOPPED");
-                tw.Flush(); // sync
-                tw.Dispose();
-                tw = null;
+                try
+                {
+                    logMetaStatus("LOG_STOPPED");
+                    tw.Flush(); // sync
+                    tw.Dispose();
+                    tw = null;
+                }
+                catch (IOException e)
+                {
+                    fatalError = true;
+                    ErrorReport.logError("Error attempting to write to submission log. Exception = " + e.Message);
+                    throw new ApplicationException("Cannot write to submission log!");
+                    //this.ioExceptionCount
+                }
             }
         }
     }

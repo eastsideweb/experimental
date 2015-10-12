@@ -331,8 +331,8 @@ namespace PuzzleOracleV0
             int numCols = sr.getNumCols(sheet);
             if (numRows < HEADER_ROWS || numCols < MIN_COLS)
             {
-                Trace.WriteLine("spread sheet is too small! Abandoning.");
-                return;
+                ErrorReport.logError("Puzzle data spreadsheet is too small!");
+                throw new ArgumentException();
             }
             String[] propertyRow = sr.getRowCells(0, 0, numCols - 1, sheet);
             String[] header = sr.getRowCells(1, 0, numCols - 1, sheet);
@@ -340,8 +340,8 @@ namespace PuzzleOracleV0
             // We expect the first property cell to be POD (all caps)
             if (!Utils.stripEndBlanks(propertyRow[0]).Equals(FILE_SIGNATURE))
             {
-                Trace.WriteLine("Spread sheet missing signature. Abandoning.");
-                return;
+                ErrorReport.logError("Puzzle data spreadsheet has an invalid/missing signature.");
+                throw new ArgumentException();
             }
 
             // Read rest of properties
@@ -358,8 +358,8 @@ namespace PuzzleOracleV0
             String headerId = Utils.stripEndBlanks(header[0]);
             if (!headerId.Equals(SPREADSHEET_LABEL_ID, StringComparison.CurrentCultureIgnoreCase))
             {
-                Trace.WriteLine("spread sheet 1st cell is not 'ID'. Abandoning.");
-                return;
+                ErrorReport.logError("Puzzle data spreadsheet does not have the ID field.");
+                throw new ArgumentException();
             }
             int startRow = HEADER_ROWS; // First row of puzzle data
             int startCol = 0; // First col of puzzle data 

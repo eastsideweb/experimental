@@ -37,7 +37,10 @@ namespace PuzzleOracleV0
             // Also, the 1st row is expected to be properties and the 2nd row to be the header.
             if (!quickSpreadsheetCheck(teamInfoSpreadsheet, "PTD", 2, 3))
             {
-                throw new ArgumentException("Does not appear to be a valid team info spreadsheet");
+                String message = "Does not appear to be a valid team info spreadsheet - signature missing or invalid";
+                ErrorReport.logError(message);
+
+                throw new ArgumentException(message);
             }
 
             // Start at 1 to skip header row.
@@ -54,7 +57,9 @@ namespace PuzzleOracleV0
                     // We expect team ID to be T followed by a digit sequence.
                     if (!Regex.IsMatch(teamId, "^T[0-9]+$"))
                     {
-                        throw new ArgumentException(String.Format("Matched Team ID doesn't appear to be a valid team ID (row={0})", r));
+                        String message = String.Format("Team Info: matched Team ID [{0}] doesn't appear to be a valid team ID (row={1})", teamId, r+1);
+                        ErrorReport.logError(message);
+                        throw new ArgumentException(message);
                     }
                     info = new TeamInfo(teamId, teamName);
                     break;
@@ -155,5 +160,6 @@ namespace PuzzleOracleV0
 
             return info;
         }
+
     }
 }
