@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Diagnostics;
 
 namespace LogProcessorSample
 {
@@ -15,14 +16,24 @@ namespace LogProcessorSample
         const String PROCESSED_WITH_ERRORS_SUBDIR = "processed-with-errors";
         static void Main(string[] args)
         {
-            String newLogDirectory = basePath + "\\" + NEW_SUBDIR;
+            BlockingWorkQueue bwq = new BlockingWorkQueue();
+            Console.CancelKeyPress += new ConsoleCancelEventHandler((o, ea) => { Console.WriteLine("CTRL-C: bailing."); ea.Cancel = true;  bwq.stopWaiting(); });
+            NewDriveNotifier ndn = new NewDriveNotifier((o, e) => { bwq.enque(o, e, (o1, ea1) => { Console.WriteLine("WORK ITEM -NEW DRIVE-" + ((NewDriveNotifierEventArgs)ea1).driveName); }); });
+            ndn.startListening();
+            bwq.enque(null, null, (o, ea) => { Console.WriteLine("WORK ITEM -A-"); });
+            bwq.enque(null, null, (o, ea) => { Console.WriteLine("WORK ITEM -B-"); });
+            bwq.enque(null, null, (o, ea) => { Console.WriteLine("WORK ITEM -C-"); });
+            bwq.process();
+            Console.WriteLine("Enter to quit...");
+            String s = Console.ReadLine();
+            /*String newLogDirectory = basePath + "\\" + NEW_SUBDIR;
             using (LogProcessor lp = new LogProcessor(newLogDirectory)) {
             lp.registerEventHandler((s,e) => myLogEventHandler(s,e));
             lp.start();
             Console.WriteLine("Enter something to quit.");
             String input = Console.ReadLine();
             lp.stop();
-            }
+            }*/
         }
 
         //delegate<>

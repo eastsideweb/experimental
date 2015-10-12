@@ -41,8 +41,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BlockingWorkQueue.cs" />
     <Compile Include="CryptoHelperCopy.cs" />
     <Compile Include="LogProcessor.cs" />
+    <Compile Include="NewDriveNotifier.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
