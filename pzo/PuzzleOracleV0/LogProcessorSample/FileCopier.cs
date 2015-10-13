@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace LogProcessorSample
 {
@@ -14,13 +15,26 @@ namespace LogProcessorSample
     /// </summary>
     class FileCopier
     {
+        const string ARCHIVED = "archived";
+        const string NEW = "new";
+        const string STAGING = "staging";
+
+        public readonly String stagingDir;
+        public readonly String newDir;
+
         public FileCopier(String baseWorkingDir)
         {
+            stagingDir = baseWorkingDir + "\\" + STAGING;
+            newDir = baseWorkingDir + "\\" + NEW;
+            // If new and staging directories do not exist, create them. (true == critical, i.e., exit program if unsuccessful)
+            Utils.createDirIfNeeded(stagingDir, true);
+            Utils.createDirIfNeeded(newDir, true);
 
         }
         public void newDriveHandler(object sender, EventArgs e)
         {
             NewDriveNotifierEventArgs nde = (NewDriveNotifierEventArgs)e;
+            MyConsole.WriteLine(String.Format("FILE COPIER: Processing new drive [{0}].", nde.driveName));
         }
 
     }

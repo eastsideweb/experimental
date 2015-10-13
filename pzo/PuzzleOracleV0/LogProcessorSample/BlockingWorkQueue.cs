@@ -56,7 +56,7 @@ namespace LogProcessorSample
                         }
                         else
                         {
-                            Console.WriteLine("PROCESS: Waiting for work item...");
+                            MyConsole.WriteLine("PROCESS: Waiting for work item...");
                             Monitor.Wait(q);
                         }
                     }
@@ -69,12 +69,12 @@ namespace LogProcessorSample
                 }
                 if (wi != null)
                 {
-                    Console.WriteLine("PROCESS: Going to start a work item.");
+                    MyConsole.WriteLine("PROCESS: Going to start a work item.");
                     wi.eh(wi.source, wi.ea);
-                    Console.WriteLine("PROCESS: Done with work item.");
+                    MyConsole.WriteLine("PROCESS: Done with work item.");
                 }
             }
-            Console.WriteLine("PROCESS: Exiting wait loop.");
+            MyConsole.WriteLine("PROCESS: Exiting wait loop.");
 
         }
 

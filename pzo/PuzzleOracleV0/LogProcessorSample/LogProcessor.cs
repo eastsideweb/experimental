@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
+using System.Threading;
 
 namespace LogProcessorSample
 {
@@ -54,14 +55,14 @@ namespace LogProcessorSample
 
         private string logDirectory;
         FileSystemWatcher watcher;
-        List<EventHandler<LogEventArgs>> ehList;
         EventHandler<LogEventArgs> eh;
         bool active = false;
+        BlockingWorkQueue bwq;
 
-        public LogProcessor(string logDirectory, EventHandler<LogEventArgs> eh)
+        public LogProcessor(string logDirectory, EventHandler<LogEventArgs> eh, BlockingWorkQueue bwq)
         {
+            this.bwq = bwq; // we use this for our own internal grunt work (parsing log files)
             this.eh = eh;
-            ehList = new List<EventHandler<LogEventArgs>>();
             // TODO: Complete member initialization
             this.logDirectory = logDirectory;
             watcher = new FileSystemWatcher();
@@ -87,10 +88,33 @@ namespace LogProcessorSample
             {
                 return;
             }
+
+            bwq.enque(this, e, (o1, e1) => {
+                const int NUM_RETRIES = 5;
+                const int WAIT_TIME_MS = 1000;
+                for (int i = 0; i < NUM_RETRIES; i++)
+                {
+                    try
+                    {
+                        if (i > 0)
+                        {
+                            MyConsole.WriteLine("Waiting before retrying...");
+                            Thread.Sleep(WAIT_TIME_MS); 
+                        }
+                        processLogFile(e.FullPath);
+                        break;
+                    }
+                    catch (IOException ex)
+                    {
+                        Trace.WriteLine("Logged exception " + ex);
+                        MyConsole.WriteError(String.Format("Could not process file [{0}]. Retrying...", e.FullPath));
+                    }
+                }
+            });
             Console.WriteLine("File: " + e.FullPath + " " + e.ChangeType);
             // TODO - read all the file content and call the handler.
 
-            processLogFile(e.FullPath);
+            
 
 
         }
@@ -121,10 +145,9 @@ namespace LogProcessorSample
             LogEntry[] logEntries = leList.ToArray();
 
             LogEventArgs lea = new LogEventArgs(logFile, logEntries);
-            foreach (var eh in ehList)
-            {
-                eh(this, lea);
-            }
+
+            // call the event handler provided at construction time...
+            this.eh(this, lea);
         }
 
         private LogEntry parseLogRow(int rowIndex, string row)
@@ -223,10 +246,6 @@ namespace LogProcessorSample
             return Regex.Replace(Regex.Replace(s, @"^\s+", ""), @"\s+$", "");
         }
 
-        internal void registerEventHandler(EventHandler<LogEventArgs> eh)
-        {
-            ehList.Add(eh);
-        }
 
         internal void startListening()
         {

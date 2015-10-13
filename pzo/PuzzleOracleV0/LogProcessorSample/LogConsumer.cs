@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Diagnostics;
 
 namespace LogProcessorSample
 {
@@ -15,24 +16,35 @@ namespace LogProcessorSample
     /// </summary>
     class LogConsumer
     {
+
         const String NEW_SUBDIR = "new";
         const String PROCESSED_SUBDIR = "processed";
         const String PROCESSED_WITH_ERRORS_SUBDIR = "processed-with-errors";
+        const String RESULTS_SUBDIR = "results";
 
-        String baseWorkingDir;
-        String resultsDir;
+        readonly String baseWorkingDir;
+        readonly String resultsDir;
+        readonly String processedDir;
+        readonly String processedWithErrorsDir;
 
         public LogConsumer(String baseWorkingDir)
         {
             this.baseWorkingDir = baseWorkingDir;
-            this.resultsDir = baseWorkingDir + "\\" + "results";
+            this.resultsDir = baseWorkingDir + "\\" + RESULTS_SUBDIR;
+            this.processedDir = baseWorkingDir + "\\" + PROCESSED_SUBDIR;
+            this.processedWithErrorsDir = baseWorkingDir + "\\" + PROCESSED_WITH_ERRORS_SUBDIR;
+
+            // Create needed sub-dirs if needed ('true' means exit the program on error).
+            Utils.createDirIfNeeded(resultsDir, true);
+            Utils.createDirIfNeeded(processedDir, true);
+            Utils.createDirIfNeeded(processedWithErrorsDir, true);
         }
 
         public void logEventHandler(object sender, EventArgs ea)
         {
             LogEventArgs lea = (LogEventArgs)ea;
-            Console.WriteLine("Processing entries from log file " + lea.logPath);
-            Console.WriteLine("");
+            MyConsole.WriteLine("Processing entries from log file " + lea.logPath);
+            MyConsole.WriteLine("");
             Boolean hadErrors = false;
             foreach (var le in lea.entries)
             {
@@ -56,9 +68,13 @@ namespace LogProcessorSample
                     suffix = String.Format("(INVALID - {0})", le.parseError);
                     hadErrors = true;
                 }
-                Console.WriteLine(le.rowIndex + ":" + s + suffix);
+                else
+                {
+                    this.processEntry(le);
+                }
+                MyConsole.WriteLine(le.rowIndex + ":" + s + suffix);
             }
-            Console.WriteLine("End of entries from log file " + lea.logPath);
+            MyConsole.WriteLine("End of entries from log file " + lea.logPath);
 
             //
             // TODO: Actually process / commit the data.
@@ -66,31 +82,82 @@ namespace LogProcessorSample
             // move the file to the processed subdirectory, like so...
             //
 
-            String processedDir = baseWorkingDir + "\\" + (hadErrors ? PROCESSED_WITH_ERRORS_SUBDIR : PROCESSED_SUBDIR);
+
+            String processedDir = (hadErrors ? processedWithErrorsDir : this.processedDir);
             if (!Directory.Exists(processedDir))
             {
-                Console.WriteLine("ERROR: Processed dir does not exist: " + processedDir);
+                MyConsole.WriteError("ERROR: Processed dir does not exist: " + processedDir);
             }
             else
             {
 
                 String destPath = processedDir + "\\" + Path.GetFileName(lea.logPath);
+
                 try
                 {
-                    File.Move(lea.logPath, destPath);
-                    Console.WriteLine("Movded file to " + destPath);
+                    if (File.Exists(destPath))
+                    {
+                        MyConsole.WriteLine(String.Format("WARNING: File with same name as\n[{0}]exists in the processed dir.", lea.logPath));
+                        if (Utils.filesHaveSameContent(lea.logPath, destPath))
+                        {
+                            MyConsole.WriteLine(String.Format("Files have same content."));
+                            File.Delete(lea.logPath);
+                        }
+                        else
+                        {
+                            MyConsole.WriteError(String.Format("Files have DIFFERENT content!"));
+                            throw new ArgumentException("Attempting to move file to processed dir when one with different content already exists.");
+                        }
+                    }
+                    else
+                    {
+                        File.Move(lea.logPath, destPath);
+                        MyConsole.WriteLine("LC: Moved file to " + destPath);
+                    }
                 }
                 catch (Exception ex)
                 {
                     if (ex is IOException || ex is ArgumentException)
                     {
-                        Console.WriteLine("ERROR: Exception while moving path. ex=" + ex.Message);
+                        MyConsole.WriteError("ERROR: Exception while moving path. ex=" + ex.Message);
                     }
                     else
                     {
                         throw ex;
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Process a single valid submission log entry.
+        /// </summary>
+        /// <param name="le"></param>
+        private void processEntry(LogEntry le)
+        {
+            Debug.Assert(le.valid);
+            if (le.status.Equals("CORRECT"))
+            {
+                recordSolve(le);
+            }
+        }
+
+        private void recordSolve(LogEntry le)
+        {
+            // Record the fact that a particular team has solved a particular puzzle.
+            // The way we do this currently is writing out a file <teamID>-<puzzleID>.txt (if it doesn't already exist)
+            String content = String.Format("{0},{1}", le.transactionId, le.timestamp);
+            String solveFile = resultsDir + "\\" + String.Format("{0}-{1}.txt", le.teamId, le.puzzleId);
+            try
+            {
+                if (!File.Exists(solveFile))
+                {
+                    Utils.writeTextFile(solveFile, content);
+                }
+            }
+            catch (IOException ex)
+            {
+                MyConsole.WriteError(String.Format("WARNING Could not write file [{0}]", solveFile));
             }
         }
     }

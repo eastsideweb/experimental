@@ -90,7 +90,7 @@ namespace LogProcessorSample
                     }
                     if (!found)
                     {
-                        Console.WriteLine(String.Format("NDN: Found new drive [{0}]", di.Name));
+                        MyConsole.WriteLine(String.Format("NDN: Found new drive [{0}]", di.Name));
                         newDrives.Add(di);
                     }
                 }
