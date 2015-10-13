@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 using System.IO;
+using System.Diagnostics;
 
 namespace LogProcessorSample
 {
@@ -26,6 +27,7 @@ namespace LogProcessorSample
     /// </summary>
     class NewDriveNotifier : IDisposable
     {
+        const string MODULE = "NDN: ";
         class NameVolumePair
         {
             public String name;
@@ -69,7 +71,7 @@ namespace LogProcessorSample
 
         void handleTimer()
         {
-            //Console.WriteLine("NDN: In timer handler.");
+            //Console.WriteLine(MODULE + "In timer handler.");
             DriveInfo[] newDriveArray = DriveInfo.GetDrives();
             // Check if any of the *removable* drives are new since last time.
             List<DriveInfo> newDrives = new List<DriveInfo>();
@@ -90,7 +92,7 @@ namespace LogProcessorSample
                     }
                     if (!found)
                     {
-                        MyConsole.WriteLine(String.Format("NDN: Found new drive [{0}]", di.Name));
+                        Trace.WriteLine(String.Format(MODULE + "Found new drive [{0}]", di.Name));
                         newDrives.Add(di);
                     }
                 }

@@ -49,6 +49,7 @@ namespace LogProcessorSample
     /// </summary>
     class LogProcessor : IDisposable
     {
+        const String MODULE = "LP: "; // for debug log.
         // DO NOT MODIFY THESE TWO - they must match the Puzzle Oracle log generation parameters.
         const String LOG_PASSWORD = "moxie";
         const String LOG_ENCRYPT_CHARS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";// just alnum
@@ -91,14 +92,14 @@ namespace LogProcessorSample
 
             bwq.enque(this, e, (o1, e1) => {
                 const int NUM_RETRIES = 5;
-                const int WAIT_TIME_MS = 1000;
+                const int WAIT_TIME_MS = 500;
                 for (int i = 0; i < NUM_RETRIES; i++)
                 {
                     try
                     {
                         if (i > 0)
                         {
-                            MyConsole.WriteLine("Waiting before retrying...");
+                            //MyConsole.WriteLine("\tWaiting before retrying...");
                             Thread.Sleep(WAIT_TIME_MS); 
                         }
                         processLogFile(e.FullPath);
@@ -106,14 +107,13 @@ namespace LogProcessorSample
                     }
                     catch (IOException ex)
                     {
-                        Trace.WriteLine("Logged exception " + ex);
-                        MyConsole.WriteError(String.Format("Could not process file [{0}]. Retrying...", e.FullPath));
+                        Trace.WriteLine(MODULE + "Logged exception " + ex);
+                        MyConsole.WriteError(String.Format("\tCould not access [{0}]. Retrying...", Path.GetFileName(e.FullPath)));
                     }
                 }
             });
-            Console.WriteLine("File: " + e.FullPath + " " + e.ChangeType);
-            // TODO - read all the file content and call the handler.
-
+            Trace.WriteLine(MODULE + String.Format("Received OnChanged ([{0}], {1})", e.FullPath, e.ChangeType));
+  
             
 
 
@@ -156,7 +156,7 @@ namespace LogProcessorSample
             // early check for empty row...
             if (row.IndexOf(',') == -1)
             {
-                Trace.WriteLine("Ignoing line at row index " + rowIndex + " - no commas");
+                Trace.WriteLine(MODULE + "Ignoing line at row index " + rowIndex + " - no commas");
                 return null; // ************ EARLY RETURN *****************
             }
 
@@ -194,7 +194,7 @@ namespace LogProcessorSample
             // Special check for all-zeros...
             if (Regex.IsMatch(le.puzzleId, REGEX_META_PUZZLE_ID))
             {
-                Trace.WriteLine("IGNORING META(system) message at row index " + rowIndex);
+                Trace.WriteLine(MODULE + "IGNORING META(system) message at row index " + rowIndex);
                 return null; // ************* EARLY RETURN *****************
             }
 

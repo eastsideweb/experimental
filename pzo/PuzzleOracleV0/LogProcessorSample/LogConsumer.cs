@@ -16,7 +16,7 @@ namespace LogProcessorSample
     /// </summary>
     class LogConsumer
     {
-
+        const String MODULE = "LC: "; // For debug log.
         const String NEW_SUBDIR = "new";
         const String PROCESSED_SUBDIR = "processed";
         const String PROCESSED_WITH_ERRORS_SUBDIR = "processed-with-errors";
@@ -43,8 +43,7 @@ namespace LogProcessorSample
         public void logEventHandler(object sender, EventArgs ea)
         {
             LogEventArgs lea = (LogEventArgs)ea;
-            MyConsole.WriteLine("Processing entries from log file " + lea.logPath);
-            MyConsole.WriteLine("");
+            MyConsole.WriteLine(String.Format("Processing [{0}] ({1} submission(s))", Path.GetFileName(lea.logPath), lea.entries.Length));
             Boolean hadErrors = false;
             foreach (var le in lea.entries)
             {
@@ -72,10 +71,9 @@ namespace LogProcessorSample
                 {
                     this.processEntry(le);
                 }
-                MyConsole.WriteLine(le.rowIndex + ":" + s + suffix);
+                MyConsole.WriteLine("\t" + le.rowIndex + ":" + s + suffix);
             }
-            MyConsole.WriteLine("End of entries from log file " + lea.logPath);
-
+ 
             //
             // TODO: Actually process / commit the data.
             // If ALL entries have been successfully committed to the database, one can
@@ -97,29 +95,29 @@ namespace LogProcessorSample
                 {
                     if (File.Exists(destPath))
                     {
-                        MyConsole.WriteLine(String.Format("WARNING: File with same name as\n[{0}]exists in the processed dir.", lea.logPath));
+                        Trace.WriteLine(MODULE + String.Format("WARNING: File with same name as\n[{0}]exists in the processed dir.", lea.logPath));
                         if (Utils.filesHaveSameContent(lea.logPath, destPath))
                         {
-                            MyConsole.WriteLine(String.Format("Files have same content."));
+                            Trace.WriteLine(MODULE + String.Format("Files have same content."));
                             File.Delete(lea.logPath);
                         }
                         else
                         {
-                            MyConsole.WriteError(String.Format("Files have DIFFERENT content!"));
+                            MyConsole.WriteError(String.Format("\tFile with same name but DIFFERENT content exists in processed directory!"));
                             throw new ArgumentException("Attempting to move file to processed dir when one with different content already exists.");
                         }
                     }
                     else
                     {
                         File.Move(lea.logPath, destPath);
-                        MyConsole.WriteLine("LC: Moved file to " + destPath);
+                        Trace.WriteLine(MODULE + "Moved file to " + destPath);
                     }
                 }
                 catch (Exception ex)
                 {
                     if (ex is IOException || ex is ArgumentException)
                     {
-                        MyConsole.WriteError("ERROR: Exception while moving path. ex=" + ex.Message);
+                        MyConsole.WriteError("\tERROR: Exception while moving path. ex=" + ex.Message);
                     }
                     else
                     {

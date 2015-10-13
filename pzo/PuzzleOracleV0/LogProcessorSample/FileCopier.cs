@@ -15,6 +15,7 @@ namespace LogProcessorSample
     /// </summary>
     class FileCopier
     {
+        const string MODULE = "FC: ";
         const string ARCHIVED = "archived";
         const string NEW = "new";
         const string STAGING = "staging";
@@ -34,7 +35,7 @@ namespace LogProcessorSample
         public void newDriveHandler(object sender, EventArgs e)
         {
             NewDriveNotifierEventArgs nde = (NewDriveNotifierEventArgs)e;
-            MyConsole.WriteLine(String.Format("FILE COPIER: Processing new drive [{0}].", nde.driveName));
+            MyConsole.WriteLine(String.Format("Processing new drive [{0}].", nde.driveName));
         }
 
     }

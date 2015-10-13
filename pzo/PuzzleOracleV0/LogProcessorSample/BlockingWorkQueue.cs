@@ -14,6 +14,7 @@ namespace LogProcessorSample
     /// </summary>
     class BlockingWorkQueue
     {
+        const string MODULE = "BWQ: ";
         class WorkItem
         {
             public WorkItem(object source, EventArgs ea, EventHandler eh)
@@ -56,7 +57,7 @@ namespace LogProcessorSample
                         }
                         else
                         {
-                            MyConsole.WriteLine("PROCESS: Waiting for work item...");
+                            Trace.WriteLine(MODULE + "Waiting for work item...");
                             Monitor.Wait(q);
                         }
                     }
@@ -69,17 +70,17 @@ namespace LogProcessorSample
                 }
                 if (wi != null)
                 {
-                    MyConsole.WriteLine("PROCESS: Going to start a work item.");
+                    Trace.WriteLine(MODULE + "Going to start a work item.");
                     wi.eh(wi.source, wi.ea);
-                    MyConsole.WriteLine("PROCESS: Done with work item.");
+                    Trace.WriteLine(MODULE + "Done with work item.");
                 }
             }
-            MyConsole.WriteLine("PROCESS: Exiting wait loop.");
-
+            Trace.WriteLine(MODULE + "Exiting wait loop.");
         }
 
         public void stopWaiting()
         {
+            Trace.WriteLine(MODULE + "stopWaiting() called");
             stop = true;
             lock (q)
             {

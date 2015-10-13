@@ -10,23 +10,27 @@ namespace LogProcessorSample
 {
     class Program
     {
+        const String VERSION = "1.0";
+        const String MODULE = "MAIN: "; // for debug log.
         static void Main(string[] args)
         {
+            string baseWorkingDir = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+    + "\\PuzzleOracle\\consolidated";
+
             MyConsole.Initialize();
-            MyConsole.WriteLine("WELCOME TO THE LOG PROCESSOR");
+            MyConsole.WriteLine("LOG PROCESSOR Version " + VERSION);
+            MyConsole.WriteLine(String.Format("Working directory [{0}]", baseWorkingDir));
+            MyConsole.WriteLine("Press CTRL-C to quit");
 
             try
             {
-                string baseWorkingDir = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
-                    + "\\PuzzleOracle\\consolidated";
+
 
                 if (!initializeLogging(baseWorkingDir))
                 {
                     // Can't progress...
                     throw new ApplicationException("Cannot initialize logging.");
                 }
-
-
 
                 // Initialie the blocking work queue - it runs all significant processing operations in sequence on the main thread.
                 BlockingWorkQueue workQueue = new BlockingWorkQueue();
@@ -36,7 +40,7 @@ namespace LogProcessorSample
                 // Register the CTRL-C handler - this lets the user quit the program and potentially enter other commands.
                 // TODO: Currently the handler simply causes the work queue to exit after the latter processes current work items. Perhaps add some
                 // command processing and request confirmation of this behavior.
-                Console.CancelKeyPress += new ConsoleCancelEventHandler((o, ea) => { MyConsole.WriteError("CTRL-C: bailing."); ea.Cancel = true; workQueue.stopWaiting(); });
+                Console.CancelKeyPress += new ConsoleCancelEventHandler((o, ea) => { myCtrlCHandler(ea, workQueue); });
 
                 // Create the file copier - responsible for copying files from thumb drives to a staging directory, verifying the file copy and then moving
                 // the source files into an arcive subdir on the thumb drive, and (finally) moving the newly copied files under the "new" directory.
@@ -69,6 +73,20 @@ namespace LogProcessorSample
                 Trace.Flush();
                 Console.ReadLine();
             }
+        }
+
+        private static void myCtrlCHandler(ConsoleCancelEventArgs ea, BlockingWorkQueue workQueue)
+        {
+            Trace.WriteLine(MODULE + "In CTRL-C handler."); 
+            ea.Cancel = true;
+            workQueue.enque(null, null, (ox, ex) => {
+                MyConsole.WriteWarning("CTRL-C received. Ok to quit (y/n)?");
+                String s = ""  + (char) Console.Read();
+                if (s.ToUpperInvariant().IndexOf('Y') == 0)
+                {
+                    workQueue.stopWaiting();
+                }
+            }); 
         }
 
         private static bool initializeLogging(string baseWorkingDir)
