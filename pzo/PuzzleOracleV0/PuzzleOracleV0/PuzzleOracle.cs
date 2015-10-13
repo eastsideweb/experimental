@@ -18,20 +18,38 @@ namespace PuzzleOracleV0
 {
     class PuzzleOracle
     {
+        const String ORACLE_PASSWORD = "benny"; // data files are encrypted with this password
+        const String ORACLE_ENCRYPT_CHARS = ".,:;?!_- 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
         const String SPREADSHEET_LABEL_ID = "ID"; // ID field of spreadsheet
-        const String NORMALIZAITION_STRIP_CHARS = @"(\s+)|([.,:;!""'-?]+)"; // ignored in user solutions
+        const String NORMALIZAITION_STRIP_CHARS = @"(\s+)|([.,:;!""'?-])"; // ignored in user solutions
+
+
+        // Various user-visible strings
+        const String GENERIC_INCORRECT_RESPONSE = "Unfortunately, your answer is incorrect.";
+        const String INCORRECT_BUT_PUZZLE_ANSWERED_BEFORE = "Your answer is incorrect, however someone else in your team has already answered this puzzle. ";
+        const String BLACKLISTED_RESPONSE = "Your team has already made many submission attempts for this puzzle.\n Please wait {0} before submitting"
+            + " an answer to puzzle {1}"; // Note FORMAT placeholders (two) - duration and puzzle ID.
+        const String PERMANENT_BLACKLISTED_RESPONSE = "Your team has exceeded the number of allowed submissions for this puzzle.\n Please contact an instructor.";
+
+
+
+
 
         Dictionary<String, PuzzleInfo> puzzles;
         Dictionary<String, String> properties;
         List<String> puzzleIDs; // For diagnostic purposes. In order that they were read in from the file.
+        Random rand = new Random();
 
         // If present in the responses (after the ':') they are expanded into their corresponding long-form text.
-        String[,] responseAliases = {
+        readonly String[,] responseAliases = {
 {"_C", "Correct!"},
 {"_KG", "Keep going. You're on the right track."},
 {"_WT", "You're on the wrong track."},
 {"_RTIC", "Read the puzzle instructions carefully."}
                                   };
+
+
+
         public PuzzleOracle(SimpleSpreadsheetReader sr)
         {
             puzzles = new Dictionary<string, PuzzleInfo>();
@@ -139,7 +157,7 @@ namespace PuzzleOracleV0
                         String s = pr.pattern + (pr.response.Length == 0 ? "" : ":" + compressAliases(pr.response));
                         if (encrypted)
                         {
-                            s = "[" + permute(s, true) + "]"; // true == encrypt
+                            s = "[" + endecrypt(id, s, true) + "]"; // true == encrypt
                         }
                         appendCell(tw, s);
                     }
@@ -206,15 +224,68 @@ namespace PuzzleOracleV0
         /// <returns></returns>
         public PuzzleResponse checkSolution(string puzzleId, string solution)
         {
-            // TODO: Normalize solution...
-            // Actually lookup the puzzle...
+            // Lookup puzzle...
             solution = normalizeSolution(solution);
             PuzzleInfo pi = puzzles[puzzleId];
-            PuzzleResponse pr = pi.matchResponse(solution);
+            PuzzleResponse pr = null;
+
+            // Check blacklist state (<0 means we're ok)
+            int delay = pi.blacklister.submitDelay;
+
+            // Have we solved this before?
+            Boolean alreadySolved = pi.puzzleSolved;
+
+
+            // If we are not already solved, and we are blacklisted, we return a special "try later" message.
+            if (!alreadySolved && delay > 0)
+            {
+                String sResponse;
+
+                // Blacklisted! 
+                Boolean permanentlyBlacklisted = delay == Blacklister.BLACKLIST_FOREVER_TIME;
+                if (permanentlyBlacklisted)
+                {
+                    sResponse = PERMANENT_BLACKLISTED_RESPONSE;
+                }
+                else
+                {
+                    String sDelay = delay + " seconds";
+                    if (delay > 60)
+                    {
+                        int minutes = delay / 60;
+                        int seconds = delay % 60;
+                        sDelay = minutes + " minute" + ((minutes == 1) ? "" : "s");
+                        if (seconds > 0)
+                        {
+                            sDelay += " and " + seconds + " seconds";
+                        }
+                    }
+                    sResponse = String.Format(BLACKLISTED_RESPONSE, sDelay, pi.puzzleId);
+                }
+                pr = new PuzzleResponse(solution, PuzzleResponse.ResponseType.AskLater, sResponse);
+                return pr; // ***************** EARLY RETURN *******************
+            }
+
+            pr = pi.matchResponse(solution);
             if (pr == null)
             {
-                pr = new PuzzleResponse(solution, PuzzleResponse.ResponseType.Incorrect, "NOPE!");
+                pr = new PuzzleResponse(solution, PuzzleResponse.ResponseType.NotFound, GENERIC_INCORRECT_RESPONSE);
             }
+
+            pi.blacklister.registerSubmission();
+
+            // If already solved, but solution is not correct, we put a special message.
+            if (!alreadySolved)
+            {
+                pi.puzzleSolved = (pr.type == PuzzleResponse.ResponseType.Correct);
+
+            }
+            else if (pr.type != PuzzleResponse.ResponseType.Correct)
+            {
+                // Puzzle has been solved before but there is a new, incorrect submission. We give a helpful message to the user.
+                pr = new PuzzleResponse(solution, pr.type, INCORRECT_BUT_PUZZLE_ANSWERED_BEFORE);
+            }
+
             return pr;
         }
 
@@ -228,7 +299,7 @@ namespace PuzzleOracleV0
         /// <summary>
         /// Upper-cases and strips extraneous characters from the user solution.
         /// </summary>
-        private string normalizeSolution(string solution)
+        public static string normalizeSolution(string solution)
         {
             String s = Regex.Replace(solution, NORMALIZAITION_STRIP_CHARS, "");
             s = s.ToUpperInvariant();
@@ -260,17 +331,17 @@ namespace PuzzleOracleV0
             int numCols = sr.getNumCols(sheet);
             if (numRows < HEADER_ROWS || numCols < MIN_COLS)
             {
-                Trace.WriteLine("spread sheet is too small! Abandoning.");
-                return;
+                ErrorReport.logError("Puzzle data spreadsheet is too small!");
+                throw new ArgumentException();
             }
             String[] propertyRow = sr.getRowCells(0, 0, numCols - 1, sheet);
             String[] header = sr.getRowCells(1, 0, numCols - 1, sheet);
 
             // We expect the first property cell to be POD (all caps)
-            if (!stripEndBlanks(propertyRow[0]).Equals(FILE_SIGNATURE))
+            if (!Utils.stripEndBlanks(propertyRow[0]).Equals(FILE_SIGNATURE))
             {
-                Trace.WriteLine("Spread sheet missing signature. Abandoning.");
-                return;
+                ErrorReport.logError("Puzzle data spreadsheet has an invalid/missing signature.");
+                throw new ArgumentException();
             }
 
             // Read rest of properties
@@ -281,13 +352,14 @@ namespace PuzzleOracleV0
             {
                 encrypted = true;
             }
+            this.sourceIsEncrypted = encrypted;
 
             // We expect the first header cell to be "id"
-            String headerId = stripEndBlanks(header[0]);
+            String headerId = Utils.stripEndBlanks(header[0]);
             if (!headerId.Equals(SPREADSHEET_LABEL_ID, StringComparison.CurrentCultureIgnoreCase))
             {
-                Trace.WriteLine("spread sheet 1st cell is not 'ID'. Abandoning.");
-                return;
+                ErrorReport.logError("Puzzle data spreadsheet does not have the ID field.");
+                throw new ArgumentException();
             }
             int startRow = HEADER_ROWS; // First row of puzzle data
             int startCol = 0; // First col of puzzle data 
@@ -296,7 +368,7 @@ namespace PuzzleOracleV0
             {
                 String[] sRow = sr.getRowCells(i, startCol, numCols - 1, sheet);
                 const String REGEX_ID = @"^[0-9][0-9][0-9]$"; // For now, IDs must be 3-digit numbers.
-                String id = stripBlanks(sRow[0]);
+                String id = Utils.stripBlanks(sRow[0]);
                 if (!Regex.IsMatch(id, REGEX_ID))
                 {
                     Trace.WriteLine(String.Format("Skipping row {0}: invalid ID", i));
@@ -306,13 +378,13 @@ namespace PuzzleOracleV0
                 // We got the ID, if needed decrypt remaining fields after Name
                 if (encrypted)
                 {
-                    decryptCells(sRow, 2, numCols - 1); // 2 == skip Id and Name. False == descrypt
+                    decryptCells(id, sRow, 2, numCols - 1); // 2 == skip Id and Name. False == descrypt
                 }
 
                 //  Now let's get the remaining columns. First,  get the first two: Name and Answer.
 
-                String name = stripEndBlanks(sRow[1]);
-                String answer = stripEndBlanks(sRow[2]);
+                String name = Utils.stripEndBlanks(sRow[1]);
+                String answer = Utils.stripEndBlanks(sRow[2]);
                 // Neither should be blank.
                 if (name.Equals("") || answer.Equals(""))
                 {
@@ -332,7 +404,7 @@ namespace PuzzleOracleV0
                 // Add hints, if any...
                 for (int j = 3; j < sRow.Length; j++)
                 {
-                    String field = stripBlanks(sRow[j]);
+                    String field = Utils.stripEndBlanks(sRow[j]);
                     if (field.Length > 0)
                     {
                         PuzzleResponse pr = buildPuzzleResponse(field, PuzzleResponse.ResponseType.Incorrect);
@@ -368,7 +440,7 @@ namespace PuzzleOracleV0
         /// <param name="sRow"></param>
         /// <param name="fromCol"></param>
         /// <param name="toCol"></param>
-        private void decryptCells(string[] sRow, int fromCol, int toCol)
+        private void decryptCells(String id, string[] sRow, int fromCol, int toCol)
         {
             for (int i = fromCol; i <= toCol && i < sRow.Length; i++)
             {
@@ -379,11 +451,65 @@ namespace PuzzleOracleV0
                     Trace.WriteLine(String.Format("Ignoring attempt to decrypt unencrypted cell {0}", s));
                     continue;
                 }
-                String t = permute(s.Substring(1, s.Length - 2), false); // false == derypt
+                String t = endecrypt(id, s.Substring(1, s.Length - 2), false); // false == derypt
                 sRow[i] = t;
             }
         }
 
+        // Encrypts/decrypts given text using the oracle password, customized by the puzzle ID.
+        private string endecrypt(string id, string text, bool encrypt)
+        {
+            if (encrypt) {
+                  // Add random chars to randomize text length.
+                  text = addRandomChars(text);
+            }
+            String eText = CryptoHelper.simpleEncryptDecrypt(ORACLE_PASSWORD, id, ORACLE_ENCRYPT_CHARS, text, encrypt);
+            if (!encrypt)
+            {
+                // Remove previously added random chars to randomize text length.
+                eText = removeRandomChars(eText);
+            }
+            return eText;
+        }
+
+        /// <summary>
+        /// Add random chars to the beginning of the string - the first char is a digit (can be 0) that indicates how many
+        /// characters follow.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        private string addRandomChars(string text)
+        {
+            //ORACLE_ENCRYPT_CHARS
+            int n = rand.Next(10);
+            String prefix = "" + n; // n could be 0.
+            for (int i = 0; i < n; i++)
+            {
+                prefix += ORACLE_ENCRYPT_CHARS[rand.Next(ORACLE_ENCRYPT_CHARS.Length)];
+            }
+            return prefix + text;
+        }
+
+
+        /// <summary>
+        /// We expect the first char to be a digit. We remove that many following chars. 
+        /// Various exceptions thrown if this is not the case.
+        /// </summary>
+        /// <param name="eText"></param>
+        /// <returns></returns>
+        private string removeRandomChars(string eText)
+        {
+            int n = eText[0] - '0'; // n could be 0, in which no random chars follow.
+            if (n<0 || n>9) {
+                throw new ArgumentException("Expecting first char to be a digit!");
+            }
+            return eText.Substring(n + 1); // better be enough chars.
+        }
+        
+
+        /*
+         * OBSOLETE
+         * 
         private string permute(string s, Boolean encrypt)
         {
             String originalChars = ":,.-_;!|()[] 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"; // Add  :,.-_;!0123456789 and space
@@ -410,7 +536,7 @@ namespace PuzzleOracleV0
 
             return t;
         }
-
+        */
         /// <summary>
         /// Parse and populate the properties. The format of string is name[:value]. If value is not
         /// present than the empty string (not null) is inserted. Duplicates are ignored (though they
@@ -429,9 +555,9 @@ namespace PuzzleOracleV0
                 {
                     propName = s.Substring(0, colonIndex);
                     propValue = s.Substring(colonIndex + 1);
-                    propValue = stripEndBlanks(propValue);
+                    propValue = Utils.stripEndBlanks(propValue);
                 }
-                propName = stripEndBlanks(propName);
+                propName = Utils.stripEndBlanks(propName);
                 propName = propName.ToLowerInvariant();
                 if (!Regex.IsMatch(propName, @"^[a-z_][0-9a-z_]*$"))
                 {
@@ -477,8 +603,8 @@ namespace PuzzleOracleV0
             {
                 pattern = s;
             }
-            pattern = stripEndBlanks(pattern);
-            response = stripEndBlanks(response);
+            pattern = Utils.stripEndBlanks(pattern);
+            response = Utils.stripEndBlanks(response);
 
             // Verify that the pattern is a valid Regex pattern!
             if (pattern.Length == 0)
@@ -537,14 +663,8 @@ namespace PuzzleOracleV0
             return response;
         }
 
-        private string stripEndBlanks(string s)
-        {
-            return Regex.Replace(Regex.Replace(s, @"^\s+", ""), @"\s+$", "");
-        }
 
-        private string stripBlanks(string s)
-        {
-            return Regex.Replace(s, @"\s+", "");
-        }
+        private bool sourceIsEncrypted=false;
+        public bool isSourceEncrypted { get { return sourceIsEncrypted; } }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace PuzzleOracleV0
 {
@@ -14,9 +15,18 @@ namespace PuzzleOracleV0
         [STAThread]
         static void Main()
         {
+            //Debug.Fail("Break into debugger!");
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            Form1 f = new Form1();
+            try
+            {
+                Application.Run(f);
+            }
+            catch (ApplicationException e)
+            {
+                f.handleFatalError(e);
+            }
         }
     }
 }

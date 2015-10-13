@@ -28,198 +28,310 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.textBox_Answer = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.richTextBox_Response = new System.Windows.Forms.RichTextBox();
-            this.label_Name = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
-            this.label_PuzzleName = new System.Windows.Forms.Label();
-            this.panel_Number = new System.Windows.Forms.Panel();
-            this.label3 = new System.Windows.Forms.Label();
-            this.textBox_PuzzleId = new System.Windows.Forms.TextBox();
-            this.panel_Answer = new System.Windows.Forms.Panel();
-            this.panel_Name = new System.Windows.Forms.Panel();
-            this.panel_Response = new System.Windows.Forms.Panel();
-            this.label1 = new System.Windows.Forms.Label();
-            this.panel_Number.SuspendLayout();
-            this.panel_Answer.SuspendLayout();
-            this.panel_Name.SuspendLayout();
-            this.panel_Response.SuspendLayout();
+            this.answerTextBox = new System.Windows.Forms.TextBox();
+            this.answerLabel = new System.Windows.Forms.Label();
+            this.responseRichTextBox = new System.Windows.Forms.RichTextBox();
+            this.nameLabel = new System.Windows.Forms.Label();
+            this.oracleButton = new System.Windows.Forms.Button();
+            this.nameLabel2 = new System.Windows.Forms.Label();
+            this.idPanel = new System.Windows.Forms.Panel();
+            this.idLabel = new System.Windows.Forms.Label();
+            this.idTextBox = new System.Windows.Forms.TextBox();
+            this.answerPanel = new System.Windows.Forms.Panel();
+            this.namePanel = new System.Windows.Forms.Panel();
+            this.responseLabel = new System.Windows.Forms.Label();
+            this.titleLabel = new System.Windows.Forms.Label();
+            this.responsePanel = new System.Windows.Forms.Panel();
+            this.codePanel = new System.Windows.Forms.Panel();
+            this.codeCancelButton = new System.Windows.Forms.Button();
+            this.codeLabel = new System.Windows.Forms.Label();
+            this.codeTextBox = new System.Windows.Forms.TextBox();
+            this.resetButton = new System.Windows.Forms.Button();
+            this.idPanel.SuspendLayout();
+            this.answerPanel.SuspendLayout();
+            this.namePanel.SuspendLayout();
+            this.responsePanel.SuspendLayout();
+            this.codePanel.SuspendLayout();
             this.SuspendLayout();
             // 
-            // textBox_Answer
+            // answerTextBox
             // 
-            this.textBox_Answer.Font = new System.Drawing.Font("Lucida Console", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox_Answer.Location = new System.Drawing.Point(14, 42);
-            this.textBox_Answer.Name = "textBox_Answer";
-            this.textBox_Answer.Size = new System.Drawing.Size(406, 24);
-            this.textBox_Answer.TabIndex = 2;
-            this.textBox_Answer.TextChanged += new System.EventHandler(this.textBox_Answer_TextChanged);
+            this.answerTextBox.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.answerTextBox.Font = new System.Drawing.Font("Lucida Console", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.answerTextBox.Location = new System.Drawing.Point(12, 41);
+            this.answerTextBox.Name = "answerTextBox";
+            this.answerTextBox.Size = new System.Drawing.Size(406, 30);
+            this.answerTextBox.TabIndex = 2;
+            this.answerTextBox.TextChanged += new System.EventHandler(this.textBox_Answer_TextChanged);
             // 
-            // label4
+            // answerLabel
             // 
-            this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
-            this.label4.Location = new System.Drawing.Point(165, 19);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(104, 20);
-            this.label4.TabIndex = 5;
-            this.label4.Text = "Your Answer";
+            this.answerLabel.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.answerLabel.AutoSize = true;
+            this.answerLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.answerLabel.Location = new System.Drawing.Point(148, 9);
+            this.answerLabel.Name = "answerLabel";
+            this.answerLabel.Size = new System.Drawing.Size(150, 29);
+            this.answerLabel.TabIndex = 5;
+            this.answerLabel.Text = "Your Answer";
             // 
-            // richTextBox_Response
+            // responseRichTextBox
             // 
-            this.richTextBox_Response.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.richTextBox_Response.Font = new System.Drawing.Font("Cooper Black", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.richTextBox_Response.Location = new System.Drawing.Point(17, 43);
-            this.richTextBox_Response.Name = "richTextBox_Response";
-            this.richTextBox_Response.ReadOnly = true;
-            this.richTextBox_Response.Size = new System.Drawing.Size(422, 310);
-            this.richTextBox_Response.TabIndex = 6;
-            this.richTextBox_Response.TabStop = false;
-            this.richTextBox_Response.Text = "";
+            this.responseRichTextBox.BackColor = System.Drawing.Color.LightGray;
+            this.responseRichTextBox.Font = new System.Drawing.Font("Cooper Black", 16F);
+            this.responseRichTextBox.Location = new System.Drawing.Point(28, 44);
+            this.responseRichTextBox.Name = "responseRichTextBox";
+            this.responseRichTextBox.ReadOnly = true;
+            this.responseRichTextBox.Size = new System.Drawing.Size(689, 207);
+            this.responseRichTextBox.TabIndex = 6;
+            this.responseRichTextBox.TabStop = false;
+            this.responseRichTextBox.Text = "Sample oracle text";
             // 
-            // label_Name
+            // nameLabel
             // 
-            this.label_Name.AutoSize = true;
-            this.label_Name.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
-            this.label_Name.Location = new System.Drawing.Point(70, 15);
-            this.label_Name.Name = "label_Name";
-            this.label_Name.Size = new System.Drawing.Size(109, 20);
-            this.label_Name.TabIndex = 7;
-            this.label_Name.Text = "Puzzle Name";
+            this.nameLabel.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.nameLabel.AutoSize = true;
+            this.nameLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.nameLabel.Location = new System.Drawing.Point(150, 17);
+            this.nameLabel.Name = "nameLabel";
+            this.nameLabel.Size = new System.Drawing.Size(155, 29);
+            this.nameLabel.TabIndex = 7;
+            this.nameLabel.Text = "Puzzle Name";
             // 
-            // button1
+            // oracleButton
             // 
-            this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
-            this.button1.Location = new System.Drawing.Point(148, 297);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(162, 30);
-            this.button1.TabIndex = 8;
-            this.button1.Text = "Ask the oracle";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Visible = false;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.oracleButton.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.oracleButton.BackColor = System.Drawing.SystemColors.Control;
+            this.oracleButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.oracleButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.oracleButton.Location = new System.Drawing.Point(389, 349);
+            this.oracleButton.Name = "oracleButton";
+            this.oracleButton.Size = new System.Drawing.Size(226, 38);
+            this.oracleButton.TabIndex = 8;
+            this.oracleButton.Text = "Ask the oracle";
+            this.oracleButton.UseVisualStyleBackColor = false;
+            this.oracleButton.Click += new System.EventHandler(this.button1_Click);
             // 
-            // label_PuzzleName
+            // nameLabel2
             // 
-            this.label_PuzzleName.AutoSize = true;
-            this.label_PuzzleName.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label_PuzzleName.Location = new System.Drawing.Point(70, 44);
-            this.label_PuzzleName.Name = "label_PuzzleName";
-            this.label_PuzzleName.Size = new System.Drawing.Size(105, 20);
-            this.label_PuzzleName.TabIndex = 9;
-            this.label_PuzzleName.Text = "----------------";
-            this.label_PuzzleName.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.nameLabel2.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.nameLabel2.AutoSize = true;
+            this.nameLabel2.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.nameLabel2.Location = new System.Drawing.Point(24, 46);
+            this.nameLabel2.Name = "nameLabel2";
+            this.nameLabel2.Size = new System.Drawing.Size(384, 32);
+            this.nameLabel2.TabIndex = 9;
+            this.nameLabel2.Text = "-----------------------------------------";
+            this.nameLabel2.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
-            // panel_Number
+            // idPanel
             // 
-            this.panel_Number.Controls.Add(this.label3);
-            this.panel_Number.Controls.Add(this.textBox_PuzzleId);
-            this.panel_Number.Location = new System.Drawing.Point(113, 11);
-            this.panel_Number.Name = "panel_Number";
-            this.panel_Number.Size = new System.Drawing.Size(232, 79);
-            this.panel_Number.TabIndex = 10;
+            this.idPanel.BackColor = System.Drawing.Color.Transparent;
+            this.idPanel.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.idPanel.Controls.Add(this.idLabel);
+            this.idPanel.Controls.Add(this.idTextBox);
+            this.idPanel.Location = new System.Drawing.Point(386, 73);
+            this.idPanel.Name = "idPanel";
+            this.idPanel.Size = new System.Drawing.Size(232, 79);
+            this.idPanel.TabIndex = 10;
             // 
-            // label3
+            // idLabel
             // 
-            this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
-            this.label3.Location = new System.Drawing.Point(54, 18);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(124, 20);
-            this.label3.TabIndex = 6;
-            this.label3.Text = "Puzzle Number";
+            this.idLabel.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.idLabel.AutoSize = true;
+            this.idLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.idLabel.Location = new System.Drawing.Point(27, 8);
+            this.idLabel.Name = "idLabel";
+            this.idLabel.Size = new System.Drawing.Size(177, 29);
+            this.idLabel.TabIndex = 6;
+            this.idLabel.Text = "Puzzle Number";
             // 
-            // textBox_PuzzleId
+            // idTextBox
             // 
-            this.textBox_PuzzleId.Font = new System.Drawing.Font("Lucida Console", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox_PuzzleId.Location = new System.Drawing.Point(92, 41);
-            this.textBox_PuzzleId.Name = "textBox_PuzzleId";
-            this.textBox_PuzzleId.Size = new System.Drawing.Size(49, 27);
-            this.textBox_PuzzleId.TabIndex = 5;
-            this.textBox_PuzzleId.TextChanged += new System.EventHandler(this.textBox_PuzzleId_TextChanged);
+            this.idTextBox.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.idTextBox.Font = new System.Drawing.Font("Lucida Console", 16.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.idTextBox.Location = new System.Drawing.Point(88, 41);
+            this.idTextBox.Name = "idTextBox";
+            this.idTextBox.Size = new System.Drawing.Size(62, 34);
+            this.idTextBox.TabIndex = 5;
+            this.idTextBox.Text = "888";
+            this.idTextBox.TextChanged += new System.EventHandler(this.textBox_PuzzleId_TextChanged);
             // 
-            // panel_Answer
+            // answerPanel
             // 
-            this.panel_Answer.Controls.Add(this.textBox_Answer);
-            this.panel_Answer.Controls.Add(this.label4);
-            this.panel_Answer.Location = new System.Drawing.Point(12, 212);
-            this.panel_Answer.Name = "panel_Answer";
-            this.panel_Answer.Size = new System.Drawing.Size(435, 79);
-            this.panel_Answer.TabIndex = 11;
-            this.panel_Answer.Visible = false;
+            this.answerPanel.BackColor = System.Drawing.Color.Transparent;
+            this.answerPanel.Controls.Add(this.answerTextBox);
+            this.answerPanel.Controls.Add(this.answerLabel);
+            this.answerPanel.Location = new System.Drawing.Point(285, 260);
+            this.answerPanel.Name = "answerPanel";
+            this.answerPanel.Size = new System.Drawing.Size(435, 79);
+            this.answerPanel.TabIndex = 11;
+            this.answerPanel.Visible = false;
             // 
-            // panel_Name
+            // namePanel
             // 
-            this.panel_Name.Controls.Add(this.label_PuzzleName);
-            this.panel_Name.Controls.Add(this.label_Name);
-            this.panel_Name.Location = new System.Drawing.Point(105, 117);
-            this.panel_Name.Name = "panel_Name";
-            this.panel_Name.Size = new System.Drawing.Size(248, 78);
-            this.panel_Name.TabIndex = 12;
-            this.panel_Name.Visible = false;
+            this.namePanel.BackColor = System.Drawing.Color.Transparent;
+            this.namePanel.Controls.Add(this.nameLabel2);
+            this.namePanel.Controls.Add(this.nameLabel);
+            this.namePanel.Location = new System.Drawing.Point(285, 162);
+            this.namePanel.Name = "namePanel";
+            this.namePanel.Size = new System.Drawing.Size(435, 88);
+            this.namePanel.TabIndex = 12;
+            this.namePanel.Visible = false;
             // 
-            // panel_Response
+            // responseLabel
             // 
-            this.panel_Response.Controls.Add(this.label1);
-            this.panel_Response.Controls.Add(this.richTextBox_Response);
-            this.panel_Response.Location = new System.Drawing.Point(-1, 298);
-            this.panel_Response.Name = "panel_Response";
-            this.panel_Response.Size = new System.Drawing.Size(457, 367);
-            this.panel_Response.TabIndex = 13;
-            this.panel_Response.Visible = false;
+            this.responseLabel.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.responseLabel.AutoSize = true;
+            this.responseLabel.BackColor = System.Drawing.Color.Transparent;
+            this.responseLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.responseLabel.Location = new System.Drawing.Point(248, 8);
+            this.responseLabel.Name = "responseLabel";
+            this.responseLabel.Size = new System.Drawing.Size(254, 29);
+            this.responseLabel.TabIndex = 7;
+            this.responseLabel.Text = "The oracle responds...";
             // 
-            // label1
+            // titleLabel
             // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
-            this.label1.Location = new System.Drawing.Point(141, 13);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(174, 20);
-            this.label1.TabIndex = 7;
-            this.label1.Text = "The oracle responds...";
+            this.titleLabel.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.titleLabel.AutoSize = true;
+            this.titleLabel.BackColor = System.Drawing.Color.Transparent;
+            this.titleLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.titleLabel.Location = new System.Drawing.Point(355, 31);
+            this.titleLabel.Name = "titleLabel";
+            this.titleLabel.Size = new System.Drawing.Size(287, 32);
+            this.titleLabel.TabIndex = 14;
+            this.titleLabel.Text = "Team: UNASSIGNED";
+            // 
+            // responsePanel
+            // 
+            this.responsePanel.BackColor = System.Drawing.Color.Transparent;
+            this.responsePanel.Controls.Add(this.responseRichTextBox);
+            this.responsePanel.Controls.Add(this.responseLabel);
+            this.responsePanel.Location = new System.Drawing.Point(129, 397);
+            this.responsePanel.Name = "responsePanel";
+            this.responsePanel.Size = new System.Drawing.Size(746, 254);
+            this.responsePanel.TabIndex = 15;
+            // 
+            // codePanel
+            // 
+            this.codePanel.BackColor = System.Drawing.Color.Transparent;
+            this.codePanel.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.codePanel.Controls.Add(this.codeCancelButton);
+            this.codePanel.Controls.Add(this.codeLabel);
+            this.codePanel.Controls.Add(this.codeTextBox);
+            this.codePanel.Location = new System.Drawing.Point(643, 73);
+            this.codePanel.Name = "codePanel";
+            this.codePanel.Size = new System.Drawing.Size(232, 140);
+            this.codePanel.TabIndex = 11;
+            // 
+            // codeCancelButton
+            // 
+            this.codeCancelButton.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.codeCancelButton.BackColor = System.Drawing.SystemColors.Control;
+            this.codeCancelButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.codeCancelButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.codeCancelButton.Location = new System.Drawing.Point(17, 84);
+            this.codeCancelButton.Name = "codeCancelButton";
+            this.codeCancelButton.Size = new System.Drawing.Size(197, 38);
+            this.codeCancelButton.TabIndex = 16;
+            this.codeCancelButton.Text = "Cancel";
+            this.codeCancelButton.UseVisualStyleBackColor = false;
+            this.codeCancelButton.Click += new System.EventHandler(this.codeCancelButton_Click);
+            // 
+            // codeLabel
+            // 
+            this.codeLabel.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.codeLabel.AutoSize = true;
+            this.codeLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.codeLabel.Location = new System.Drawing.Point(58, 8);
+            this.codeLabel.Name = "codeLabel";
+            this.codeLabel.Size = new System.Drawing.Size(127, 29);
+            this.codeLabel.TabIndex = 6;
+            this.codeLabel.Text = "Start Code";
+            // 
+            // codeTextBox
+            // 
+            this.codeTextBox.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.codeTextBox.Font = new System.Drawing.Font("Lucida Console", 16.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.codeTextBox.Location = new System.Drawing.Point(71, 44);
+            this.codeTextBox.Name = "codeTextBox";
+            this.codeTextBox.Size = new System.Drawing.Size(104, 34);
+            this.codeTextBox.TabIndex = 5;
+            this.codeTextBox.Text = "ABCDE";
+            this.codeTextBox.UseSystemPasswordChar = true;
+            this.codeTextBox.TextChanged += new System.EventHandler(this.codeTextBox_TextChanged);
+            // 
+            // resetButton
+            // 
+            this.resetButton.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.resetButton.BackColor = System.Drawing.SystemColors.Control;
+            this.resetButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.resetButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.resetButton.Location = new System.Drawing.Point(348, 657);
+            this.resetButton.Name = "resetButton";
+            this.resetButton.Size = new System.Drawing.Size(283, 38);
+            this.resetButton.TabIndex = 16;
+            this.resetButton.Text = "Try another puzzle";
+            this.resetButton.UseVisualStyleBackColor = false;
+            this.resetButton.Click += new System.EventHandler(this.resetButton_Click);
             // 
             // Form1
             // 
-            this.AcceptButton = this.button1;
+            this.AcceptButton = this.oracleButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(459, 663);
-            this.Controls.Add(this.panel_Response);
-            this.Controls.Add(this.panel_Name);
-            this.Controls.Add(this.panel_Answer);
-            this.Controls.Add(this.panel_Number);
-            this.Controls.Add(this.button1);
+            this.BackgroundImage = global::PuzzleOracleV0.Properties.Resources.c_curve2;
+            this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.ClientSize = new System.Drawing.Size(998, 704);
+            this.Controls.Add(this.resetButton);
+            this.Controls.Add(this.codePanel);
+            this.Controls.Add(this.oracleButton);
+            this.Controls.Add(this.titleLabel);
+            this.Controls.Add(this.namePanel);
+            this.Controls.Add(this.answerPanel);
+            this.Controls.Add(this.idPanel);
+            this.Controls.Add(this.responsePanel);
+            this.DoubleBuffered = true;
             this.Name = "Form1";
             this.Text = "Puzzle Oracle";
             this.Load += new System.EventHandler(this.Form1_Load);
-            this.panel_Number.ResumeLayout(false);
-            this.panel_Number.PerformLayout();
-            this.panel_Answer.ResumeLayout(false);
-            this.panel_Answer.PerformLayout();
-            this.panel_Name.ResumeLayout(false);
-            this.panel_Name.PerformLayout();
-            this.panel_Response.ResumeLayout(false);
-            this.panel_Response.PerformLayout();
+            this.idPanel.ResumeLayout(false);
+            this.idPanel.PerformLayout();
+            this.answerPanel.ResumeLayout(false);
+            this.answerPanel.PerformLayout();
+            this.namePanel.ResumeLayout(false);
+            this.namePanel.PerformLayout();
+            this.responsePanel.ResumeLayout(false);
+            this.responsePanel.PerformLayout();
+            this.codePanel.ResumeLayout(false);
+            this.codePanel.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
 
-        private System.Windows.Forms.TextBox textBox_Answer;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.RichTextBox richTextBox_Response;
-        private System.Windows.Forms.Label label_Name;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Label label_PuzzleName;
-        private System.Windows.Forms.Panel panel_Number;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox textBox_PuzzleId;
-        private System.Windows.Forms.Panel panel_Answer;
-        private System.Windows.Forms.Panel panel_Name;
-        private System.Windows.Forms.Panel panel_Response;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox answerTextBox;
+        private System.Windows.Forms.Label answerLabel;
+        private System.Windows.Forms.RichTextBox responseRichTextBox;
+        private System.Windows.Forms.Label nameLabel;
+        private System.Windows.Forms.Button oracleButton;
+        private System.Windows.Forms.Label nameLabel2;
+        private System.Windows.Forms.Panel idPanel;
+        private System.Windows.Forms.Label idLabel;
+        private System.Windows.Forms.TextBox idTextBox;
+        private System.Windows.Forms.Panel answerPanel;
+        private System.Windows.Forms.Panel namePanel;
+        private System.Windows.Forms.Label responseLabel;
+        private System.Windows.Forms.Label titleLabel;
+        private System.Windows.Forms.Panel responsePanel;
+        private System.Windows.Forms.Panel codePanel;
+        private System.Windows.Forms.Label codeLabel;
+        private System.Windows.Forms.TextBox codeTextBox;
+        private System.Windows.Forms.Button codeCancelButton;
+        private System.Windows.Forms.Button resetButton;
     }
 }
 
