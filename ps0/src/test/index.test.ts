@@ -595,7 +595,6 @@ describe('Server REST API', function () {
                     .expect(200)
                     .end(function (err, res) {
                         if (err) {
-                            console.log("********** GOt error 1: " + JSON.stringify(err));
                             done(err);
                         }
                         else {
@@ -606,7 +605,6 @@ describe('Server REST API', function () {
                                 .expect('Content-Type', /json/)
                                 .end(function (err1, res) {
                                     if (err1) {
-                                        console.log("********** GOt error 2: " + JSON.stringify(err1));
                                         done(err1);
                                     }
                                     else {
@@ -637,7 +635,6 @@ describe('Server REST API', function () {
                                                     .expect(200)
                                                     .end(function (err2, res) {
                                                         if (err2) {
-                                                            console.log("********** GOt error 3: " + JSON.stringify(err2));
                                                             done(err2);
                                                         }
                                                         else {
