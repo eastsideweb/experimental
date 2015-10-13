@@ -214,6 +214,7 @@ describe('Server REST API', function () {
                 "puzzles": {
                 },
                 "puzzlestates": {
+                    "activeEventId": "events1",
                     "puzzleIdInvalid": "puzzles5",
                     "puzzleIdValid": "puzzles1",
                     "teamIdValid": "teams1",
@@ -567,7 +568,7 @@ describe('Server REST API', function () {
 
             // Tests for updating puzzleStates
             it('Tests for updating puzzleStates - invalid puzzleId', function (done) {
-                request.put("/teams/" + testAccount.series.puzzlestates.teamIdValid + "/puzzleStates/" +
+                request.put("/events/" + testAccount.series.puzzlestates.activeEventId +  "/teams/" + testAccount.series.puzzlestates.teamIdValid + "/puzzleStates/" +
                     testAccount.series.puzzlestates.puzzleIdInvalid)
                     .set('token', testAccount.sessionToken)
                     .send("true")
@@ -583,7 +584,7 @@ describe('Server REST API', function () {
 
             });
             it('Tests for updating puzzleStates - valid puzzleId', function (done) {
-                request.put("/teams/" + testAccount.series.puzzlestates.teamIdValid + "/puzzleStates/" +
+                request.put("/events/" + testAccount.series.puzzlestates.activeEventId + "/teams/" + testAccount.series.puzzlestates.teamIdValid + "/puzzleStates/" +
                     testAccount.series.puzzlestates.puzzleIdValid)
                     .set('token', testAccount.sessionToken)
                     .send({
@@ -594,16 +595,18 @@ describe('Server REST API', function () {
                     .expect(200)
                     .end(function (err, res) {
                         if (err) {
+                            console.log("********** GOt error 1: " + JSON.stringify(err));
                             done(err);
                         }
                         else {
                             // Verify that the solved field indeed got changed. 
-                            request.get('/event/' + testAccount.series.events.id + '/team/' + testAccount.series.puzzlestates.teamIdValid + "/puzzleStates/")
+                            request.get('/events/' + testAccount.series.events.id + '/teams/' + testAccount.series.puzzlestates.teamIdValid + "/puzzleStates/")
                                 .set('token', testAccount.sessionToken)
                                 .expect(200)
                                 .expect('Content-Type', /json/)
                                 .end(function (err1, res) {
                                     if (err1) {
+                                        console.log("********** GOt error 2: " + JSON.stringify(err1));
                                         done(err1);
                                     }
                                     else {
@@ -623,7 +626,7 @@ describe('Server REST API', function () {
                                             }
                                             else {
                                                 // Reset the puzzleState back to false.
-                                                request.put("/teams/" + testAccount.series.puzzlestates.teamIdValid + "/puzzleStates/" +
+                                                request.put("/events/" + testAccount.series.puzzlestates.activeEventId + "/teams/" + testAccount.series.puzzlestates.teamIdValid + "/puzzleStates/" +
                                                     testAccount.series.puzzlestates.puzzleIdValid)
                                                     .set('token', testAccount.sessionToken)
                                                     .send({
@@ -632,9 +635,10 @@ describe('Server REST API', function () {
                                                         "clientTimeStamp": testAccount.series.puzzlestates.clientTimeStamp
                                                     })
                                                     .expect(200)
-                                                    .end(function (err, res) {
-                                                        if (err) {
-                                                            done(err);
+                                                    .end(function (err2, res) {
+                                                        if (err2) {
+                                                            console.log("********** GOt error 3: " + JSON.stringify(err2));
+                                                            done(err2);
                                                         }
                                                         else {
                                                             done();

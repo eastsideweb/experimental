@@ -219,7 +219,7 @@ router.post('/:type', function (request, response, next) {
 // Handles the reqest for getting the puzzle states associated with a team for a given event
 // Request: GET containing the teamId and eventId
 // Response: list of all the puzzlestates records with the given team id in the event's puzzlestates database.
-router.get('/event/:eventId/team/:teamId/puzzleStates', function (request, response, next) {
+router.get('/events/:eventId/teams/:teamId/puzzleStates', function (request, response, next) {
     var token = request.header('token');
     var series = psdb.series(token);
     series.findTeamPuzzleStates(request.params.eventId, request.params.teamId, function (err: Error, list: any[]) {
@@ -236,12 +236,12 @@ router.get('/event/:eventId/team/:teamId/puzzleStates', function (request, respo
 // Handles the reqest for modifying puzzle states associated to a team
 // Request: PUT containing json puzzle state string
 // Response: status ok
-router.put('/teams/:teamId/puzzlestates/:puzzleId', function (request, response, next) {
+router.put('/events/:eventId/teams/:teamId/puzzlestates/:puzzleId', function (request, response, next) {
     var token = request.header('token');
     var series = psdb.series(token);
     var puzzlestate = request.body;
     //console.log("updatestate received " + JSON.stringify(request.body));
-    series.updatePuzzleState(request.params.teamId, request.params.puzzleId, puzzlestate, function (err: Error) {
+    series.updatePuzzleState(request.params.eventId, request.params.teamId, request.params.puzzleId, puzzlestate, function (err: Error) {
         if (err !== null) {
             next(err);
         }

@@ -783,30 +783,31 @@ class PuzzleSeries implements IPuzzleSeries {
         });
     }
 
-    // Update the state of the given puzzle for the given team
+    // Update the state of the given puzzle for the given team for the given event
     // Possible errors:
     //      "InvalidPuzzleId"       "One or more invalid puzzle ids"
     //      "InvalidTeamId"         "Invalid team id"
     //      "PuzzleNotInEvent"      "puzzle not assigned to the team"
+    //      "itemNotActive"         "either the event, the team or the puzzle is not active"
     //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
-    updatePuzzleState(teamID: string, puzzleID: string, puzzleState: any, callback: SimpleCallBack): void {
-        var self = this, pzStateId, puzzleStateCollectionName, eventId /* TODO: which eventId to use? the one and only active event? */;
+    updatePuzzleState(eventID: string, teamID: string, puzzleID: string, puzzleState: any, callback: SimpleCallBack): void {
+        var self = this, pzStateId, puzzleStateCollectionName;
 
-        //Figure out the eventId
-        // TODO: This is an overkill to get the eventId from the DB for each updatepuzzlestate - we should maintain it in memory atleast?
-        this.findObj(global.config.psdb.eventsCollectionName, { "status": "started", "active": true }, {}, function (err0: Error, eventList: any[]) {
+        this.findObj(global.config.psdb.eventsCollectionName, { "_id": eventID}, {}, function (err0: Error, eventList: any[]) {
             if (err0 !== null) {
                 callback(err0);
             }
             else {
                 // Confirm that only one event is active and is underway
                 if (eventList === null || eventList.length !== 1) {
-                    utils.log(" updatePuzzleState found zero or more than one events underway");
+                    utils.log(" updatePuzzleState found invalid eventID: " + eventID);
                     callback(utils.errors.inconsistentDB);
                 }
                 else {
-                    eventId = eventList[0]._id;
-                    if (eventList[0].teamIds.lastIndexOf(teamID) === -1) {
+                    if (!eventList[0].active || eventList[0].status !== "started") {
+                        callback(utils.errors.itemNotActive);
+                    }
+                    else if (eventList[0].teamIds.lastIndexOf(teamID) === -1) {
                         callback(utils.errors.invalidteamId);
                     }
                     else if (eventList[0].puzzleIds.lastIndexOf(puzzleID) === -1) {
@@ -826,40 +827,43 @@ class PuzzleSeries implements IPuzzleSeries {
                                 }
                                 else {
                                     pzStateId = PuzzleSeries.composePuzzleStateId(teamID, puzzleID);
-                                    puzzleStateCollectionName = global.config.psdb.puzzleStatesCollectionNamePrefix + eventId;
-                                    // We will update the DB only if the new value of solved is true, else we will ignore. No entry in the db is as good as solved=false.
+                                    puzzleStateCollectionName = global.config.psdb.puzzleStatesCollectionNamePrefix + eventID;
+                                    // We will add an entry in the annotations db for this update
+                                    var annotation = {
+                                        teamId: [teamID],
+                                        name: "PuzzleStateUpdate",
+                                        puzzleId: [puzzleID],
+                                        eventId: [eventID],
+                                        puzzleState: puzzleState
+                                    };
+                                    self.addSystemAnnotation(annotation, function (err2, obj2) { });
+
+                                    // We will update the DB only if the new value of solved is true, else we will ignore unless saveAllPuzzleStatePuzzles flag is set. 
+                                    // No entry in the db is as good as solved = false.
                                     if (!puzzleState.solved && !global.config.psdb.saveAllPuzzleStatePuzzles) {
                                         // We will ignore this update - 
                                         callback(null);
                                     }
-                                    // Use upsert:true option so it will create a document with this id if it is already not present
-                                    self.crudHandle.updateObj(puzzleStateCollectionName, { "_id": pzStateId }, { "_id": pzStateId, "teamId": teamID, "puzzleId": puzzleID, "solved": puzzleState.solved },
-                                        function (err1: Error, count: number) {
-                                            if (err1) {
-                                                // Something went wrong in the update!!
-                                                callback(err1);
-                                            }
-                                            else {
-                                                if (count < 1) {
+                                    else {
+                                        // Use upsert:true option so it will create a document with this id if it is already not present
+                                        self.crudHandle.updateObj(puzzleStateCollectionName, { "_id": pzStateId }, { "_id": pzStateId, "teamId": teamID, "puzzleId": puzzleID, "solved": puzzleState.solved },
+                                            function (err1: Error, count: number) {
+                                                if (err1) {
                                                     // Something went wrong in the update!!
-                                                    callback(utils.errors.inconsistentDB);
+                                                    callback(err1);
                                                 }
                                                 else {
-                                                    // Success!!
-                                                    // We will add an entry in the annotations db for this update
-                                                    self.addSystemAnnotation(
-                                                        {
-                                                            "name": "PuzzleStateUpdate",
-                                                            "description": '{"solved": ' + puzzleState.solved + ', "attemptedSolution": ' + puzzleState.attemptedSolution + ', "clientTimeStamp" : ' + puzzleState.clientTimeStamp,
-                                                            "teamId": [teamID],
-                                                            "puzzleId": [puzzleID]
-                                                        },
-                                                        function (err2, obj2) {
-                                                            callback(null);
-                                                        });
+                                                    if (count < 1) {
+                                                        // Something went wrong in the update!!
+                                                        callback(utils.errors.inconsistentDB);
+                                                    }
+                                                    else {
+                                                        // Success!!
+                                                        callback(null);
+                                                    }
                                                 }
-                                            }
-                                        }, { upsert: true });
+                                            }, { upsert: true });
+                                    }
                                 }
                             });
                     }

@@ -168,17 +168,18 @@ interface IPuzzleSeries {
     //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
     setEventStatus(eventId: string, eventStatus: EventStatus, callback: SimpleCallBack): void;
 
-    // Update the state of the given puzzle for the given team
+    // Update the state of the given puzzle for the given team for the given event
     // Possible errors:
     //      "InvalidPuzzleId"       "One or more invalid puzzle ids"
     //      "InvalidTeamId"         "Invalid team id"
     //      "PuzzleNotInEvent"      "puzzle not assigned to the team"
+    //      "itemNotActive"         "either the event, the team or the puzzle is not active"
     //      "UnauthorizedAccess"    "Access to this api not supported for the RoleType"
     // puzzleState is a JSON object with the following fields:
     //      solved: boolean
     //      attemptedSolution: string
     //      clientTimeStamp: string
-    updatePuzzleState(teamID: string, puzzleID: string, puzzleState: any, callback: SimpleCallBack): void;
+    updatePuzzleState(eventId: string, teamID: string, puzzleID: string, puzzleState: any, callback: SimpleCallBack): void;
 
     // Get the state of all the puzzles for a given team and event
     // Possible errors:

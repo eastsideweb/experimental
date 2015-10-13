@@ -29,7 +29,7 @@ angular.module('teams').controller('LeaderboardController', ['$scope', '$statePa
 		                $scope.teams.forEach(function (item, index) {
 		                    if ($scope.activeEvent.teamIds.indexOf(item._id) !== -1) {
 		                        //The team is part of the event, get the puzzlestates
-		                        $http.get('/event/' + $scope.activeEvent._id + "/team/" + item._id + "/puzzleStates").success(function (response) {
+		                        $http.get('/events/' + $scope.activeEvent._id + "/teams/" + item._id + "/puzzleStates").success(function (response) {
 		                            $scope.teamStates.push({ "_id": item._id, "name": item.name, "puzzleStates": response });
 		                            if ($scope.teamStates.length === teamCount) {
 		                                $scope.teamScores = computeScores($scope.teamStates);

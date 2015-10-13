@@ -29,7 +29,7 @@ angular.module('teams').controller('PuzzleStateController', ['$scope', '$rootSco
                     }
                     else {
                         $scope.activeEventId = responseEvent[0]._id;
-                        $http.get('/event/' + $scope.activeEventId + '/team/' + $scope.teamId + '/puzzleStates').success(function (response) {
+                        $http.get('/events/' + $scope.activeEventId + '/teams/' + $scope.teamId + '/puzzleStates').success(function (response) {
                             $scope.puzzleStates = response;
                             $scope.puzzleState = {
                                 solved: false,
@@ -58,7 +58,7 @@ angular.module('teams').controller('PuzzleStateController', ['$scope', '$rootSco
             //    "solved" :$scope.puzzleState.solved,
             //    "attemptedSolution" + $scope.puzzleState.attemptedSolution + " " + time);
 			$scope.puzzleState.clientTimeStamp = time;
-			$http.put('teams/' + $scope.team._id + '/puzzleStates/' + $scope.puzzleId, $scope.puzzleState).success(function (response) {
+			$http.put('events/' + $scope.activeEventId + '/teams/' + $scope.team._id + '/puzzleStates/' + $scope.puzzleId, $scope.puzzleState).success(function (response) {
 			    $location.path('teams/' + $scope.teamId);
 			}).error(function (response) {
 			    $location.path('teams/' + $scope.teamId);
