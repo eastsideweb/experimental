@@ -40,6 +40,12 @@ namespace LogProcessorSample
             this.entries = entries;
         }
     }
+
+    /// <summary>
+    /// The log processor watches for new log files as they are moved to the "new" directory.
+    /// It opens each file, parses and decrypts the log entries, and calls the event handler supplied at construction
+    /// time with these parsed log entries.
+    /// </summary>
     class LogProcessor : IDisposable
     {
         // DO NOT MODIFY THESE TWO - they must match the Puzzle Oracle log generation parameters.
@@ -49,16 +55,18 @@ namespace LogProcessorSample
         private string logDirectory;
         FileSystemWatcher watcher;
         List<EventHandler<LogEventArgs>> ehList;
+        EventHandler<LogEventArgs> eh;
         bool active = false;
 
-        public LogProcessor(string logDirectory)
+        public LogProcessor(string logDirectory, EventHandler<LogEventArgs> eh)
         {
+            this.eh = eh;
             ehList = new List<EventHandler<LogEventArgs>>();
             // TODO: Complete member initialization
             this.logDirectory = logDirectory;
             watcher = new FileSystemWatcher();
             watcher.Path = logDirectory;
-            /* Watch for changes in LastAccess and LastWrite times, and
+            /* Watch for change s in LastAccess and LastWrite times, and
                the renaming of files or directories. */
             watcher.NotifyFilter = NotifyFilters.FileName; //| NotifyFilters.DirectoryName;
             // Only watch text files.
@@ -123,12 +131,12 @@ namespace LogProcessorSample
         {
 
             // early check for empty row...
-            if (row.IndexOf(',')==-1)
+            if (row.IndexOf(',') == -1)
             {
                 Trace.WriteLine("Ignoing line at row index " + rowIndex + " - no commas");
                 return null; // ************ EARLY RETURN *****************
             }
-            
+
             String[] fields = row.Split(',');
             LogEntry le = new LogEntry(rowIndex);
             if (fields.Length != 7)
@@ -189,12 +197,12 @@ namespace LogProcessorSample
             le.status = status;
             le.extraText = extraText;
             le.valid = true;
-            return le; 
+            return le;
         }
 
         private bool validateStatusField(string status)
         {
-            String[] validValues  = {
+            String[] validValues = {
                                         "CORRECT",
                                         "INCORRECT",
                                         "NOTFOUND",
@@ -202,7 +210,8 @@ namespace LogProcessorSample
                                     };
             foreach (var s in validValues)
             {
-                if (status.Equals(s)) {
+                if (status.Equals(s))
+                {
                     return true; // ********* EARLY RETURN ********
                 }
             }
@@ -219,24 +228,23 @@ namespace LogProcessorSample
             ehList.Add(eh);
         }
 
-        internal void start()
+        internal void startListening()
         {
             // Begin watching.
             watcher.EnableRaisingEvents = true;
             active = true;
         }
 
-        internal void stop()
+        internal void stopListening()
         {
             active = false;
             // Stop watching.
             watcher.EnableRaisingEvents = false;
-            //throw new NotImplementedException();
         }
 
         void IDisposable.Dispose()
         {
-            watcher.EnableRaisingEvents = false;
+            stopListening();
         }
 
         // Encrypts/decrypts given text using the oracle password, customized by the puzzle ID.

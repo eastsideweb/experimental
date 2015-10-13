@@ -8,6 +8,7 @@ using System.IO;
 
 namespace LogProcessorSample
 {
+
     class NewDriveNotifierEventArgs : EventArgs
     {
         public String driveName;
@@ -19,6 +20,10 @@ namespace LogProcessorSample
         }
     }
 
+    /// <summary>
+    /// The new drive notifier watches for removable storage (thumb drives) being inserted and reports these newly inserted thumb drives to the handler
+    /// passed in during construction.
+    /// </summary>
     class NewDriveNotifier : IDisposable
     {
         class NameVolumePair

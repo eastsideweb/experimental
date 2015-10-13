@@ -10,92 +10,41 @@ namespace LogProcessorSample
 {
     class Program
     {
-        static String basePath = "C:\\Users\\josephj\\Documents\\SCRATCH\\po-logs";
-        const String NEW_SUBDIR = "new";
-        const String PROCESSED_SUBDIR = "processed";
-        const String PROCESSED_WITH_ERRORS_SUBDIR = "processed-with-errors";
         static void Main(string[] args)
         {
-            BlockingWorkQueue bwq = new BlockingWorkQueue();
-            Console.CancelKeyPress += new ConsoleCancelEventHandler((o, ea) => { Console.WriteLine("CTRL-C: bailing."); ea.Cancel = true;  bwq.stopWaiting(); });
-            NewDriveNotifier ndn = new NewDriveNotifier((o, e) => { bwq.enque(o, e, (o1, ea1) => { Console.WriteLine("WORK ITEM -NEW DRIVE-" + ((NewDriveNotifierEventArgs)ea1).driveName); }); });
-            ndn.startListening();
-            bwq.enque(null, null, (o, ea) => { Console.WriteLine("WORK ITEM -A-"); });
-            bwq.enque(null, null, (o, ea) => { Console.WriteLine("WORK ITEM -B-"); });
-            bwq.enque(null, null, (o, ea) => { Console.WriteLine("WORK ITEM -C-"); });
-            bwq.process();
-            Console.WriteLine("Enter to quit...");
-            String s = Console.ReadLine();
-            /*String newLogDirectory = basePath + "\\" + NEW_SUBDIR;
-            using (LogProcessor lp = new LogProcessor(newLogDirectory)) {
-            lp.registerEventHandler((s,e) => myLogEventHandler(s,e));
-            lp.start();
-            Console.WriteLine("Enter something to quit.");
-            String input = Console.ReadLine();
-            lp.stop();
-            }*/
-        }
+            string baseWorkingDir = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+                + "\\PuzzleOracle\\consolated";
 
-        //delegate<>
-        static void myLogEventHandler(object sender, LogEventArgs e) {
-            Console.WriteLine("Processing entries from log file " + e.logPath);
-            Console.WriteLine("");
-            Boolean hadErrors = false;
-            foreach (var le in e.entries)
-            {
-                String s = String.Format("{0},{1},{2},{3},{4},{5},{6}",
-                    le.transactionId,
-                    le.timestamp,
-                    le.teamId,
-                    le.teamName,
-                    le.puzzleId,
-                    le.status,
-                    le.extraText
-                    );
-                String suffix = "(OK)";
-                if (!le.valid) {
-                    // TODO: Watch for invalid entries! Report these to the user.
-                    // Also, if there are any invalid entries, OR some other error 
-                    // attempting to submit the entry to the database,
-                    // make a note here and do NOT move the file to the "processed" folder (see below)
-                    // Instead move the file to the "processed-with-errors" folder.
-                    suffix = String.Format("(INVALID - {0})", le.parseError);
-                    hadErrors = true;
-                }
-                Console.WriteLine(le.rowIndex + ":" + s + suffix);
-            }
-            Console.WriteLine("End of entries from log file " + e.logPath);
+            // Initialie the blocking work queue - it runs all significant processing operations in sequence on the main thread.
+            BlockingWorkQueue workQueue = new BlockingWorkQueue();
+            //workQueue.enque(null, null, (o, ea) => { Console.WriteLine("TEST WORK ITEM -A-"); });
+            //workQueue.enque(null, null, (o, ea) => { Console.WriteLine("TEST WORK ITEM -B-"); });
 
-            //
-            // TODO: Actually process / commit the data.
-            // If ALL entries have been successfully committed to the database, one can
-            // move the file to the processed subdirectory, like so...
-            //
+            // Register the CTRL-C handler - this lets the user quit the program and potentially enter other commands.
+            // TODO: Currently the handler simply causes the work queue to exit after the latter processes current work items. Perhaps add some
+            // command processing and request confirmation of this behavior.
+            Console.CancelKeyPress += new ConsoleCancelEventHandler((o, ea) => { Console.WriteLine("CTRL-C: bailing."); ea.Cancel = true; workQueue.stopWaiting(); });
 
-            String processedDir = basePath + "\\" + (hadErrors ? PROCESSED_WITH_ERRORS_SUBDIR : PROCESSED_SUBDIR);
-            if (!Directory.Exists(processedDir))
-            {
-                Console.WriteLine("ERROR: Processed dir does not exist: " + processedDir);
-            }
-            else
+            // Create the file copier - responsible for copying files from thumb drives to a staging directory, verifying the file copy and then moving
+            // the source files into an arcive subdir on the thumb drive, and (finally) moving the newly copied files under the "new" directory.
+            FileCopier fileCopier = new FileCopier(baseWorkingDir);
+
+            // Create a new-drive notifier and hook it up to the file copier - so that the latter will get notified whenever there is a new removable drive
+            // plugged in.
+            //NewDriveNotifier ndn = new NewDriveNotifier((o, e) => { bwq.enque(o, e, (o1, ea1) => { Console.WriteLine("WORK ITEM -NEW DRIVE-" + ((NewDriveNotifierEventArgs)ea1).driveName); }); });
+            using (NewDriveNotifier driveNotifier = new NewDriveNotifier((o, e) => { workQueue.enque(o, e, fileCopier.newDriveHandler); }))
             {
 
-                String destPath = processedDir + "\\" + Path.GetFileName(e.logPath);
-                try
+                // Create a log consumer - this processes submission requests pulled from individual puzzle oracle log files.
+                LogConsumer logConsumer = new LogConsumer(baseWorkingDir);
+
+                // Create the log processor - that processes new log files as they show up in the "new" directory. Hook it up to the log consumer so that the latter
+                // processes the submissions requests.
+                using (LogProcessor lp = new LogProcessor(baseWorkingDir, (o, e) => { workQueue.enque(o, e, logConsumer.logEventHandler); }))
                 {
-                    File.Move(e.logPath, destPath);
-                    Console.WriteLine("Movded file to " + destPath);
-                }
-                catch (Exception ex)
-                {
-                    if (ex is IOException || ex is ArgumentException )
-                    {
-                        Console.WriteLine("ERROR: Exception while moving path. ex=" + ex.Message);
-                    }
-                    else
-                    {
-                        throw ex;
-                    }
+                    lp.startListening(); // start listening for new files in the "new directory"
+                    driveNotifier.startListening(); // start listening for new thumb drives
+                    workQueue.process();
                 }
             }
         }

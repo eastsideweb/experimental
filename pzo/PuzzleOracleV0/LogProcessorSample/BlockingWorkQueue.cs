@@ -8,6 +8,10 @@ using System.Diagnostics;
 
 namespace LogProcessorSample
 {
+    /// <summary>
+    /// The blocking work queue implements a blocking work queue - multiple threads can queue work requests, but only
+    /// one thread (typically the main thread) calls the "process()" method that blocks until all work is done. 
+    /// </summary>
     class BlockingWorkQueue
     {
         class WorkItem
@@ -24,10 +28,11 @@ namespace LogProcessorSample
         }
 
         Queue<WorkItem> q = new Queue<WorkItem>();
-       // EventHandler eh = new EventHandler()
+        // EventHandler eh = new EventHandler()
         Boolean stop = false;
 
-        public void enque(Object source,  EventArgs ea, EventHandler eh) {
+        public void enque(Object source, EventArgs ea, EventHandler eh)
+        {
             lock (q)
             {
                 q.Enqueue(new WorkItem(source, ea, eh));
@@ -55,7 +60,7 @@ namespace LogProcessorSample
                             Monitor.Wait(q);
                         }
                     }
-                    
+
                     Debug.Assert(q.Count > 0 || stop);
                     if (q.Count > 0)
                     {
@@ -73,7 +78,8 @@ namespace LogProcessorSample
 
         }
 
-        public void stopWaiting() {
+        public void stopWaiting()
+        {
             stop = true;
             lock (q)
             {

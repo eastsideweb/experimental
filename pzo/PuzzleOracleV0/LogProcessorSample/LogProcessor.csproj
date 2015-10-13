@@ -43,10 +43,12 @@
   <ItemGroup>
     <Compile Include="BlockingWorkQueue.cs" />
     <Compile Include="CryptoHelperCopy.cs" />
+    <Compile Include="FileCopier.cs" />
     <Compile Include="LogProcessor.cs" />
     <Compile Include="NewDriveNotifier.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="LogConsumer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
