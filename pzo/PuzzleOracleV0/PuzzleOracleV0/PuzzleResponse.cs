@@ -15,8 +15,10 @@ namespace PuzzleOracleV0
         {
             Correct,
             Incorrect,
+            NotFound,
             AskLater
         };
+
 
         public PuzzleResponse(String pattern, ResponseType type, String response)
         {
@@ -28,5 +30,6 @@ namespace PuzzleOracleV0
         public readonly String pattern;
         public readonly ResponseType type;
         public readonly string response;
+
     }
 }

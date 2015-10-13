@@ -23,14 +23,15 @@ namespace PuzzleOracleV0
         {
             puzzleId = id;
             puzzleName = name;
-            previousQueryTime = new DateTime(2015, 1, 1); // some time in the past
             responses = new List<PuzzleResponse>();
+            blacklister = new Blacklister(id);
         }
 
         public readonly string puzzleId;
         public readonly string puzzleName;
-        public DateTime previousQueryTime;
         public readonly List<PuzzleResponse> responses;
+        public Boolean puzzleSolved = false;
+        public Blacklister blacklister;
 
         public PuzzleResponse matchResponse(String userSolution)
         {

@@ -33,7 +33,7 @@ namespace PuzzleOracleV0
 
             public MySimpleSpreadsheetReader()
             {
-   
+
                 /*int[, ,] array2 = { { { 1, 2, 3, 3 }}, { { 7, -1, 9, 0 } }, { { -1, 0, 7, 8 } 
 
 
@@ -49,13 +49,13 @@ namespace PuzzleOracleV0
             public int getNumRows(int sheet = 0)
             {
                 string[,] sheetData = data[sheet];
-                return sheetData.GetUpperBound(0)+1;
+                return sheetData.GetUpperBound(0) + 1;
             }
 
             public int getNumCols(int sheet = 0)
             {
                 string[,] sheetData = data[sheet];
-                return sheetData.GetUpperBound(1)+1;
+                return sheetData.GetUpperBound(1) + 1;
             }
 
             public string[] getRowCells(int row, int fromCol, int toCol, int sheet = 0)
@@ -72,7 +72,6 @@ namespace PuzzleOracleV0
 
 
             public string[] getColCells(int col, int fromRow, int toRow, int sheet = 0)
-
             {
                 string[,] sheetData = data[sheet];
                 int n = toRow - fromRow;
