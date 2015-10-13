@@ -1,4 +1,11 @@
-﻿using System;
+﻿//
+// MODULE: Puzzle Oracle - for A Puzzle Oracle for Puzzle Events
+// File: SimpleSpreadsheetReader.cs
+//
+// HISTORY
+//   September 2015 Joseph M. Joy Created
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
