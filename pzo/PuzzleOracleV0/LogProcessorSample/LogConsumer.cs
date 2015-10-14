@@ -53,6 +53,7 @@ namespace LogProcessorSample
                 if (Utils.filesHaveSameContent(lea.logPath, tempPath))
                 {
                     MyConsole.WriteWarning("\tSkipping file because an identifical file has already been processed.");
+                    File.Delete(lea.logPath);
                     return; // ***************************** EARLY RETURN *****************
                 }
                 else

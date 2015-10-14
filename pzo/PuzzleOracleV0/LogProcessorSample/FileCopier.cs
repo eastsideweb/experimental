@@ -76,7 +76,7 @@ namespace LogProcessorSample
             {
                 if (!Directory.Exists(sourceLogPath))
                 {
-                    MyConsole.WriteWarning("\tThe drive does not have a log directory. Ignoring.");
+                    MyConsole.WriteWarning("\tThe drive does not have a log directory. Ignoring. OK to eject.");
                     return; // ************* EARLY RETURN ****************
                 }
 
@@ -85,7 +85,7 @@ namespace LogProcessorSample
                 if (sourceFiles.Length == 0)
                 {
                     // No files to copy!
-                    MyConsole.WriteLine("\tNo logs to copy.");
+                    MyConsole.WriteLine("\tNo logs to copy. OK to Eject.");
                     return; // **************** EARLY RETURN ***************
                 }
 
@@ -126,12 +126,17 @@ namespace LogProcessorSample
                         MyConsole.WriteWarning("\t\t" + fn);
                     }
                 }
+
             }
             catch (IOException ex)
             {
                 Trace.TraceError(MODULE + "IO Exception attempting to process log files from thumb drive. " + ex);
-                MyConsole.WriteError("\tSystem error while attempting to process logs.");
+                MyConsole.WriteError("\tSystem error while attempting to process logs from drive "+ driveName);
             }
+            MyConsole.WriteImportant(String.Format("Done copying logs from drive [{0}] (Volume [{1}]).", driveName, diFound.VolumeLabel));
+            MyConsole.WriteImportant("Please eject and remove drive, then press ENTER to process the logs.");
+            Console.ReadLine();
+
         }
 
         /// <summary>
