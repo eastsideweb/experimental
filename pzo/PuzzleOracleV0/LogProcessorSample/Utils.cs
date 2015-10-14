@@ -67,7 +67,7 @@ namespace LogProcessorSample
         internal static void writeTextFile(string path, string content)
         {
             // This is a potentially dange
-            if (path.IndexOf("\\PuzzleOracle\\") == -1)
+            if (path.IndexOf(Program.LOG_PROCESSOR_SUBDIR + "\\") == -1)
             {
                 MyConsole.WriteError("INTERNAL ERROR!");
                 throw new ApplicationException("We don't write random files!");

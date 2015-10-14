@@ -10,12 +10,13 @@ namespace LogProcessorSample
 {
     class Program
     {
+        public const String LOG_PROCESSOR_SUBDIR = "\\PuzzleLogProcessor";
         const String VERSION = "1.0";
         const String MODULE = "MAIN: "; // for debug log.
         static void Main(string[] args)
         {
             string baseWorkingDir = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
-    + "\\PuzzleOracle\\consolidated";
+    + LOG_PROCESSOR_SUBDIR;
 
             MyConsole.Initialize();
             MyConsole.WriteLine("LOG PROCESSOR Version " + VERSION);
