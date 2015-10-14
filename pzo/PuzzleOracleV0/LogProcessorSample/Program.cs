@@ -82,10 +82,14 @@ namespace LogProcessorSample
             ea.Cancel = true;
             workQueue.enque(null, null, (ox, ex) => {
                 MyConsole.WriteImportant("CTRL-C received. Ok to quit (y/n)?");
-                String s = ""  + (char) Console.Read();
+                String s = Console.ReadLine();
                 if (s.ToUpperInvariant().IndexOf('Y') == 0)
                 {
                     workQueue.stopWaiting();
+                }
+                else
+                {
+                    MyConsole.WriteImportant("Continuing...");
                 }
             }); 
         }

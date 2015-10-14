@@ -66,6 +66,7 @@ namespace LogProcessorSample
             if (!Regex.IsMatch(diFound.VolumeLabel, volumeFilterRegex))
             {
                 Trace.TraceInformation(String.Format("Ignoring drive [{0}] because it's volume [{1}] does not match regex [{2}]", driveName, diFound.VolumeLabel, volumeFilterRegex));
+                MyConsole.WriteWarning(String.Format("Ignoring drive [{0}] because it's volume [{1}] is unrecognized", driveName, diFound.VolumeLabel));
                 return; // ************* EARLY RETURN ****************
             }
             MyConsole.WriteImportant(String.Format("Processing new drive [{0}] (Volume [{1}])", driveName, diFound.VolumeLabel));
