@@ -17,6 +17,9 @@ namespace LogProcessorSample
 
         public static void Initialize()
         {
+            Console.SetBufferSize(100, 1000);
+            Console.SetWindowSize(100, Console.WindowHeight);
+
             Console.BackgroundColor = ccBackground;
             Console.ForegroundColor = ccNormal;
         }

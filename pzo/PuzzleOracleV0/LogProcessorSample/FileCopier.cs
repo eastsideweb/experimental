@@ -135,6 +135,7 @@ namespace LogProcessorSample
             }
             MyConsole.WriteImportant(String.Format("Done copying logs from drive [{0}] (Volume [{1}]).", driveName, diFound.VolumeLabel));
             MyConsole.WriteImportant("Please eject and remove drive, then press ENTER to process the logs.");
+            Console.Beep();
             Console.ReadLine();
 
         }
