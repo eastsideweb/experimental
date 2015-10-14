@@ -33,7 +33,8 @@ namespace LogProcessorSample
         }
 
         /// <summary>
-        /// Check if the two (text) files have the same content.
+        /// Check if the two (text) files have the same content. Will catch IOExceptions and 
+        /// turn them into a false return value.
         /// </summary>
         /// <param name="p"></param>
         /// <param name="destPath"></param>
@@ -56,13 +57,14 @@ namespace LogProcessorSample
             catch (IOException e)
             {
                 MyConsole.WriteError(String.Format("IO Exception attempting to compare two files[{0}] and [{1}]: {2}", f2, f2, e));
+                match = false;
             }
             return match;
         }
 
 
         // Write content to the file, overwriting if it exists.
-        // This is a dangerous utility function, so we restrict it to writing paths that have PuzzleOracle as one of
+        // This is a dangerous utility function, so we restrict it to writing paths that have base portion as one of
         // the sub-dirs
         internal static void writeTextFile(string path, string content)
         {
@@ -77,6 +79,14 @@ namespace LogProcessorSample
                 tr.Write(content);
                 tr.Close();
             }
+        }
+
+        internal static string generateFileNameVariation(string destPath, int i)
+        {
+            String dir = Path.GetDirectoryName(destPath);
+            String fn = Path.GetFileNameWithoutExtension(destPath);
+            String ext = Path.GetExtension(destPath);
+            return dir + "\\" + fn + "-" + i + ext;
         }
     }
 }

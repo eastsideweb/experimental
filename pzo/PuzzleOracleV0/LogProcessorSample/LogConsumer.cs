@@ -45,6 +45,26 @@ namespace LogProcessorSample
             LogEventArgs lea = (LogEventArgs)ea;
             MyConsole.WriteLine(String.Format("Processing [{0}] ({1} submission(s))", Path.GetFileName(lea.logPath), lea.entries.Length));
             Boolean hadErrors = false;
+
+            // Let's first check if the file has already been processed successfully...
+            String tempPath = this.processedDir + "\\" + Path.GetFileName(lea.logPath);
+            if (File.Exists(tempPath))
+            {
+                if (Utils.filesHaveSameContent(lea.logPath, tempPath))
+                {
+                    MyConsole.WriteWarning("\tSkipping file because an identifical file has already been processed.");
+                    return; // ***************************** EARLY RETURN *****************
+                }
+                else
+                {
+                    // This is a sticky situation. The file exists, but it's different.
+                    // We'll process the content, flag this as an error and copy the file over to the processed-with-errors dir.
+                    MyConsole.WriteError(String.Format("\tThis file exists under the processed dir with DIFFERENT content!"
+                        + "\n\tProcessing file and moving to the [{0}] folder.", PROCESSED_WITH_ERRORS_SUBDIR));
+                    hadErrors = true;
+                }
+            }
+
             foreach (var le in lea.entries)
             {
                 String s = String.Format("{0},{1},{2},{3},{4},{5},{6}",
@@ -73,7 +93,7 @@ namespace LogProcessorSample
                 }
                 MyConsole.WriteLine("\t" + le.rowIndex + ":" + s + suffix);
             }
- 
+
             //
             // TODO: Actually process / commit the data.
             // If ALL entries have been successfully committed to the database, one can
@@ -81,15 +101,10 @@ namespace LogProcessorSample
             //
 
 
-            String processedDir = (hadErrors ? processedWithErrorsDir : this.processedDir);
-            if (!Directory.Exists(processedDir))
-            {
-                MyConsole.WriteError("ERROR: Processed dir does not exist: " + processedDir);
-            }
-            else
+            String destDir = (hadErrors ? processedWithErrorsDir : this.processedDir);
             {
 
-                String destPath = processedDir + "\\" + Path.GetFileName(lea.logPath);
+                String destPath = destDir + "\\" + Path.GetFileName(lea.logPath);
 
                 try
                 {
@@ -99,19 +114,37 @@ namespace LogProcessorSample
                         if (Utils.filesHaveSameContent(lea.logPath, destPath))
                         {
                             Trace.WriteLine(MODULE + String.Format("Files have same content."));
-                            File.Delete(lea.logPath);
+                            File.Delete(destPath);
                         }
                         else
                         {
-                            MyConsole.WriteError(String.Format("\tFile with same name but DIFFERENT content exists in processed directory!"));
-                            throw new ArgumentException("Attempting to move file to processed dir when one with different content already exists.");
+                            // This is a dodgy situation where we're attempting to move over a file a file already exists on the destination
+                            // and its' content is different. We attempt to save the file with a variation of the name --- up to MAX_TRIES times.
+                            const int MAX_TRIES = 10;
+                            String origPath = destPath;
+                            int i = 1;
+                            do
+                            {
+                                if (i > MAX_TRIES)
+                                {
+                                    MyConsole.WriteError(String.Format("\tTo many versions of file exists in destination directory!"));
+                                    throw new ArgumentException("Too many file versions.");
+                                }
+                                destPath = Utils.generateFileNameVariation(origPath, i);
+                                if (File.Exists(destPath) && Utils.filesHaveSameContent(lea.logPath, destPath))
+                                {
+                                    File.Delete(destPath);
+                                }
+                                i++;
+                            } while (File.Exists(destPath));
+                            MyConsole.WriteError(String.Format("\tFile exists at destination and is different.\n\tMoving as different name [{0}] ", Path.GetFileName(destPath)));
                         }
                     }
-                    else
-                    {
-                        File.Move(lea.logPath, destPath);
-                        Trace.WriteLine(MODULE + "Moved file to " + destPath);
-                    }
+
+                    // At this point we're pretty sure that the dest path does not exist!
+                    File.Move(lea.logPath, destPath);
+                    Trace.WriteLine(MODULE + "Moved file to " + destPath);
+
                 }
                 catch (Exception ex)
                 {
@@ -126,6 +159,8 @@ namespace LogProcessorSample
                 }
             }
         }
+
+
 
         /// <summary>
         /// Process a single valid submission log entry.
