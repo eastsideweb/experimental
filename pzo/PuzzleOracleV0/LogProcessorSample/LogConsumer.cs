@@ -43,7 +43,7 @@ namespace LogProcessorSample
         public void logEventHandler(object sender, EventArgs ea)
         {
             LogEventArgs lea = (LogEventArgs)ea;
-            MyConsole.WriteLine(String.Format("Processing [{0}] ({1} submission(s))", Path.GetFileName(lea.logPath), lea.entries.Length));
+            MyConsole.WriteImportant(String.Format("Processing [{0}] ({1} submission(s))", Path.GetFileName(lea.logPath), lea.entries.Length));
             Boolean hadErrors = false;
 
             // Let's first check if the file has already been processed successfully...

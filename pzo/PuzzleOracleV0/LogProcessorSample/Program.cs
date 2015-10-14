@@ -13,15 +13,15 @@ namespace LogProcessorSample
         public const String LOG_PROCESSOR_SUBDIR = "\\PuzzleLogProcessor";
         const String VERSION = "1.0";
         const String MODULE = "MAIN: "; // for debug log.
+        const String THUMBDRIVE_VOLUME_REGEX = "^PZO-"; // Volume labels of thrumb drives must match this regex to be considered.
         static void Main(string[] args)
         {
-            string baseWorkingDir = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
-    + LOG_PROCESSOR_SUBDIR;
+            string baseWorkingDir = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + LOG_PROCESSOR_SUBDIR;
 
             MyConsole.Initialize();
-            MyConsole.WriteLine("LOG PROCESSOR Version " + VERSION);
-            MyConsole.WriteLine(String.Format("Working directory [{0}]", baseWorkingDir));
-            MyConsole.WriteLine("Press CTRL-C to quit");
+            MyConsole.WriteImportant("LOG PROCESSOR Version " + VERSION);
+            MyConsole.WriteImportant(String.Format("Working directory [{0}]", baseWorkingDir));
+            MyConsole.WriteImportant("Press CTRL-C to quit");
 
             try
             {
@@ -45,7 +45,7 @@ namespace LogProcessorSample
 
                 // Create the file copier - responsible for copying files from thumb drives to a staging directory, verifying the file copy and then moving
                 // the source files into an arcive subdir on the thumb drive, and (finally) moving the newly copied files under the "new" directory.
-                FileCopier fileCopier = new FileCopier(baseWorkingDir);
+                FileCopier fileCopier = new FileCopier(baseWorkingDir, THUMBDRIVE_VOLUME_REGEX);
 
                 // Create a new-drive notifier and hook it up to the file copier - so that the latter will get notified whenever there is a new removable drive
                 // plugged in.
@@ -81,7 +81,7 @@ namespace LogProcessorSample
             Trace.WriteLine(MODULE + "In CTRL-C handler."); 
             ea.Cancel = true;
             workQueue.enque(null, null, (ox, ex) => {
-                MyConsole.WriteWarning("CTRL-C received. Ok to quit (y/n)?");
+                MyConsole.WriteImportant("CTRL-C received. Ok to quit (y/n)?");
                 String s = ""  + (char) Console.Read();
                 if (s.ToUpperInvariant().IndexOf('Y') == 0)
                 {

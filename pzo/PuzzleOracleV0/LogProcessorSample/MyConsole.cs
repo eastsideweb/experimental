@@ -12,6 +12,7 @@ namespace LogProcessorSample
         const ConsoleColor ccError = ConsoleColor.Red;
         const ConsoleColor ccNormal = ConsoleColor.White;
         const ConsoleColor ccWarning = ConsoleColor.Yellow;
+        const ConsoleColor ccImportant = ConsoleColor.Yellow;
         const ConsoleColor ccBackground = ConsoleColor.Black;
 
         public static void Initialize()
@@ -38,6 +39,14 @@ namespace LogProcessorSample
         {
             Trace.TraceWarning("[CONS-WARN] " + o);
             Console.ForegroundColor = ccWarning;
+            Console.WriteLine(o);
+            Console.ForegroundColor = ccNormal;
+        }
+
+        public static void WriteImportant(Object o)
+        {
+            Trace.TraceWarning("[CONS-IMP] " + o);
+            Console.ForegroundColor = ccImportant;
             Console.WriteLine(o);
             Console.ForegroundColor = ccNormal;
         }
