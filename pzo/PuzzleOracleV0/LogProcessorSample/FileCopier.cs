@@ -228,6 +228,8 @@ namespace LogProcessorSample
                 {
                     if (Utils.filesHaveSameContent(sourcePath, destPath))
                     {
+                        Trace.WriteLine(MODULE + String.Format("safeMove: DELETING source[{0}] because it exactly matches dest [{1}].", sourcePath, destPath));
+                        File.Delete(sourcePath);
                         result = true;
                     }
                     else

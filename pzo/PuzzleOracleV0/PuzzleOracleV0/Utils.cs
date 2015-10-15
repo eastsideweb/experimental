@@ -28,14 +28,14 @@ namespace PuzzleOracleV0
         /// </summary>
         /// <param name="teamInfoSpreadsheet"></param>
         /// <returns></returns>
-        public static TeamInfo getTeamInfoForMachine(SimpleSpreadsheetReader teamInfoSpreadsheet)
+        public static TeamInfo getTeamInfoForMachine(String teamInfoPathName, String teamId)
         {
-            String machineName = normalizeMachineName(Environment.MachineName);
-            TeamInfo info = null;
+            SimpleSpreadsheetReader teamInfoSpreadsheet = CsvExcelReader.loadSpreadsheet(teamInfoPathName);
+             TeamInfo info = null;
             // We expect the order of info in the spreadsheet to be:
-            //   TeamID, TeamName, MachineName, ...
+            //   TeamID, TeamName, ...
             // Also, the 1st row is expected to be properties and the 2nd row to be the header.
-            if (!quickSpreadsheetCheck(teamInfoSpreadsheet, "PTD", 2, 3))
+            if (!quickSpreadsheetCheck(teamInfoSpreadsheet, "PTD", 2, 2))
             {
                 String message = "Does not appear to be a valid team info spreadsheet - signature missing or invalid";
                 ErrorReport.logError(message);
@@ -43,29 +43,19 @@ namespace PuzzleOracleV0
                 throw new ArgumentException(message);
             }
 
-            // Start at 1 to skip header row.
-            for (int r = 1; r < teamInfoSpreadsheet.getNumRows(); r++)
+            // Start at 2 to skip properties and header rows.
+            for (int r = 2; r < teamInfoSpreadsheet.getNumRows(); r++)
             {
                 String[] row = teamInfoSpreadsheet.getRowCells(r, 0, 2);
-                String machineName_r = normalizeMachineName(row[2]);
-                if (machineName.Equals(machineName_r))
+                String tId = stripEndBlanks(row[0]);
+                if (teamId.Equals(tId))
                 {
-                    // Found it!
-                    String teamId = stripEndBlanks(row[0]);
+                    // Found it!             
                     String teamName = stripEndBlanks(row[1]);
-
-                    // We expect team ID to be T followed by a digit sequence.
-                    if (!Regex.IsMatch(teamId, "^T[0-9]+$"))
-                    {
-                        String message = String.Format("Team Info: matched Team ID [{0}] doesn't appear to be a valid team ID (row={1})", teamId, r+1);
-                        ErrorReport.logError(message);
-                        throw new ArgumentException(message);
-                    }
                     info = new TeamInfo(teamId, teamName);
                     break;
                 }
             }
-
             return info;
         }
 
@@ -121,45 +111,45 @@ namespace PuzzleOracleV0
             return s;
         }
 
+        
+
         /// <summary>
-        /// Checks if there is a team name to use regardless of machhine name...
+        /// Will either return a valid team ID or throw an exception.
         /// </summary>
-        /// <param name="teamOverridePathName"></param>
+        /// <param name="teamIdPathName"></param>
         /// <returns></returns>
-        internal static TeamInfo getOverrideTeamInfo(string teamOverridePathName)
+        internal static String getCurrentTeamId(string teamIdPathName)
         {
-            TeamInfo info = null;
+            String teamId = null;
 
             try
             {
-                using (TextReader tr = new StreamReader(teamOverridePathName))
+                using (TextReader tr = new StreamReader(teamIdPathName))
                 {
                     String allText = tr.ReadToEnd();
                     // Expected format: teamID, team name.
 
-                    int commaPos = allText.IndexOf(',');
-                    if (commaPos != -1)
+                    teamId = Utils.stripEndBlanks(allText).ToUpperInvariant();
+                        
+                    if (!Utils.isValidTeamId(teamId))
                     {
-                        String teamId = Utils.stripEndBlanks(allText.Substring(0, commaPos));
-                        String teamName = Utils.stripEndBlanks(allText.Substring(commaPos + 1));
-                        if (teamId.Length != 1 && teamName.Length != 1)
-                        {
-                            info = new TeamInfo(teamId, teamName);
-                        }
-                    }
-                    if (info == null)
-                    {
-                        ErrorReport.logError(String.Format("Team override file [{0}]present but has invalid content.", teamOverridePathName));
+                        ErrorReport.logError(String.Format("Team override file [{0}]present but has invalid content.", teamIdPathName));
+                        throw new ApplicationException("Invalid team-id file");
                     }
                 }
             }
             catch (FileNotFoundException e)
             {
-                return null;
+                ErrorReport.logError(String.Format("Team override file [{0}] is not present.\nPlease create one that contains the current team ID.", teamIdPathName));
+                throw new ApplicationException("Missing team-id file");
             }
 
-            return info;
+            return teamId;
         }
 
+        public static bool isValidTeamId(string teamId)
+        {
+            return Regex.IsMatch(teamId, "^T[0-9]+$"); // Note it has to be upper-case T. 
+        }
     }
 }

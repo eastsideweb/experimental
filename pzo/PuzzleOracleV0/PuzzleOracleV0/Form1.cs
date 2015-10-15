@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using System.IO;
 
 
 
@@ -26,6 +27,7 @@ namespace PuzzleOracleV0
         const String ORACLE_DATA_DIR = "PuzzleOracle";
         const String ORACLE_DATA_FILENAME = "puzzle-data.csv";
         const String TEAM_DATA_FILENAME = "team-data.csv";
+        const String TEAM_ID_FILENAME = "puzzle-team-id.txt";
         const String OVERRIDE_TEAM_DATA_FILENAME = "current-team.txt";
         const String LOG_DATA_DIRNAME = "logs";
         const String INVALID_TEAM_ID = "T0";
@@ -74,6 +76,8 @@ namespace PuzzleOracleV0
         List<Control> hideableControls = new List<Control>(); // different panels to hide in one swoop
         List<Control> clearableTextControls = new List<Control>(); // different controls to clear text in one swoop
         List<RelativePosition> relativePositions = new List<RelativePosition>();
+        private bool selfTestMode;
+        private string selfTestTeamId;
 
         #endregion UX_CONTROLS
 
@@ -81,7 +85,9 @@ namespace PuzzleOracleV0
         {
             CryptoHelper.testSimpleEncryptDecrypt();
 
-            if (trySwitchToOtherInstance())
+            parseCmdlineArgs();
+  
+            if (!this.selfTestMode && trySwitchToOtherInstance())
             {
                 Close();
                 return;
@@ -103,6 +109,27 @@ namespace PuzzleOracleV0
             {
                 handleFatalError(e);
             }
+        }
+
+        private void parseCmdlineArgs()
+        {
+            this.selfTestMode = false;
+            this.selfTestTeamId = null;
+            string[] args = Environment.GetCommandLineArgs();
+            foreach (String a in args)
+            {
+                if (a.IndexOf('-') == 0)
+                {
+                    String s = a.Substring(1);
+                    if (Utils.isValidTeamId(s))
+                    {
+                        Trace.WriteLine("IN TEST MODE. TEST TEAM ID is " + s);
+                        this.selfTestMode = true;
+                        this.selfTestTeamId = s;
+                    }
+                }
+            }
+
         }
 
         internal void handleFatalError(Exception e)
@@ -237,14 +264,18 @@ namespace PuzzleOracleV0
         {
             String basePath = getDataFileBasePath();
             String teamInfoPathName = basePath + "\\" + TEAM_DATA_FILENAME;
-            String teamOverridePathName = basePath + "\\" + OVERRIDE_TEAM_DATA_FILENAME;
-            // Check if there is a valid override ...
-            teamInfo = Utils.getOverrideTeamInfo(teamOverridePathName);
-            if (teamInfo == null)
+            String teamIdPathName = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\" + TEAM_ID_FILENAME;
+
+            // Load team info
+            String teamId = Utils.getCurrentTeamId(teamIdPathName);
+
+            // If in test mode, override the teamID with the one from the cmdline...
+            if (this.selfTestMode)
             {
-                SimpleSpreadsheetReader srTeam = CsvExcelReader.loadSpreadsheet(teamInfoPathName);
-                teamInfo = Utils.getTeamInfoForMachine(srTeam);
+                teamId = this.selfTestTeamId;
             }
+            this.teamInfo = Utils.getTeamInfoForMachine(teamInfoPathName, teamId);
+
             if (teamInfo == null)
             {
                 ErrorReport.logError("Could not identify team.");

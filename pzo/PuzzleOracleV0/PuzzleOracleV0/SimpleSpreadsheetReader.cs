@@ -33,7 +33,7 @@ namespace PuzzleOracleV0
         int getNumRows(int sheet = 0);
 
         /// <summary>
-        /// Get number of cosumns
+        /// Get number of columns
         /// </summary>
         /// <param name="sheet"></param>
         /// <returns></returns>
