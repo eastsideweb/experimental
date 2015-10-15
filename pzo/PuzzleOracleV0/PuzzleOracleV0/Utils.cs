@@ -46,7 +46,7 @@ namespace PuzzleOracleV0
             // Start at 2 to skip properties and header rows.
             for (int r = 2; r < teamInfoSpreadsheet.getNumRows(); r++)
             {
-                String[] row = teamInfoSpreadsheet.getRowCells(r, 0, 2);
+                String[] row = teamInfoSpreadsheet.getRowCells(r, 0, 1);
                 String tId = stripEndBlanks(row[0]);
                 if (teamId.Equals(tId))
                 {
