@@ -133,14 +133,16 @@ namespace PuzzleOracleV0
                         
                     if (!Utils.isValidTeamId(teamId))
                     {
-                        ErrorReport.logError(String.Format("Team override file [{0}]present but has invalid content.", teamIdPathName));
+                        String msg = String.Format("Team ID file [{0}] is present but does not contain a valid team ID.", teamIdPathName)
+                            + " A valid team ID has a 'T' (without quotes) followed by team number (example: T2).";
+                        ErrorReport.logError(msg);
                         throw new ApplicationException("Invalid team-id file");
                     }
                 }
             }
             catch (FileNotFoundException e)
             {
-                ErrorReport.logError(String.Format("Team override file [{0}] is not present.\nPlease create one that contains the current team ID.", teamIdPathName));
+                ErrorReport.logError(String.Format("Team ID file [{0}] is not present. Please create one that contains the current team ID (example: T2).", teamIdPathName));
                 throw new ApplicationException("Missing team-id file");
             }
 
