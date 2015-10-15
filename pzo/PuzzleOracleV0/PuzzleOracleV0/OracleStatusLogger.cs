@@ -26,7 +26,7 @@ namespace PuzzleOracleV0
 
         public OracleSubmissionLogger(String logDir, String teamId, String teamName)
         {
-            if (!Regex.IsMatch(teamId, "^T[0-9]+$"))
+            if (!Utils.isValidTeamId(teamId))
             {
                 ErrorReport.logError("Team ID \"" + teamId + "\" is malformed - should be T followed by all digits");
                 throw new ApplicationException();

@@ -144,6 +144,11 @@ namespace PuzzleOracleV0
         {
             String basePath = getDataFileBasePath();
             String logDirName = basePath + "\\" + LOG_DATA_DIRNAME;
+            if (!Directory.Exists(logDirName))
+            {
+                Trace.WriteLine(String.Format("Creating log directory [{0}]", logDirName));
+                Directory.CreateDirectory(logDirName);
+            }
             oracleLogger = new OracleSubmissionLogger(logDirName, teamInfo.teamId, teamInfo.teamName);
         }
 
