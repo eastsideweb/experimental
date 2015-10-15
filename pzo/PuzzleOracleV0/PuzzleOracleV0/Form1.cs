@@ -30,6 +30,7 @@ namespace PuzzleOracleV0
         const String TEAM_ID_FILENAME = "puzzle-team-id.txt";
         const String OVERRIDE_TEAM_DATA_FILENAME = "current-team.txt";
         const String LOG_DATA_DIRNAME = "logs";
+        const String TEST_LOG_DATA_DIRNAME = "testLogs"; // for synthetic test logs (created with the -tldgen cmdline argument)
         const String INVALID_TEAM_ID = "T0";
         const String INVALID_TEAM_NAME = "NO TEAM ASSIGNED TO THIS MACHINE";
 
@@ -49,7 +50,7 @@ namespace PuzzleOracleV0
         PuzzleOracle oracle;
         OracleSubmissionLogger oracleLogger;
         Boolean fullScreen = false;
-        Boolean okToClose = false;
+        public Boolean okToClose = false;
         Boolean fatalError = false; // close immediately
 
         // Basic modes of operation (with different layout)
@@ -78,6 +79,7 @@ namespace PuzzleOracleV0
         List<RelativePosition> relativePositions = new List<RelativePosition>();
         private bool selfTestMode;
         private string selfTestTeamId;
+        private bool generateTestLogDataAndExit;
 
         #endregion UX_CONTROLS
 
@@ -87,11 +89,15 @@ namespace PuzzleOracleV0
 
             parseCmdlineArgs();
   
+
+
+            // Unless we're in self-test mode, we only allow one instance.
             if (!this.selfTestMode && trySwitchToOtherInstance())
             {
                 Close();
                 return;
             }
+
             try
             {
                 InitializeComponent();
@@ -99,6 +105,14 @@ namespace PuzzleOracleV0
                 initializeTeamInfo();
                 initializeOracleLogger();
                 initializeOracle();
+
+                // If we're generating test log data, we do that and exit.
+                if (this.generateTestLogDataAndExit)
+                {
+                    generateTestLogData();
+                    okToClose = true;
+                    return;
+                }
             }
             catch (ApplicationException e)
             {
@@ -118,15 +132,21 @@ namespace PuzzleOracleV0
             string[] args = Environment.GetCommandLineArgs();
             foreach (String a in args)
             {
-                if (a.IndexOf('-') == 0)
+                String s = a.ToUpperInvariant();
+                if (a.IndexOf("-T") == 0) // TEAM ID
                 {
-                    String s = a.Substring(1);
+                    s = a.Substring(1).ToUpperInvariant();
                     if (Utils.isValidTeamId(s))
                     {
                         Trace.WriteLine("IN TEST MODE. TEST TEAM ID is " + s);
                         this.selfTestMode = true;
                         this.selfTestTeamId = s;
                     }
+                }
+                else if (s.Equals("-TLDGEN"))
+                {
+                    Trace.WriteLine("Option - TLDGEN specifed. Going to generate test log data and bail.");
+                    this.generateTestLogDataAndExit = true;
                 }
             }
 
@@ -152,7 +172,19 @@ namespace PuzzleOracleV0
             oracleLogger = new OracleSubmissionLogger(logDirName, teamInfo.teamId, teamInfo.teamName);
         }
 
+        private void generateTestLogData()
+        {
+            String basePath = getDataFileBasePath();
+            String testLogDirName = basePath + "\\" + TEST_LOG_DATA_DIRNAME;
+            if (!Directory.Exists(testLogDirName))
+            {
+                Trace.WriteLine(String.Format("Creating TEST log directory [{0}]", testLogDirName));
+                Directory.CreateDirectory(testLogDirName);
+            }
+            TestDataGenerator.generateTestLogData(testLogDirName);
+            MessageBox.Show(this, ErrorReport.getLogAsText(), "DONE GENERATING TEST DATA.");
 
+        }
 
         private bool trySwitchToOtherInstance()
         {
@@ -524,7 +556,7 @@ namespace PuzzleOracleV0
             if (pr.type == PuzzleResponse.ResponseType.Correct)
             {
                 c = this.color_CorrectAnswer;
-            }
+            } 
             else if (pr.type == PuzzleResponse.ResponseType.AskLater)
             {
                 c = this.color_DelayedAnswer;
@@ -570,7 +602,7 @@ namespace PuzzleOracleV0
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            if (e.CloseReason == CloseReason.UserClosing && !fatalError && !okToClose && mode != Mode.modeInit)
+            if (e.CloseReason == CloseReason.UserClosing && !fatalError && !okToClose && !(mode == Mode.modeInit | mode == Mode.modePreInit))
             {
                 e.Cancel = true; // we defer closing to when the mode is Mode.modeExit
                 if (mode == Mode.modeOracle)

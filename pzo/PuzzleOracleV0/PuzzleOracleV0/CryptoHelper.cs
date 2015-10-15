@@ -115,7 +115,7 @@ namespace PuzzleOracleV0
             {
                 x += (ushort)c; // Jump by the next password char.
                 x = (8121 * x + 28411) % 134456; // Knuth LCG
-                Trace.WriteLine(String.Format("[{0}] {1}", c, x));
+                //Trace.WriteLine(String.Format("[{0}] {1}", c, x));
             }
             return x;
         }

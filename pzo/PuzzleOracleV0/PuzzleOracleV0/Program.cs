@@ -19,6 +19,11 @@ namespace PuzzleOracleV0
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Form1 f = new Form1();
+            if (f.okToClose)
+            {
+                f.Close();
+                return;
+            }
             try
             {
                 Application.Run(f);

@@ -65,6 +65,7 @@
     <Compile Include="PuzzleResponse.cs" />
     <Compile Include="SimpleSpreadsheetReader.cs" />
     <Compile Include="TeamInfo.cs" />
+    <Compile Include="TestDataGenerator.cs" />
     <Compile Include="TestExcelReader.cs" />
     <Compile Include="Utils.cs" />
     <EmbeddedResource Include="Form1.resx">
