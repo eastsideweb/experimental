@@ -28,9 +28,8 @@ namespace PuzzleOracleV0
         const String ORACLE_DATA_FILENAME = "puzzle-data.csv";
         const String TEAM_DATA_FILENAME = "team-data.csv";
         const String TEAM_ID_FILENAME = "puzzle-team-id.txt";
-        const String OVERRIDE_TEAM_DATA_FILENAME = "current-team.txt";
-        const String LOG_DATA_DIRNAME = "logs";
-        const String TEST_LOG_DATA_DIRNAME = "testLogs"; // for synthetic test logs (created with the -tldgen cmdline argument)
+                const String LOG_DATA_DIRNAME = "logs";
+        const String TEST_DIRNAME = "tests";
         const String INVALID_TEAM_ID = "T0";
         const String INVALID_TEAM_NAME = "NO TEAM ASSIGNED TO THIS MACHINE";
 
@@ -80,6 +79,7 @@ namespace PuzzleOracleV0
         private bool selfTestMode;
         private string selfTestTeamId;
         private bool generateTestLogDataAndExit;
+        private bool generateTestPuzzleDataAndExit;
 
         #endregion UX_CONTROLS
 
@@ -110,6 +110,14 @@ namespace PuzzleOracleV0
                 if (this.generateTestLogDataAndExit)
                 {
                     generateTestLogData();
+                    okToClose = true;
+                    return;
+                }
+
+                // If we're generating test log data, we do that and exit.
+                if (this.generateTestPuzzleDataAndExit)
+                {
+                    generateTestPuzzleData();
                     okToClose = true;
                     return;
                 }
@@ -148,6 +156,11 @@ namespace PuzzleOracleV0
                     Trace.WriteLine("Option - TLDGEN specifed. Going to generate test log data and bail.");
                     this.generateTestLogDataAndExit = true;
                 }
+                else if (s.Equals("-TPDGEN"))
+                {
+                    Trace.WriteLine("Option - TLPGEN specifed. Going to generate test puzzle data and bail.");
+                    this.generateTestPuzzleDataAndExit = true;
+                }
             }
 
         }
@@ -175,17 +188,38 @@ namespace PuzzleOracleV0
         private void generateTestLogData()
         {
             String basePath = getDataFileBasePath();
-            String testLogDirName = basePath + "\\" + TEST_LOG_DATA_DIRNAME;
-            if (!Directory.Exists(testLogDirName))
+
+            // First create the test puzzle data if it doesn't exist.
+            String testDir = basePath + "\\" + TEST_DIRNAME;
+            if (!Directory.Exists(testDir))
             {
-                Trace.WriteLine(String.Format("Creating TEST log directory [{0}]", testLogDirName));
-                Directory.CreateDirectory(testLogDirName);
+                Trace.WriteLine(String.Format("Creating TEST directory [{0}]", testDir));
+                Directory.CreateDirectory(testDir);
             }
-            TestDataGenerator.generateTestLogData(testLogDirName);
-            MessageBox.Show(this, ErrorReport.getLogAsText(), "DONE GENERATING TEST DATA.");
+            
+            TestDataGenerator.generateTestLogData(testDir);
+            MessageBox.Show(this, ErrorReport.getLogAsText(), "DONE GENERATING TEST LOG DATA.");
 
         }
 
+        private void generateTestPuzzleData()
+        {
+            String basePath = getDataFileBasePath();
+
+            // First create the test puzzle data if it doesn't exist.
+            String testDir = basePath + "\\" + TEST_DIRNAME;
+            if (!Directory.Exists(testDir))
+            {
+                Trace.WriteLine(String.Format("Creating TEST directory [{0}]", testDir));
+                Directory.CreateDirectory(testDir);
+            }
+
+            TestDataGenerator.generateTestPuzzleData(testDir);
+            MessageBox.Show(this, ErrorReport.getLogAsText(), "DONE GENERATING TEST PUZZLE DATA.");
+
+        }
+
+       
         private bool trySwitchToOtherInstance()
         {
             var me = Process.GetCurrentProcess();

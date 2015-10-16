@@ -303,7 +303,7 @@ namespace PuzzleOracleV0
         {
             String s = Regex.Replace(solution, NORMALIZAITION_STRIP_CHARS, "");
             s = s.ToUpperInvariant();
-            Trace.WriteLine(String.Format("Normalizing solution [{0}] into [{1}]", solution, s));
+            //Trace.WriteLine(String.Format("Normalizing solution [{0}] into [{1}]", solution, s));
             return s;
         }
 

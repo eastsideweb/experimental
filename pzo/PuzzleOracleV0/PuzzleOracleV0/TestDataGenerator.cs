@@ -13,30 +13,42 @@ namespace PuzzleOracleV0
     {
         const String MODULE = "TDG: "; // For tracing
 
+        const String TEST_ORACLE_DATA_FILENAME_ENCRYPTED = "test-puzzle-data-ENCRYPTED.csv";
+        const String TEST_ORACLE_DATA_FILENAME_FREETEXT = "test-puzzle-data-FREETEXT.csv";
+        const String TEST_LOG_DATA_DIRNAME = "testLogs"; // for synthetic test logs (created with the -tldgen cmdline argument) 
+        const int NUMBER_OF_TEAMS = 10;
+        const int NUMBER_OF_PUZZLES = 100;
+        const int START_PUZZLE_NUMBER = 100;
+        const int START_TEAM_NUMBER = 1;
+        const int MAX_TEAM_NAME_LENGTH = 50;
+        const int MIN_ATTEMPTS_PER_PUZZLE = 0;   // However if a team must solve it will generate one (correct) solution.
+        const int MAX_ATTEMPTS_PER_PUZZLE = 10; // Per team.
+
+
         /// <summary>
         /// This is for test purposes only - it generates test log data to the specified directory.
         /// These data files have NOTHING to do with this instance of puzzle oracle. Current team ID, puzzle-data etc are ignored.
         /// In fact, we create multiple instances of the oracle logger and write random submission logs to them!
         /// </summary>
         /// <param name="testLogDirName"></param>
-        internal static void generateTestLogData(String testLogDirName)
+        internal static void generateTestLogData(String testDir)
         {
-            const int NUMBER_OF_TEAMS = 10;
-            const int NUMBER_OF_PUZZLES = 100;
-            const int START_PUZZLE_NUMBER = 100;
-            const int START_TEAM_NUMBER = 1;
-            const int MAX_TEAM_NAME_LENGTH = 50;
-            const int MIN_ATTEMPTS_PER_PUZZLE = 0;   // However if a team must solve it will generate one (correct) solution.
-            const int MAX_ATTEMPTS_PER_PUZZLE = 10; // Per team.
             Random rand = new Random();
+            String testLogDir = testDir + "\\" + TEST_LOG_DATA_DIRNAME;
 
             try
             {
+                // Create the test log dir if needed.
+                if (!Directory.Exists(testLogDir))
+                {
+                    Trace.WriteLine(String.Format("Creating TEST LOG directory [{0}]", testLogDir));
+                    Directory.CreateDirectory(testLogDir);
+                }
                 // We only generate test data if the directory is empty.
-                var files = Directory.EnumerateFiles(testLogDirName, "*.csv").ToArray();
+                var files = Directory.EnumerateFiles(testLogDir, "*.csv").ToArray();
                 if (files.Length > 0)
                 {
-                    ErrorReport.logError(String.Format("Test log directory [{0}] is NOT empty. NOT generating any test logs. Please clean the directory and try again.", testLogDirName));
+                    ErrorReport.logError(String.Format("Test log directory [{0}] is NOT empty. NOT generating any test logs. Please clean the directory and try again.", testLogDir));
                     return; //       ********** EARLY RETURN **************
                 }
                 
@@ -45,7 +57,7 @@ namespace PuzzleOracleV0
                     int teamNumber = (i + START_TEAM_NUMBER);
                     String teamId = "T" + teamNumber;
                     String teamName = generateRandomTeamName(teamId, MAX_TEAM_NAME_LENGTH);
-                    OracleSubmissionLogger logger = new OracleSubmissionLogger(testLogDirName, teamId, teamName);
+                    OracleSubmissionLogger logger = new OracleSubmissionLogger(testLogDir, teamId, teamName);
                     for (int j = 0; j < NUMBER_OF_PUZZLES; j++)
                     {
                         int puzzleNumber = j + START_PUZZLE_NUMBER;
@@ -152,6 +164,13 @@ namespace PuzzleOracleV0
             String name = "Team " + teamId;
             Debug.Assert(name.Length <= maxLength);
             return name;
+        }
+
+        internal static void generateTestPuzzleData(string testDir)
+        {
+            throw new NotImplementedException();
+
+            // 
         }
     }
 }
