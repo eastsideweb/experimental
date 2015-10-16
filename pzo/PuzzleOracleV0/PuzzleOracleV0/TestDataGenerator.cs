@@ -12,10 +12,12 @@ namespace PuzzleOracleV0
     class TestDataGenerator
     {
         const String MODULE = "TDG: "; // For tracing
-
         const String TEST_ORACLE_DATA_FILENAME_ENCRYPTED = "test-puzzle-data-ENCRYPTED.csv";
         const String TEST_ORACLE_DATA_FILENAME_FREETEXT = "test-puzzle-data-FREETEXT.csv";
-        const String TEST_LOG_DATA_DIRNAME = "testLogs"; // for synthetic test logs (created with the -tldgen cmdline argument) 
+        const String TEST_TEAM_DATA_FILENAME = "test-team-data.csv";
+        const String TEST_LOG_DATA_DIRNAME = "testLogs"; // for synthetic test logs (created with the -tldgen cmdline argument)
+        const String TEST_PUZZLE_DATA_DIRNAME = "puzzleData";
+        const String TEST_JSON_DATA_DIRNAME = "jsonData";
         const int NUMBER_OF_TEAMS = 10;
         const int NUMBER_OF_PUZZLES = 100;
         const int START_PUZZLE_NUMBER = 100;
@@ -24,6 +26,35 @@ namespace PuzzleOracleV0
         const int MIN_ATTEMPTS_PER_PUZZLE = 0;   // However if a team must solve it will generate one (correct) solution.
         const int MAX_ATTEMPTS_PER_PUZZLE = 10; // Per team.
 
+        class TestPuzzleInfo
+        {
+            public int puzzleNumber;
+            public String puzzleId;
+            public String puzzleName;
+            public int numberOfHints;
+            public TestPuzzleInfo(int number)
+            {
+                puzzleNumber = number;
+                puzzleId = "" + number;
+                Debug.Assert(puzzleId.Length == 3); // we expecte 3-digit numbers.
+                puzzleName = "Puzzle " + puzzleId;
+                numberOfHints = number % 10;
+            }
+        };
+
+        class TestTeamInfo
+        {
+           public int teamNumber;
+            public String teamId;
+            public String teamName;
+            public TestTeamInfo(int number)
+            {
+                teamNumber = number;
+                teamId = "T" + number;
+                teamName = "Team " + teamId;
+            }
+
+        }
 
         /// <summary>
         /// This is for test purposes only - it generates test log data to the specified directory.
@@ -51,13 +82,12 @@ namespace PuzzleOracleV0
                     ErrorReport.logError(String.Format("Test log directory [{0}] is NOT empty. NOT generating any test logs. Please clean the directory and try again.", testLogDir));
                     return; //       ********** EARLY RETURN **************
                 }
-                
+
                 for (int i = 0; i < NUMBER_OF_TEAMS; i++)
                 {
                     int teamNumber = (i + START_TEAM_NUMBER);
-                    String teamId = "T" + teamNumber;
-                    String teamName = generateRandomTeamName(teamId, MAX_TEAM_NAME_LENGTH);
-                    OracleSubmissionLogger logger = new OracleSubmissionLogger(testLogDir, teamId, teamName);
+                    TestTeamInfo tti = new TestTeamInfo(teamNumber);
+                    OracleSubmissionLogger logger = new OracleSubmissionLogger(testLogDir, tti.teamId, tti.teamName);
                     for (int j = 0; j < NUMBER_OF_PUZZLES; j++)
                     {
                         int puzzleNumber = j + START_PUZZLE_NUMBER;
@@ -106,10 +136,12 @@ namespace PuzzleOracleV0
             }
             else
             {
-                if (rand.Next(0, 2) == 0) {
-                    attempt =  "P" + puzzleId + "H" + rand.Next(1,10); // hint. May not be there for this puzzle.
+                if (rand.Next(0, 2) == 0)
+                {
+                    attempt = "P" + puzzleId + "H" + rand.Next(1, 10); // hint. May not be there for this puzzle.
                 }
-                else {
+                else
+                {
                     attempt = "x"; // not found
                 }
             }
@@ -121,20 +153,20 @@ namespace PuzzleOracleV0
 
         private static string randomAnswerText(Random rand)
         {
-            const int MAX_RANDOM_ADDON_TEXT  = 10;
-            int numChars = rand.Next(1, MAX_RANDOM_ADDON_TEXT+1);
-            return  CryptoHelper.generateRandomSafeBase64string(rand.Next(), numChars);
-;
+            const int MAX_RANDOM_ADDON_TEXT = 10;
+            int numChars = rand.Next(1, MAX_RANDOM_ADDON_TEXT + 1);
+            return CryptoHelper.generateRandomSafeBase64string(rand.Next(), numChars);
+            ;
         }
 
         private static PuzzleResponse generateRandomResponse(Random rand, string puzzleId, string solutionAttempt)
         {
             PuzzleResponse pr = null;
-             String answer = "P" + puzzleId + "A";
+            String answer = "P" + puzzleId + "A";
             String hintRegex = "^P" + puzzleId + "H" + "[0-9]";
 
             solutionAttempt = PuzzleOracle.normalizeSolution(solutionAttempt);
-            if (solutionAttempt.IndexOf(answer)==0)
+            if (solutionAttempt.IndexOf(answer) == 0)
             {
                 pr = new PuzzleResponse("^" + answer, PuzzleResponse.ResponseType.Correct, "Correct!");
             }
@@ -142,7 +174,7 @@ namespace PuzzleOracleV0
             {
                 int puzzleDigit = puzzleId[2] - '0';
                 Debug.Assert(puzzleDigit >= 0 && puzzleDigit <= 9);
-                int hintNumber = solutionAttempt[5]-'0'; // The M in PNNNHM
+                int hintNumber = solutionAttempt[5] - '0'; // The M in PNNNHM
                 if (hintNumber > 0 && hintNumber <= puzzleDigit)
                 {
                     // It's a recognized hint for this puzzle.
@@ -159,18 +191,96 @@ namespace PuzzleOracleV0
             return pr;
         }
 
-        private static String generateRandomTeamName(String teamId, int maxLength)
-        {
-            String name = "Team " + teamId;
-            Debug.Assert(name.Length <= maxLength);
-            return name;
-        }
+
 
         internal static void generateTestPuzzleData(string testDir)
         {
-            throw new NotImplementedException();
+            Random rand = new Random();
+            String testPDataDir = testDir + "\\" + TEST_PUZZLE_DATA_DIRNAME;
+            String testJsonDataDir = testDir + "\\" + TEST_JSON_DATA_DIRNAME;
 
-            // 
+            // Create the puzzle data dir if needed.
+            if (!Directory.Exists(testPDataDir))
+            {
+                Trace.WriteLine(String.Format("Creating TEST PUZZLE DATA directory [{0}]", testPDataDir));
+                Directory.CreateDirectory(testPDataDir);
+            }
+
+            // Create the JSON data dir if needed.
+            if (!Directory.Exists(testJsonDataDir))
+            {
+                Trace.WriteLine(String.Format("Creating TEST PSDB JSON DATA directory [{0}]", testJsonDataDir));
+                Directory.CreateDirectory(testJsonDataDir);
+            }
+
+            TestTeamInfo[] testTeamInfo = makeTestTeamInfo();
+            TestPuzzleInfo[] testPuzzleInfo = makeTestPuzzleInfo();
+
+            // Generate team-info.csv
+             generateTeamInfo(testPDataDir, testTeamInfo);
+
+            // Generate JSON files
+            //generatePsdbJsonInfo(testJsonDataDir);
+
+            // Generate test puzzle-data (both freetext and encrypted versions)
+            //generatePuzzleData(testPDataDir);
+
         }
+
+
+        private static TestTeamInfo[] makeTestTeamInfo()
+        {
+            TestTeamInfo[] teams = new TestTeamInfo[NUMBER_OF_TEAMS];
+            for (int i = 0; i < teams.Length; i++)
+            {
+                int teamNumber = i + START_TEAM_NUMBER;
+                teams[i] = new TestTeamInfo(teamNumber);
+            }
+            return teams;
+        }
+
+
+        private static TestPuzzleInfo[] makeTestPuzzleInfo()
+        {
+            TestPuzzleInfo[] puzzles = new TestPuzzleInfo[NUMBER_OF_PUZZLES];
+            for (int i = 0; i < puzzles.Length; i++)
+            {
+                int puzzleNumber = i + START_PUZZLE_NUMBER;
+                puzzles[i] = new TestPuzzleInfo(puzzleNumber);
+            }
+            return puzzles;
+        }
+
+
+        private static void generateTeamInfo(string testPDataDir, TestTeamInfo[] testTeamInfo)
+        {
+            String teamInfoPath = testPDataDir + "\\" + TEST_TEAM_DATA_FILENAME;
+            if (File.Exists(teamInfoPath))
+            {
+                Trace.WriteLine(String.Format("Overriting existing team info file [{0}]", teamInfoPath));
+            }
+            using (TextWriter tr = new StreamWriter(teamInfoPath, false)) // false == overwrite
+            {
+                tr.WriteLine("PTD,Version:1.0");
+                tr.WriteLine("Id,Name");
+                foreach (var tti in testTeamInfo)
+                {
+                    tr.WriteLine(String.Format("{0},{1}", tti.teamId, tti.teamName));
+                }
+                tr.Flush();
+            }
+
+        }
+
+        private static void generatePsdbJsonInfo(string testJsonDataDir)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static void generatePuzzleData(string testPDataDir)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

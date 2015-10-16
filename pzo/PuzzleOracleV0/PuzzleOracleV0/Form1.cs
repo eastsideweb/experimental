@@ -29,7 +29,7 @@ namespace PuzzleOracleV0
         const String TEAM_DATA_FILENAME = "team-data.csv";
         const String TEAM_ID_FILENAME = "puzzle-team-id.txt";
                 const String LOG_DATA_DIRNAME = "logs";
-        const String TEST_DIRNAME = "tests";
+        const String TEST_DATA_DIRNAME = "testData";
         const String INVALID_TEAM_ID = "T0";
         const String INVALID_TEAM_NAME = "NO TEAM ASSIGNED TO THIS MACHINE";
 
@@ -190,7 +190,7 @@ namespace PuzzleOracleV0
             String basePath = getDataFileBasePath();
 
             // First create the test puzzle data if it doesn't exist.
-            String testDir = basePath + "\\" + TEST_DIRNAME;
+            String testDir = basePath + "\\" + TEST_DATA_DIRNAME;
             if (!Directory.Exists(testDir))
             {
                 Trace.WriteLine(String.Format("Creating TEST directory [{0}]", testDir));
@@ -207,7 +207,7 @@ namespace PuzzleOracleV0
             String basePath = getDataFileBasePath();
 
             // First create the test puzzle data if it doesn't exist.
-            String testDir = basePath + "\\" + TEST_DIRNAME;
+            String testDir = basePath + "\\" + TEST_DATA_DIRNAME;
             if (!Directory.Exists(testDir))
             {
                 Trace.WriteLine(String.Format("Creating TEST directory [{0}]", testDir));
