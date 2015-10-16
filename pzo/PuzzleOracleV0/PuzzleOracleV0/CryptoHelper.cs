@@ -108,13 +108,18 @@ namespace PuzzleOracleV0
         /// <returns></returns>
         public static ulong runLCG(String password, ulong xPrev)
         {
-            // Knuth LCG from https://en.wikipedia.org/wiki/Linear_congruential_generator
-            // Xn+1 = (8121 Xn + 28411) mod 134456
+            // Knuth NMIX LCG from https://en.wikipedia.org/wiki/Linear_congruential_generator (verified by JMJ by checking various
+            // other independent sources online on September 16th, 2015.)
+            // Xn+1 = (A Xn + C) mod M
+            //MMIX by Donald Knuth:	M=2^64	A=6364136223846793005	C=1442695040888963407	
+            const ulong A = 6364136223846793005UL;
+            const ulong C = 1442695040888963407UL;
             ulong x = xPrev;
             foreach (char c in password)
             {
                 x += (ushort)c; // Jump by the next password char.
-                x = (8121 * x + 28411) % 134456; // Knuth LCG
+                // OLD: x = (8121 * x + 28411) % 134456; // Knuth LCG
+                x = A * x  + C; // Note that mod M is implied byecause M = 2^64 which is the size of ulong.
                 //Trace.WriteLine(String.Format("[{0}] {1}", c, x));
             }
             return x;
