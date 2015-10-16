@@ -49,7 +49,7 @@ namespace LogProcessorSample
             for (int i = 0; i < a.Length; i++)
             {
                 x = runLCG(password, x);
-                a[i] = (int)((x >> 4) % (ulong)encryptChars.Length); // >> 4 is to shave off some LS bits, which are less random.
+                a[i] = (int)(x % (ulong)encryptChars.Length);
             }
             return a;
         }
@@ -76,7 +76,7 @@ namespace LogProcessorSample
             {
                 x += (ushort)c; // Jump by the next password char.
                 // OLD: x = (8121 * x + 28411) % 134456; // Knuth LCG
-                x = A * x  + C; // Note that mod M is implied byecause M = 2^64 which is the size of ulong.
+                x = A * x + C; // Note that mod M is implied byecause M = 2^64 which is the size of ulong.
                 //Trace.WriteLine(String.Format("[{0}] {1}", c, x));
             }
             return x;
