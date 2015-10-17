@@ -94,7 +94,7 @@ namespace PuzzleOracleV0
             using (TextWriter tw = new StreamWriter(pathName))
             {
                 // Write header properties
-                tw.Write("POD,Version:1.0");
+                tw.Write("POD,version:1.0");
                 foreach (KeyValuePair<String, String> kvp in properties)
                 {
                     String k = kvp.Key;
@@ -103,7 +103,7 @@ namespace PuzzleOracleV0
                         if (!k.Equals(ENCRYPTED_PROPERTY)) // we selectively add it later
                         {
                             String s = (kvp.Value.Length == 0) ? "" : ":" + kvp.Value;
-                            appendCell(tw, k + s);
+                            Utils.appendCsvCell(tw, k + s);
                         }
                     }
                 }
@@ -112,7 +112,7 @@ namespace PuzzleOracleV0
                 // Add the "encrypted" property if we need to...
                 if (encrypted)
                 {
-                    appendCell(tw, ENCRYPTED_PROPERTY);
+                    Utils.appendCsvCell(tw, ENCRYPTED_PROPERTY);
                     nProps++;
                 }
 
@@ -124,7 +124,7 @@ namespace PuzzleOracleV0
                 }
                 else
                 {
-                    writeCommas(tw, maxCols - nProps);
+                    Utils.writeCsvCommas(tw, maxCols - nProps);
                 }
                 tw.WriteLine("");
 
@@ -138,7 +138,7 @@ namespace PuzzleOracleV0
                 int colsWritten = maxHints + 3; // 3 for ID, Name and Answer
                 if (colsWritten < maxCols)
                 {
-                    writeCommas(tw, maxCols - colsWritten);
+                    Utils.writeCsvCommas(tw, maxCols - colsWritten);
                 }
                 tw.WriteLine("");
 
@@ -149,7 +149,7 @@ namespace PuzzleOracleV0
 
                     // Write ID and Name
                     tw.Write(id);
-                    appendCell(tw, pi.puzzleName);
+                    Utils.appendCsvCell(tw, pi.puzzleName);
 
                     // Write responses... (Answer comes first
                     foreach (var pr in pi.responses)
@@ -159,12 +159,12 @@ namespace PuzzleOracleV0
                         {
                             s = "[" + endecrypt(id, s, true) + "]"; // true == encrypt
                         }
-                        appendCell(tw, s);
+                        Utils.appendCsvCell(tw, s);
                     }
                     colsWritten = 2 + pi.responses.Count; // 2 for ID and Name
                     if (colsWritten < maxCols)
                     {
-                        writeCommas(tw, maxCols - colsWritten);
+                        Utils.writeCsvCommas(tw, maxCols - colsWritten);
                     }
                     tw.WriteLine("");
                 }
@@ -173,29 +173,7 @@ namespace PuzzleOracleV0
             }
         }
 
-        // ADD a cell  - assumes the 1st cell in the row has already been written.
-        // Escapes s if needed.
-        void appendCell(TextWriter tw, String s)
-        {
-            const String q = "\"";
-            const String qq = q + q;
-            if (Regex.IsMatch(s, @"\n|\r|,|"""))
-            { // removed \s for space because it seems space in cells is not quoted.
-                // S needs excaping.
-                s = Regex.Replace(s, q, qq);
-                s = q + s + q;
-            }
-            tw.Write("," + s);
-        }
 
-        private void writeCommas(TextWriter tw, int n)
-        {
-            // Write extra commas if required
-            for (int i = 0; i < n; i++)
-            {
-                tw.Write(",");
-            }
-        }
 
         // Go through list of puzzles and compute the max number of hints addded to any particular puzzle.
         // Used to write out the CSV file with enough commas.
@@ -613,6 +591,10 @@ namespace PuzzleOracleV0
                 return null;
             }
 
+            // We always add a bracketing "^" and "$" so the pattern must by default match the entire submitted solution.
+            pattern = "^" + pattern + "$";
+
+            // Check that the pattern is well formed...
             try
             {
                 Regex.IsMatch("foo", pattern);

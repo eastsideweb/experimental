@@ -225,7 +225,7 @@ namespace PuzzleOracleV0
             generatePsdbJsonInfo(testJsonDataDir, testTeamInfo, testPuzzleInfo);
 
             // Generate test puzzle-data (both freetext and encrypted versions)
-            //generatePuzzleData(testPDataDir);
+            generatePuzzleData(testPDataDir, testPuzzleInfo);
 
         }
 
@@ -349,9 +349,70 @@ namespace PuzzleOracleV0
             return "\"" + p + "\"";
         }
 
-        private static void generatePuzzleData(string testPDataDir)
+        private static void generatePuzzleData(string testPDataDir, TestPuzzleInfo[] testPuzzleInfo)
         {
-            throw new NotImplementedException();
+            //const String TEST_ORACLE_DATA_FILENAME_ENCRYPTED = "test-puzzle-data-ENCRYPTED.csv";
+            //const String TEST_ORACLE_DATA_FILENAME_FREETEXT = "test-puzzle-data-FREETEXT.csv";
+ 
+            // Write out free-text version...
+            String puzzleInfoPath = testPDataDir + "\\" + TEST_ORACLE_DATA_FILENAME_FREETEXT;
+            if (File.Exists(puzzleInfoPath))
+            {
+                Trace.WriteLine(String.Format("Overriting existing puzzle oracle data file [{0}]", puzzleInfoPath));
+            }
+            using (TextWriter tw = new StreamWriter(puzzleInfoPath, false)) // false == overwrite
+            {
+                // Write header properties
+                tw.Write("POD,version:1.0,puzzlecount:"+testPuzzleInfo.Length);
+                int maxHints = 9;
+                int maxCols = maxHints + 3; // 3 for ID, Answer and Name
+                int nProps = 3; // number of properties above.
+                Utils.writeCsvCommas(tw, maxCols - nProps);
+                tw.WriteLine("");
+
+                // Write Table headers
+                tw.Write("Id,Name,Answer");
+                for (int i = 0; i < maxHints; i++)
+                {
+                    tw.Write(",Hint" + (i + 1));
+                }
+                int colsWritten = maxHints + 3; // 3 for ID, Name and Answer
+                if (colsWritten < maxCols)
+                {
+                    Utils.writeCsvCommas(tw, maxCols - colsWritten);
+                }
+                tw.WriteLine("");
+
+                // Write Puzzle rows
+                foreach (TestPuzzleInfo tpi in testPuzzleInfo)
+                {
+                    // Write ID and Name 
+                    tw.Write(tpi.puzzleId);
+                    Utils.appendCsvCell(tw, tpi.puzzleName);
+
+                    // Write answer.
+                    String answer = String.Format("P{0}A:_C You have solved puzzle {0}.", tpi.puzzleId);
+                    Utils.appendCsvCell(tw, answer);
+
+                    // Write hints..
+                    for (int i=0; i<tpi.numberOfHints; i++)
+                    {
+                        String hint = String.Format("P{0}H{1}:_KG You have matched hint {1} of puzzle {0}.", tpi.puzzleId, (i + 1));
+                        Utils.appendCsvCell(tw, hint);
+                    }
+
+                    // Write remaining commas
+                    colsWritten = 3 + tpi.numberOfHints; // 3 for ID, Name and Answer
+                    if (colsWritten < maxCols)
+                    {
+                        Utils.writeCsvCommas(tw, maxCols - colsWritten);
+                    }
+                    tw.WriteLine("");
+                }
+                tw.Flush();
+                tw.Close();
+            }
+
         }
 
         private static String toJson<T>(T[] array, String indent, Boolean multiLine, ToJson<T> toJson)

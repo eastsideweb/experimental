@@ -153,5 +153,29 @@ namespace PuzzleOracleV0
         {
             return Regex.IsMatch(teamId, "^T[0-9]+$"); // Note it has to be upper-case T. 
         }
+
+        // ADD a cell  - assumes the 1st cell in the row has already been written.
+        // Escapes s if needed.
+        public static void appendCsvCell(TextWriter tw, String s)
+        {
+            const String q = "\"";
+            const String qq = q + q;
+            if (Regex.IsMatch(s, @"\n|\r|,|"""))
+            { // removed \s for space because it seems space in cells is not quoted.
+                // S needs excaping.
+                s = Regex.Replace(s, q, qq);
+                s = q + s + q;
+            }
+            tw.Write("," + s);
+        }
+
+        public static void writeCsvCommas(TextWriter tw, int n)
+        {
+            // Write extra commas if required
+            for (int i = 0; i < n; i++)
+            {
+                tw.Write(",");
+            }
+        }
     }
 }
