@@ -12,8 +12,10 @@ namespace PuzzleOracleV0
     class TestDataGenerator
     {
         const String MODULE = "TDG: "; // For tracing
-        const String TEST_ORACLE_DATA_FILENAME_ENCRYPTED = "test-puzzle-data-ENCRYPTED.csv";
-        const String TEST_ORACLE_DATA_FILENAME_FREETEXT = "test-puzzle-data-FREETEXT.csv";
+        const String TEST_ORACLE_DATA_FILENAME_ENCRYPTED1 = "test-puzzle-data-ENCRYPTED1.csv";
+        const String TEST_ORACLE_DATA_FILENAME_FREETEXT1 = "test-puzzle-data-FREETEXT1.csv";
+        const String TEST_ORACLE_DATA_FILENAME_ENCRYPTED2 = "test-puzzle-data-ENCRYPTED2.csv";
+        const String TEST_ORACLE_DATA_FILENAME_FREETEXT2 = "test-puzzle-data-FREETEXT2.csv";
         const String TEST_TEAM_DATA_FILENAME = "test-team-data.csv";
         const String TEST_LOG_DATA_DIRNAME = "testLogs"; // for synthetic test logs (created with the -tldgen cmdline argument)
         const String TEST_PUZZLE_DATA_DIRNAME = "puzzleData";
@@ -199,7 +201,7 @@ namespace PuzzleOracleV0
         {
             Random rand = new Random();
             String testPDataDir = testDir + "\\" + TEST_PUZZLE_DATA_DIRNAME;
-            String testJsonDataDir = testDir + "\\" + TEST_JSON_DATA_DIRNAME;
+            String testJsonDataDir = testPDataDir + "\\" + TEST_JSON_DATA_DIRNAME;
 
             // Create the puzzle data dir if needed.
             if (!Directory.Exists(testPDataDir))
@@ -218,15 +220,61 @@ namespace PuzzleOracleV0
             TestTeamInfo[] testTeamInfo = makeTestTeamInfo();
             TestPuzzleInfo[] testPuzzleInfo = makeTestPuzzleInfo();
 
-            // Generate team-info.csv
-            generateTeamInfo(testPDataDir, testTeamInfo);
+            // Synthesize team-info.csv
+            synthesizeTeamInfo(testPDataDir, testTeamInfo);
 
-            // Generate JSON files
-            generatePsdbJsonInfo(testJsonDataDir, testTeamInfo, testPuzzleInfo);
+            // Synthesize JSON files
+            synthesizePsdbJsonInfo(testJsonDataDir, testTeamInfo, testPuzzleInfo);
 
-            // Generate test puzzle-data (both freetext and encrypted versions)
-            generatePuzzleData(testPDataDir, testPuzzleInfo);
+            // Synthesize FREETEXT version of test puzzle-data
+            synthesizeFreetextPuzzleData(testPDataDir, testPuzzleInfo);
 
+            // Make secondary copiles - encrypted and freetext - of the puzzle-data by 
+            // create instances of the puzzle oracle and asking it to save.
+            generatePuzzleDataCopies(testPDataDir);
+        }
+
+        private static void generatePuzzleDataCopies(string testPDataDir)
+        {
+            string freetextPath1 = testPDataDir + "\\" + TEST_ORACLE_DATA_FILENAME_FREETEXT1;
+            string freetextPath2 = testPDataDir + "\\" + TEST_ORACLE_DATA_FILENAME_FREETEXT2;
+            string encryptedPath1 = testPDataDir + "\\" + TEST_ORACLE_DATA_FILENAME_ENCRYPTED1;
+            string encryptedPath2 = testPDataDir + "\\" + TEST_ORACLE_DATA_FILENAME_ENCRYPTED2;
+            // We will not progress if any of the above files already exist...
+            if (File.Exists(freetextPath2) || File.Exists(encryptedPath1) || File.Exists(encryptedPath2))
+            {
+                ErrorReport.logError(String.Format("Test puzzle data directory [{0}] contains one or more of these files:\n\t{1},{2},{3},{4}\n"
+                      + "NOT generating any data. Please delete these files and try again.",
+                      testPDataDir,
+                      TEST_ORACLE_DATA_FILENAME_FREETEXT1,
+                      TEST_ORACLE_DATA_FILENAME_FREETEXT2,
+                      TEST_ORACLE_DATA_FILENAME_ENCRYPTED1,
+                      TEST_ORACLE_DATA_FILENAME_ENCRYPTED2
+                      ));
+                return;
+            }
+
+
+            SimpleSpreadsheetReader sr = CsvExcelReader.loadSpreadsheet(freetextPath1);
+            PuzzleOracle oracle = new PuzzleOracle(sr);
+            Debug.Assert(!oracle.isSourceEncrypted);
+            String csvFilePath = oracle.writeCsvFile(testPDataDir, true); // true==encrypt
+            File.Move(csvFilePath, encryptedPath1);
+            Debug.Assert(!File.Exists(csvFilePath));
+
+            sr = CsvExcelReader.loadSpreadsheet(encryptedPath1);
+            oracle = new PuzzleOracle(sr);
+            Debug.Assert(oracle.isSourceEncrypted);
+            csvFilePath = oracle.writeCsvFile(testPDataDir, false); // false==don't encrypt
+            File.Move(csvFilePath, freetextPath2);
+            Debug.Assert(!File.Exists(csvFilePath));
+
+            sr = CsvExcelReader.loadSpreadsheet(freetextPath2);
+            oracle = new PuzzleOracle(sr);
+            Debug.Assert(!oracle.isSourceEncrypted);
+            csvFilePath = oracle.writeCsvFile(testPDataDir, true); // true == encrypt
+            File.Move(csvFilePath, encryptedPath2);
+            Debug.Assert(!File.Exists(csvFilePath));
         }
 
 
@@ -254,7 +302,7 @@ namespace PuzzleOracleV0
         }
 
 
-        private static void generateTeamInfo(string testPDataDir, TestTeamInfo[] testTeamInfo)
+        private static void synthesizeTeamInfo(string testPDataDir, TestTeamInfo[] testTeamInfo)
         {
             String teamInfoPath = testPDataDir + "\\" + TEST_TEAM_DATA_FILENAME;
             if (File.Exists(teamInfoPath))
@@ -274,7 +322,7 @@ namespace PuzzleOracleV0
 
         }
 
-        private static void generatePsdbJsonInfo(string testJsonDataDir, TestTeamInfo[] testTeamInfo, TestPuzzleInfo[] testPuzzleInfo)
+        private static void synthesizePsdbJsonInfo(string testJsonDataDir, TestTeamInfo[] testTeamInfo, TestPuzzleInfo[] testPuzzleInfo)
         {
             const string TEAMS_FILENAME = "teams.json";
             const string PUZZLES_FILENAME = "puzzles.json";
@@ -349,13 +397,10 @@ namespace PuzzleOracleV0
             return "\"" + p + "\"";
         }
 
-        private static void generatePuzzleData(string testPDataDir, TestPuzzleInfo[] testPuzzleInfo)
+        private static void synthesizeFreetextPuzzleData(string testPDataDir, TestPuzzleInfo[] testPuzzleInfo)
         {
-            //const String TEST_ORACLE_DATA_FILENAME_ENCRYPTED = "test-puzzle-data-ENCRYPTED.csv";
-            //const String TEST_ORACLE_DATA_FILENAME_FREETEXT = "test-puzzle-data-FREETEXT.csv";
- 
             // Write out free-text version...
-            String puzzleInfoPath = testPDataDir + "\\" + TEST_ORACLE_DATA_FILENAME_FREETEXT;
+            String puzzleInfoPath = testPDataDir + "\\" + TEST_ORACLE_DATA_FILENAME_FREETEXT1;
             if (File.Exists(puzzleInfoPath))
             {
                 Trace.WriteLine(String.Format("Overriting existing puzzle oracle data file [{0}]", puzzleInfoPath));
@@ -363,7 +408,7 @@ namespace PuzzleOracleV0
             using (TextWriter tw = new StreamWriter(puzzleInfoPath, false)) // false == overwrite
             {
                 // Write header properties
-                tw.Write("POD,version:1.0,puzzlecount:"+testPuzzleInfo.Length);
+                tw.Write("POD,version:1.0,puzzlecount:" + testPuzzleInfo.Length);
                 int maxHints = 9;
                 int maxCols = maxHints + 3; // 3 for ID, Answer and Name
                 int nProps = 3; // number of properties above.
@@ -390,14 +435,15 @@ namespace PuzzleOracleV0
                     tw.Write(tpi.puzzleId);
                     Utils.appendCsvCell(tw, tpi.puzzleName);
 
-                    // Write answer.
-                    String answer = String.Format("P{0}A:_C You have solved puzzle {0}.", tpi.puzzleId);
+                    // Write answer. Note the ".*" so that anything can follow the intiial PnA
+                    String answer = String.Format("P{0}A.*:_C You have solved puzzle {0}.", tpi.puzzleId);
                     Utils.appendCsvCell(tw, answer);
 
                     // Write hints..
-                    for (int i=0; i<tpi.numberOfHints; i++)
+                    for (int i = 0; i < tpi.numberOfHints; i++)
                     {
-                        String hint = String.Format("P{0}H{1}:_KG You have matched hint {1} of puzzle {0}.", tpi.puzzleId, (i + 1));
+                        // Note the ".*" so that anything can follow the intiial PnHm
+                        String hint = String.Format("P{0}H{1}.*:_KG You have matched hint {1} of puzzle {0}.", tpi.puzzleId, (i + 1));
                         Utils.appendCsvCell(tw, hint);
                     }
 
