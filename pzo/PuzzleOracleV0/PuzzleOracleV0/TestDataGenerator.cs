@@ -26,6 +26,8 @@ namespace PuzzleOracleV0
         const int MIN_ATTEMPTS_PER_PUZZLE = 0;   // However if a team must solve it will generate one (correct) solution.
         const int MAX_ATTEMPTS_PER_PUZZLE = 10; // Per team.
 
+        public delegate String ToJson<T>(String indent, T item); // converts the item to JSon
+
         class TestPuzzleInfo
         {
             public int puzzleNumber;
@@ -220,7 +222,7 @@ namespace PuzzleOracleV0
              generateTeamInfo(testPDataDir, testTeamInfo);
 
             // Generate JSON files
-            //generatePsdbJsonInfo(testJsonDataDir);
+             generatePsdbJsonInfo(testJsonDataDir, testTeamInfo, testPuzzleInfo);
 
             // Generate test puzzle-data (both freetext and encrypted versions)
             //generatePuzzleData(testPDataDir);
@@ -272,9 +274,58 @@ namespace PuzzleOracleV0
 
         }
 
-        private static void generatePsdbJsonInfo(string testJsonDataDir)
+        private static void generatePsdbJsonInfo(string testJsonDataDir, TestTeamInfo[] testTeamInfo, TestPuzzleInfo[] testPuzzleInfo)
         {
-            throw new NotImplementedException();
+            const string TEAMS_FILENAME = "teams.json";
+            const string PUZZLES_FILENAME = "puzzles.json";
+            String teamsPath = testJsonDataDir + "\\" + TEAMS_FILENAME;
+            String puzzlesPath = testJsonDataDir + "\\" + PUZZLES_FILENAME;
+            if (File.Exists(teamsPath))
+            {
+                Trace.WriteLine(String.Format("Overriting existing teams JSON file [{0}]", teamsPath));
+            }
+            if (File.Exists(puzzlesPath))
+            {
+                Trace.WriteLine(String.Format("Overriting existing puzzles JSON file [{0}]", puzzlesPath));
+            }
+
+            // Write out teams
+            String puzzleIdsInJson = jsonPuzzleIdArray(testPuzzleInfo, "    ");
+            using (TextWriter tr = new StreamWriter(teamsPath, false)) // false == overwrite
+            {
+                String ret = "";
+                ret = toJson<TestTeamInfo>(testTeamInfo, "", true, (indent,tti) => 
+                {
+                    String i2 = indent + "  ";
+                    return "{\n"
+                        + String.Format("{0}: {1},\n{2}: {3},\n{4}: {5},\n{6}: {7},\n{8}: {9},\n{10}: {11}\n",
+                        i2+qt("name"), qt(tti.teamName),
+                        i2 + qt("_id"), qt(tti.teamId),
+                        i2 + qt("description"), qt("Synthetic team " + tti.teamNumber + " generated on " + DateTime.Now.ToShortDateString()),
+                        i2 + qt("playerIds"), "[]",
+                        i2 + qt("puzzleIds"), puzzleIdsInJson,
+                        // NOT TEAM LEAD qt("teamLeadId"), ""
+                        i2 + qt("active"), qt("true")
+                        )
+                        + indent + "}";
+                });
+                ret += "\n";
+                tr.Write(ret);
+                tr.Flush();
+            }
+        }
+
+        private static string jsonPuzzleIdArray(TestPuzzleInfo[] testPuzzleInfo, String indent)
+        {
+            return toJson<TestPuzzleInfo>(testPuzzleInfo, indent, false, (i2, tpi) =>
+                {
+                    return qt(tpi.puzzleId);
+                });
+        }
+
+        private static string qt(string p)
+        {
+            return "\"" + p + "\"";
         }
 
         private static void generatePuzzleData(string testPDataDir)
@@ -282,5 +333,35 @@ namespace PuzzleOracleV0
             throw new NotImplementedException();
         }
 
+        private static String toJson<T>(T[] array, String indent, Boolean multiLine, ToJson<T> toJson) 
+        {
+            String ret = "";
+            String i2 = indent + "  ";
+            String NL1 = multiLine ? "\n" + indent : "";
+            String NL2 = multiLine ? "\n" + i2 : " ";
+            if (array.Length == 0)
+            {
+                ret = "[]";
+            }
+            else if (array.Length == 1)
+            {
+                ret = "[" + toJson(i2, array[0]) + indent + "]";
+            }
+            else
+            {
+                 ret = "[" + NL2;
+                 ret += toJson(i2, array[0]);
+                 for (int i = 1; i < array.Length;i++ )
+                 {
+                     ret += ","  + NL2 + toJson(i2, array[i]);
+                     if (!multiLine && i % 10 == 9) // break line regardless..
+                     {
+                         ret += "\n" + i2;
+                     }
+                 }
+                ret += NL1 + "]";
+            }
+            return ret;
+        }
     }
 }
