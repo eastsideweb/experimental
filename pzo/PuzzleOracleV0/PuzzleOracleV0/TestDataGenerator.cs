@@ -46,7 +46,7 @@ namespace PuzzleOracleV0
 
         class TestTeamInfo
         {
-           public int teamNumber;
+            public int teamNumber;
             public String teamId;
             public String teamName;
             public TestTeamInfo(int number)
@@ -219,10 +219,10 @@ namespace PuzzleOracleV0
             TestPuzzleInfo[] testPuzzleInfo = makeTestPuzzleInfo();
 
             // Generate team-info.csv
-             generateTeamInfo(testPDataDir, testTeamInfo);
+            generateTeamInfo(testPDataDir, testTeamInfo);
 
             // Generate JSON files
-             generatePsdbJsonInfo(testJsonDataDir, testTeamInfo, testPuzzleInfo);
+            generatePsdbJsonInfo(testJsonDataDir, testTeamInfo, testPuzzleInfo);
 
             // Generate test puzzle-data (both freetext and encrypted versions)
             //generatePuzzleData(testPDataDir);
@@ -294,12 +294,12 @@ namespace PuzzleOracleV0
             using (TextWriter tr = new StreamWriter(teamsPath, false)) // false == overwrite
             {
                 String ret = "";
-                ret = toJson<TestTeamInfo>(testTeamInfo, "", true, (indent,tti) => 
+                ret = toJson<TestTeamInfo>(testTeamInfo, "", true, (indent, tti) =>
                 {
                     String i2 = indent + "  ";
                     return "{\n"
                         + String.Format("{0}: {1},\n{2}: {3},\n{4}: {5},\n{6}: {7},\n{8}: {9},\n{10}: {11}\n",
-                        i2+qt("name"), qt(tti.teamName),
+                        i2 + qt("name"), qt(tti.teamName),
                         i2 + qt("_id"), qt(tti.teamId),
                         i2 + qt("description"), qt("Synthetic team " + tti.teamNumber + " generated on " + DateTime.Now.ToShortDateString()),
                         i2 + qt("playerIds"), "[]",
@@ -333,7 +333,7 @@ namespace PuzzleOracleV0
             throw new NotImplementedException();
         }
 
-        private static String toJson<T>(T[] array, String indent, Boolean multiLine, ToJson<T> toJson) 
+        private static String toJson<T>(T[] array, String indent, Boolean multiLine, ToJson<T> toJson)
         {
             String ret = "";
             String i2 = indent + "  ";
@@ -349,16 +349,25 @@ namespace PuzzleOracleV0
             }
             else
             {
-                 ret = "[" + NL2;
-                 ret += toJson(i2, array[0]);
-                 for (int i = 1; i < array.Length;i++ )
-                 {
-                     ret += ","  + NL2 + toJson(i2, array[i]);
-                     if (!multiLine && i % 10 == 9) // break line regardless..
-                     {
-                         ret += "\n" + i2;
-                     }
-                 }
+                ret = "[" + NL2;
+                bool split = !multiLine && array.Length > 10;
+                for (int i = 0; i < array.Length; i++)
+                {
+                    if (i > 0)
+                    {
+                        ret += "," + NL2;
+                    }
+                    if (split && i % 10 == 0) // break line regardless..
+                    {
+                        ret += "\n" + i2;
+                    }
+                    ret += toJson(i2, array[i]);
+
+                }
+                if (split)
+                {
+                    ret += "\n" + indent;
+                }
                 ret += NL1 + "]";
             }
             return ret;
