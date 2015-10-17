@@ -313,6 +313,27 @@ namespace PuzzleOracleV0
                 tr.Write(ret);
                 tr.Flush();
             }
+
+            // Write out puzzles.json
+            using (TextWriter tr = new StreamWriter(puzzlesPath, false)) // false == overwrite
+            {
+                String ret = "";
+                ret = toJson<TestPuzzleInfo>(testPuzzleInfo, "", true, (indent, tpi) =>
+                {
+                    String i2 = indent + "  ";
+                    return "{\n"
+                        + String.Format("{0}: {1},\n{2}: {3},\n{4}: {5},\n{6}: {7}\n",
+                        i2 + qt("name"), qt(tpi.puzzleName),
+                        i2 + qt("_id"), qt(tpi.puzzleId),
+                        i2 + qt("description"), qt("Synthetic puzzle " + tpi.puzzleNumber + " generated on " + DateTime.Now.ToShortDateString()),
+                        i2 + qt("active"), qt("true")
+                        )
+                        + indent + "}";
+                });
+                ret += "\n";
+                tr.Write(ret);
+                tr.Flush();
+            }
         }
 
         private static string jsonPuzzleIdArray(TestPuzzleInfo[] testPuzzleInfo, String indent)
