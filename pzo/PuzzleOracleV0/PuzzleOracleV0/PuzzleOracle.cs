@@ -72,13 +72,15 @@ namespace PuzzleOracleV0
             return null;
         }
 
+
         /// <summary>
         /// This is used for debugging purposes - be sure NOT to write out the decrypted
         /// data file in the production version of the app! The directory is the same as where the
         /// data file was loaded, and the name is hardcoded.
         /// </summary>
         /// <param name="encrypted"></param>
-        public void writeCsvFile(String basePath, Boolean encrypted)
+        /// <returns>the full path of the file that was created.</returns>
+        public String writeCsvFile(String basePath, Boolean encrypted)
         {
             const string ENCRYPTED_PROPERTY = "encrypted";
             String fileName = "data-out-FREETEXT.csv";
@@ -171,6 +173,7 @@ namespace PuzzleOracleV0
                 tw.Flush();
                 tw.Close();
             }
+            return pathName;
         }
 
 
@@ -591,13 +594,15 @@ namespace PuzzleOracleV0
                 return null;
             }
 
-            // We always add a bracketing "^" and "$" so the pattern must by default match the entire submitted solution.
-            pattern = "^" + pattern + "$";
+            // Expand any aliases in response.
+            response = expandAliases(response);
+
+            PuzzleResponse pr =  new PuzzleResponse(pattern, responseType, response);
 
             // Check that the pattern is well formed...
             try
             {
-                Regex.IsMatch("foo", pattern);
+                Regex.IsMatch("foo", pr.workingPattern);
             }
             catch (ArgumentException)
             {
@@ -605,10 +610,7 @@ namespace PuzzleOracleV0
                 return null;
             }
 
-            // Expand any aliases in response.
-            response = expandAliases(response);
-
-            return new PuzzleResponse(pattern, responseType, response);
+            return pr;
         }
 
         /// <summary>

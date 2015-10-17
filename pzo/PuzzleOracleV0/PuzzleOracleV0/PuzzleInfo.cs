@@ -37,7 +37,7 @@ namespace PuzzleOracleV0
         {
             foreach (PuzzleResponse pr in responses)
             {
-                if (Regex.IsMatch(userSolution, pr.pattern))
+                if (Regex.IsMatch(userSolution, pr.workingPattern))
                 {
                     return pr;
                 }

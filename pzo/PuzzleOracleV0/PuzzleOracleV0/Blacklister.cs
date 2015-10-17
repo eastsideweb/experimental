@@ -14,10 +14,9 @@ namespace PuzzleOracleV0
         // Blacklist parameters.
         // Currently these are constants. In the future they could be
         // specified as data parameters (the first row of the data pod spreadsheet stores parameters)
-        const int MAX_TOTAL_ATTEMPTS = 16;
-        const int MAX_ATTEMPTS_PER_SESSION = 4;
-        const int BLACKLIST_TIME_SECONDS = 30;
-
+        public const int MAX_TOTAL_ATTEMPTS = 16;
+        public const int MAX_ATTEMPTS_PER_SESSION = 4;
+        public const int BLACKLIST_TIME_SECONDS = 30;
         public const int BLACKLIST_FOREVER_TIME = 1000000; // effectively forever.
 
         int totalAttempts = 0;
