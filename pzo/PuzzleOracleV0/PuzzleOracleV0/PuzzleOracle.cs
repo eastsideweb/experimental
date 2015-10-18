@@ -403,7 +403,7 @@ namespace PuzzleOracleV0
 
                     puzzles.Add(id, pi);
                     puzzleIDs.Add(id);
-                    Trace.WriteLine(String.Format("Adding row {0}: Puzzle ID {1}, Answer {2}", i, id, answer));
+                    //Trace.WriteLine(String.Format("Adding row {0}: Puzzle ID {1}, Answer {2}", i, id, answer));
 
                 }
                 catch (ArgumentException)
@@ -426,6 +426,10 @@ namespace PuzzleOracleV0
             for (int i = fromCol; i <= toCol && i < sRow.Length; i++)
             {
                 String s = sRow[i];
+                if (s.Length == 0)
+                {
+                    continue;
+                }
 
                 if (s.Length < 2 || s[0] != '[' || s[s.Length - 1] != ']')
                 {

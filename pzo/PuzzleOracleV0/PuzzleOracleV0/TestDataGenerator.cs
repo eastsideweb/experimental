@@ -20,6 +20,7 @@ namespace PuzzleOracleV0
         const String TEST_LOG_DATA_DIRNAME = "testLogs"; // for synthetic test logs (created with the -tldgen cmdline argument)
         const String TEST_PUZZLE_DATA_DIRNAME = "puzzleData";
         const String TEST_JSON_DATA_DIRNAME = "jsonData";
+        const String TEST_PHASE_DIRNAME = "phase";
         const int NUMBER_OF_TEAMS = 10;
         const int NUMBER_OF_PUZZLES = 100;
         const int START_PUZZLE_NUMBER = 100;
@@ -27,6 +28,7 @@ namespace PuzzleOracleV0
         const int MAX_TEAM_NAME_LENGTH = 50;
         const int MIN_ATTEMPTS_PER_PUZZLE = 0;   // However if a team must solve it will generate one (correct) solution.
         const int MAX_ATTEMPTS_PER_PUZZLE = 10; // Per team.
+        const int NUMBER_OF_PHASES = 5; // Number of times the oracle is stopped/started, (roughly) simulating thumb-drive swap-outs.
 
         public delegate String ToJson<T>(String indent, T item); // converts the item to JSon
 
@@ -66,7 +68,7 @@ namespace PuzzleOracleV0
         /// In fact, we create multiple instances of the oracle logger and write random submission logs to them!
         /// </summary>
         /// <param name="testLogDirName"></param>
-        internal static void generateTestLogData(String testDir)
+        internal static void generateTestLogDataOld(String testDir)
         {
             Random rand = new Random();
             String testLogDir = testDir + "\\" + TEST_LOG_DATA_DIRNAME;
@@ -500,5 +502,105 @@ namespace PuzzleOracleV0
             }
             return ret;
         }
+
+        /// <summary>
+        /// VERSION2 - that actuall calls the Oracle. This is for test purposes only - it generates test log data to the specified directory.
+        /// These data files have NOTHING to do with this instance of puzzle oracle. Current team ID, puzzle-data etc are ignored.
+        /// In fact, we create multiple instances of the oracle logger and write random submission logs to them!
+        /// </summary>
+        /// <param name="testLogDirName"></param>
+        internal static void generateTestLogData(String testDir)
+        {
+            Random rand = new Random();
+            String testLogDir = testDir + "\\" + TEST_LOG_DATA_DIRNAME;
+            String oracleDataPath = testDir + "\\" + TEST_PUZZLE_DATA_DIRNAME + "\\" + TEST_ORACLE_DATA_FILENAME_ENCRYPTED2;
+
+            try
+            {
+                // Create the test log dir if needed.
+                if (!Directory.Exists(testLogDir))
+                {
+                    Trace.WriteLine(String.Format("Creating TEST LOG directory [{0}]", testLogDir));
+                    Directory.CreateDirectory(testLogDir);
+                }
+                // We only generate test data if the directory (and its subdirectories) is/are empty.
+                var files = Directory.EnumerateFiles(testLogDir, "*.csv", SearchOption.AllDirectories).ToArray();
+                if (files.Length > 0)
+                {
+                    ErrorReport.logError(String.Format("Test log directory [{0}] is NOT empty. NOT generating any test logs. Please clean the directory and try again.", testLogDir));
+                    return; //       ********** EARLY RETURN **************
+                }
+
+                TestTeamInfo[] testTeams = makeTestTeamInfo();
+                TestPuzzleInfo[] testPuzzles = makeTestPuzzleInfo();
+
+                foreach (var tti in testTeams)
+                {
+                    List<TestPuzzleInfo> mustSolvePuzzles = new List<TestPuzzleInfo>();
+
+                    // Add the puzzles the team must solve.
+                    foreach (var tpi in testPuzzles)
+                    {
+                        int puzzleNumberMod100 = tpi.puzzleNumber % 100;
+                        if (puzzleNumberMod100 % tti.teamNumber == 0)
+                        {
+                            mustSolvePuzzles.Add(tpi);
+                        }
+                    }
+                    for (int j = 0; j < NUMBER_OF_PHASES; j++)
+                    {
+                        generateLogDataForTeam(rand, oracleDataPath, testLogDir, j, tti, testPuzzles, mustSolvePuzzles);
+                    }
+                    Debug.Assert(mustSolvePuzzles.Count == 0);
+                }
+            }
+            catch (ApplicationException ex)
+            {
+                ErrorReport.logError("Internal error attempting to write test log data. Can't guarantee the data are correct.");
+                Trace.TraceError(MODULE + "Exception attempting to generate test log data. Ex: " + ex);
+            }
+        }
+
+        private static void generateLogDataForTeam(Random rand, String oracleDataPath, string testLogDir, int phaseNo, TestTeamInfo tti, TestPuzzleInfo[] allPuzzles, List<TestPuzzleInfo> mustSolvePuzzles)
+        {
+            String phaseDir = testLogDir + "\\" + TEST_PHASE_DIRNAME + phaseNo;
+
+            // Create the phase dir if needed.
+            if (!Directory.Exists(phaseDir))
+            {
+                Trace.WriteLine(String.Format("Creating TEST LOG directory [{0}]", phaseDir));
+                Directory.CreateDirectory(phaseDir);
+            }
+
+            // Compute number of puzzles to attempt in this phase. 
+            int phasesLeft = NUMBER_OF_PHASES - phaseNo; // including this one.
+            Debug.Assert(phasesLeft > 0);
+            int numberToSolve = mustSolvePuzzles.Count;
+            if (phasesLeft > 1)
+            {
+                // Let's pick a number that averages to be mustSolvePuzzles.Count/NUM_PHASES
+                int maxNumberToSolve = 2 * mustSolvePuzzles.Count / phasesLeft;
+                maxNumberToSolve = Math.Min(maxNumberToSolve, mustSolvePuzzles.Count);
+                numberToSolve = rand.Next(0, maxNumberToSolve + 1);
+            }
+            
+            // Create Oracle and submssion logger.
+            PuzzleOracle oracle = null;
+            using (OracleSubmissionLogger logger = new OracleSubmissionLogger(phaseDir, tti.teamId, tti.teamName))
+            {
+                SimpleSpreadsheetReader sr = CsvExcelReader.loadSpreadsheet(oracleDataPath);
+                oracle = new PuzzleOracle(sr);
+
+                for (int i = 0; i < numberToSolve; i++)
+                {
+                    TestPuzzleInfo tpi = Utils.removeRandomElemement<TestPuzzleInfo>(rand, mustSolvePuzzles);
+                    String answer = generateRandomSolutionAttempt(rand, tpi.puzzleId, true); // true == must solve.
+                    PuzzleResponse pr = oracle.checkSolution(tpi.puzzleId, answer);
+                    logger.logSolveAttempt(tpi.puzzleId, answer, pr);
+                }
+            }
+
+        }
+
     }
 }

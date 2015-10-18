@@ -177,5 +177,13 @@ namespace PuzzleOracleV0
                 tw.Write(",");
             }
         }
+
+        public static T removeRandomElemement<T>(Random rand, List<T> elements)
+        {
+            int n = rand.Next(0, elements.Count);
+            T element = elements[n];
+            elements.Remove(element);
+            return element;
+        }
     }
 }
