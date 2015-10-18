@@ -63,11 +63,16 @@ namespace PuzzleOracleV0
 
         }
 
-        private void logMetaStatus(String status)
+        private void logMetaStatus(String status, String msg=null)
         {
             //extraText = extraText.Replace(",", ""); // Get rid of commas which can confuse the CSV format...
             //logSolveAttempt(META_PUZZLE_ID, status, new PuzzleResponse("", PuzzleResponse.ResponseType.Correct, extraText));
-            rawLog(META_PUZZLE_ID, status, "On " + Environment.MachineName + " at " + Utils.getUTCTimeCode());
+            String extraText = "On " + Environment.MachineName + " at " + Utils.getUTCTimeCode();
+            if (msg != null) {
+            extraText += ". " + msg;
+            }
+            rawLog(META_PUZZLE_ID, status, extraText);
+            
         }
 
         public void logSolveAttempt(String puzzleId, String attemptedSolution, PuzzleResponse response)

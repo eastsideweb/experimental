@@ -533,7 +533,7 @@ namespace PuzzleOracleV0
 
                 TestTeamInfo[] testTeams = makeTestTeamInfo();
                 TestPuzzleInfo[] testPuzzles = makeTestPuzzleInfo();
-
+                int totalSolveCount = 0;
                 foreach (var tti in testTeams)
                 {
                     List<TestPuzzleInfo> mustSolvePuzzles = new List<TestPuzzleInfo>();
@@ -547,12 +547,16 @@ namespace PuzzleOracleV0
                             mustSolvePuzzles.Add(tpi);
                         }
                     }
+                    Trace.WriteLine(String.Format("Team {0} MUST SOLVE {1} puzzles.", tti.teamNumber, mustSolvePuzzles.Count));
+                    totalSolveCount += mustSolvePuzzles.Count;
+
                     for (int j = 0; j < NUMBER_OF_PHASES; j++)
                     {
                         generateLogDataForTeam(rand, oracleDataPath, testLogDir, j, tti, testPuzzles, mustSolvePuzzles);
                     }
                     Debug.Assert(mustSolvePuzzles.Count == 0);
                 }
+                Trace.WriteLine("TOTAL count of puzzles solved by every team: " + totalSolveCount);
             }
             catch (ApplicationException ex)
             {
@@ -563,7 +567,7 @@ namespace PuzzleOracleV0
 
         private static void generateLogDataForTeam(Random rand, String oracleDataPath, string testLogDir, int phaseNo, TestTeamInfo tti, TestPuzzleInfo[] allPuzzles, List<TestPuzzleInfo> mustSolvePuzzles)
         {
-            String phaseDir = testLogDir + "\\" + TEST_PHASE_DIRNAME + phaseNo;
+            String phaseDir = testLogDir + "\\" + TEST_PHASE_DIRNAME + (phaseNo+1); // Phase dir is 1-based, not 0-based.
 
             // Create the phase dir if needed.
             if (!Directory.Exists(phaseDir))
