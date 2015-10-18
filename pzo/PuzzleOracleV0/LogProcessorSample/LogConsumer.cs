@@ -22,10 +22,19 @@ namespace LogProcessorSample
         const String PROCESSED_WITH_ERRORS_SUBDIR = "processed-with-errors";
         const String RESULTS_SUBDIR = "results";
 
+        const String baseURL = "http://localhost:1566/";
+        const String seriesId = "psdbSeriesInfo2";
+        const String eventId = "events1";
+        const String pzUsername = "Admin1";
+        const string pzpassword = "testAdminPassword";
+        const string pzroleType = "administrator";
+
         readonly String baseWorkingDir;
         readonly String resultsDir;
         readonly String processedDir;
         readonly String processedWithErrorsDir;
+
+        private PuzzleStateUploader psUploader;
 
         public LogConsumer(String baseWorkingDir)
         {
@@ -38,6 +47,10 @@ namespace LogProcessorSample
             Utils.createDirIfNeeded(resultsDir, true);
             Utils.createDirIfNeeded(processedDir, true);
             Utils.createDirIfNeeded(processedWithErrorsDir, true);
+
+            this.psUploader = new PuzzleStateUploader(baseURL);
+            PuzzleStateUploader.PZAuthentication pzAuthentication = new PuzzleStateUploader.PZAuthentication(pzUsername, pzpassword, pzroleType);
+            this.psUploader.startSession(seriesId, pzAuthentication).Wait();
         }
 
         public void logEventHandler(object sender, EventArgs ea)
@@ -68,13 +81,14 @@ namespace LogProcessorSample
 
             foreach (var le in lea.entries)
             {
-                String s = String.Format("{0},{1},{2},{3},{4},{5},{6}",
+                String s = String.Format("{0},{1},{2},{3},{4},{5},{6},{7}",
                     le.transactionId,
                     le.timestamp,
                     le.teamId,
                     le.teamName,
                     le.puzzleId,
                     le.status,
+                    le.solved,
                     le.extraText
                     );
                 String suffix = "(OK)";
@@ -170,6 +184,12 @@ namespace LogProcessorSample
         private void processEntry(LogEntry le)
         {
             Debug.Assert(le.valid);
+
+            // Send an update to the server
+            // TODO: hadError should be set to true
+
+            this.psUploader.updatePuzzleState(eventId, le.teamId, le.puzzleId, le).Wait();
+
             if (le.status.Equals("CORRECT"))
             {
                 recordSolve(le);

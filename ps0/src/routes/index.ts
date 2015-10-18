@@ -126,7 +126,13 @@ router.all('/:type*', function (request, response, next) {
     // TODO: Validate token value
     var token = request.header('token');
     if (validator.isValidString(token)) {
-        next();
+        var series = psdb.series(token);
+        if (series) {
+            next();
+        }
+        else {
+            next(new Error('This is an invalid token ( ' + token + ' ) please provide a valid session token'));
+        }
     }
     else {
         next(new Error('This is an invalid token ( ' + token +' ) please provide a valid session token') );

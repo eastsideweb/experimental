@@ -18,7 +18,33 @@ namespace LogProcessorSample
         public String teamId = "";
         public String teamName = "";
         public String puzzleId = "";
-        public String status = "";
+        private String _status = "";
+        public String status
+        {
+            get
+            {
+                return this._status;
+            }
+            set
+            {
+                this._status = value;
+                // Set the solved field correctly
+                if (value == "CORRECT")
+                {
+                    this.solved = true;
+                }
+                else
+                {
+                    this.solved = false;
+                }
+            }
+        }
+        public Boolean solved // field that is only used in sending the update to the server, should be set to true if status is CORRECT
+        {
+            get;
+            private set ;
+        }
+        
         public String extraText = "";
 
         public String parseError = "";

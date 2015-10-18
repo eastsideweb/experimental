@@ -9,7 +9,7 @@ angular.module('teams').controller('LeaderboardController', ['$scope', '$statePa
 		$scope.initLeaderboard = function () {
 		    $scope.teamScores = [];
 		    $scope.updateLeaderboard();
-		    window.leadeboardTimeout = setInterval($scope.updateLeaderboard, 5000);
+		    window.leadeboardTimeout = setInterval($scope.updateLeaderboard, 3000);
 		}
 
 		$scope.updateLeaderboard = function () {
