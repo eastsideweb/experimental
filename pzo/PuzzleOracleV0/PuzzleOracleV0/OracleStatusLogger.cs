@@ -69,15 +69,16 @@ namespace PuzzleOracleV0
         }
 
 
-        private void logMetaStatus(String status, String msg=null)
+        private void logMetaStatus(String status, String msg = null)
         {
             //extraText = extraText.Replace(",", ""); // Get rid of commas which can confuse the CSV format...
             //logSolveAttempt(META_PUZZLE_ID, status, new PuzzleResponse("", PuzzleResponse.ResponseType.Correct, extraText));
             String extraText = "On " + Environment.MachineName + " at " + Utils.getUTCTimeCode();
-            if (msg != null) {
-            extraText += ": " + msg;
+            if (msg != null)
+            {
+                extraText += ": " + msg;
             }
-            rawLog(META_PUZZLE_ID, status, extraText);       
+            rawLog(META_PUZZLE_ID, status, extraText);
         }
 
         public void logSolveAttempt(String puzzleId, String attemptedSolution, PuzzleResponse response)
@@ -89,7 +90,10 @@ namespace PuzzleOracleV0
             switch (response.code)
             {
                 case PuzzleResponse.ResponseCode.AskLater:
-                    responseCode = "BLACKLISTED";
+                    responseCode = "BLACKLISTED_A";
+                    break;
+                case PuzzleResponse.ResponseCode.AskNever:
+                    responseCode = "BLACKLISTED_B";
                     break;
                 case PuzzleResponse.ResponseCode.Correct:
                     responseCode = "CORRECT";
@@ -106,9 +110,12 @@ namespace PuzzleOracleV0
             }
 
             // Encrypt...
-            String customizer = teamId + puzzleId; // Important - this is the customizer format used for encryption.
-            responseCode = CryptoHelper.simpleEncryptDecrypt(LOG_PASSWORD, customizer, LOG_ENCRYPT_CHARS, responseCode, true);
-            attemptedSolution = CryptoHelper.simpleEncryptDecrypt(LOG_PASSWORD, customizer, LOG_ENCRYPT_CHARS, attemptedSolution, true);
+            //if (false)
+            {
+                String customizer = teamId + puzzleId; // Important - this is the customizer format used for encryption.
+                responseCode = CryptoHelper.simpleEncryptDecrypt(LOG_PASSWORD, customizer, LOG_ENCRYPT_CHARS, responseCode, true);
+                attemptedSolution = CryptoHelper.simpleEncryptDecrypt(LOG_PASSWORD, customizer, LOG_ENCRYPT_CHARS, attemptedSolution, true);
+            }
 
             rawLog(puzzleId, responseCode, attemptedSolution);
 

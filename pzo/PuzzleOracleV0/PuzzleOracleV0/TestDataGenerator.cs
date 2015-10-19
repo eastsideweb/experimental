@@ -21,8 +21,8 @@ namespace PuzzleOracleV0
         const String TEST_PUZZLE_DATA_DIRNAME = "puzzleData";
         const String TEST_JSON_DATA_DIRNAME = "jsonData";
         const String TEST_PHASE_DIRNAME = "phase";
-        const int NUMBER_OF_TEAMS = 1;
-        const int NUMBER_OF_PUZZLES = 1;
+        const int NUMBER_OF_TEAMS = 10;
+        const int NUMBER_OF_PUZZLES = 100;
         const int START_PUZZLE_NUMBER = 100;
         const int START_TEAM_NUMBER = 1;
         const int MAX_TEAM_NAME_LENGTH = 50;
@@ -344,6 +344,8 @@ namespace PuzzleOracleV0
                 }
                 puzzles[i] = tpi;
             }
+            int puzzlesToSolve = puzzles.Sum(tpi => (tpi.solvesLeft>0) ? 1: 0);
+            Trace.WriteLine(String.Format("Team {0} must solve {1} puzzles", tti.teamNumber, puzzlesToSolve));
             return puzzles;
         }
 
@@ -599,6 +601,8 @@ namespace PuzzleOracleV0
                         TestPuzzleInfo.registerNewPhase(testPuzzles);
                         generateLogDataForTeam(rand, oracleDataPath, testLogDir, j, tti, puzzlesToUnsuccessfullyAttempt, puzzlesToSolve);
                     }
+                    Debug.Assert(puzzlesToUnsuccessfullyAttempt.Count == 0);
+                    Debug.Assert(puzzlesToSolve.Count == 0);
                     verifyPostRunStats(testPuzzles);
                 }
             }
@@ -648,7 +652,7 @@ namespace PuzzleOracleV0
                 SimpleSpreadsheetReader sr = CsvExcelReader.loadSpreadsheet(oracleDataPath);
                 oracle = new PuzzleOracle(sr);
 
-                while (unsuccessfulAttemptsLeft > 0)
+                while (unsuccessfulAttemptsLeft > 0 || solvesLeft > 0)
                 {
                     // We decide whether to solve or unsuccessfully attempt this time around, with probability that depends
                     // on the fractional amount of solves left.
@@ -668,7 +672,7 @@ namespace PuzzleOracleV0
 
                     if (blacklisted)
                     {
-                        const int MAX_TEMP_BLACKLISTS = 3;
+                        const int MAX_TEMP_BLACKLISTS = 5;
                         // Team has been blacklisted for this puzzle!
                         tpi.tempBlacklistsThisPhase++;
                         int max = rand.Next(1, MAX_TEMP_BLACKLISTS + 1);
@@ -697,6 +701,10 @@ namespace PuzzleOracleV0
                     else
                     {
                         // We didn't solve the puzzle. We could get here even if solve==true because of blacklisting.
+                        if (!blacklisted && !permanentlyBlacklisted)
+                        {
+                            tpi.incorrectAttemptsMadeThisPhase++;
+                        }
                         if (solve)
                         {
                             // Must be blacklist
@@ -757,12 +765,12 @@ namespace PuzzleOracleV0
             if (pr.code == PuzzleResponse.ResponseCode.AskNever)
             {
                 // permanent blacklisting.
-                Debug.Assert(tpi.incorrectAttemptsMadeThisPhase > Blacklister.MAX_TOTAL_ATTEMPTS);
+                Debug.Assert(tpi.incorrectAttemptsMadeThisPhase >= Blacklister.MAX_TOTAL_ATTEMPTS);
             }
             else if (pr.code == PuzzleResponse.ResponseCode.AskLater)
             {
                 // temporary blacklisting.
-                Debug.Assert(tpi.incorrectAttemptsMadeThisPhase > Blacklister.MAX_ATTEMPTS_PER_SESSION);
+                Debug.Assert(tpi.incorrectAttemptsMadeThisPhase >= Blacklister.MAX_ATTEMPTS_PER_SESSION);
             }
             else
             {
