@@ -21,30 +21,56 @@ namespace PuzzleOracleV0
         const String TEST_PUZZLE_DATA_DIRNAME = "puzzleData";
         const String TEST_JSON_DATA_DIRNAME = "jsonData";
         const String TEST_PHASE_DIRNAME = "phase";
-        const int NUMBER_OF_TEAMS = 10;
-        const int NUMBER_OF_PUZZLES = 100;
+        const int NUMBER_OF_TEAMS = 1;
+        const int NUMBER_OF_PUZZLES = 1;
         const int START_PUZZLE_NUMBER = 100;
         const int START_TEAM_NUMBER = 1;
         const int MAX_TEAM_NAME_LENGTH = 50;
-        const int MIN_ATTEMPTS_PER_PUZZLE = 0;   // However if a team must solve it will generate one (correct) solution.
-        const int MAX_ATTEMPTS_PER_PUZZLE = 10; // Per team.
         const int NUMBER_OF_PHASES = 5; // Number of times the oracle is stopped/started, (roughly) simulating thumb-drive swap-outs.
 
         public delegate String ToJson<T>(String indent, T item); // converts the item to JSon
 
         class TestPuzzleInfo
         {
-            public int puzzleNumber;
-            public String puzzleId;
-            public String puzzleName;
-            public int numberOfHints;
-            public TestPuzzleInfo(int number)
+            readonly public int puzzleNumber;
+            readonly public String puzzleId;
+            readonly public String puzzleName;
+            readonly public int numberOfHints;
+
+            // These are running stats that change as submissions are attempted.
+            public int incorrectAttemptsLeft;
+            public int solvesLeft;
+            public int incorrectAttemptsMadeThisPhase;
+            public bool solvedThisPhase;
+            public int tempBlacklistsThisPhase;
+
+
+            public TestPuzzleInfo(int puzzleNumber)
             {
-                puzzleNumber = number;
-                puzzleId = "" + number;
+                this.puzzleNumber = puzzleNumber;
+                puzzleId = "" + puzzleNumber;
                 Debug.Assert(puzzleId.Length == 3); // we expecte 3-digit numbers.
                 puzzleName = "Puzzle " + puzzleId;
-                numberOfHints = number % 10;
+                numberOfHints = puzzleNumber % 10;
+
+                incorrectAttemptsLeft = solvesLeft = incorrectAttemptsMadeThisPhase = 0;
+                tempBlacklistsThisPhase = 0;
+                solvedThisPhase = false;
+            }
+
+            public void registerNewPhase()
+            {
+                incorrectAttemptsMadeThisPhase = tempBlacklistsThisPhase = 0;
+                solvedThisPhase = false;
+            }
+
+
+            internal static void registerNewPhase(TestPuzzleInfo[] puzzleInfo)
+            {
+                foreach (var tpi in puzzleInfo)
+                {
+                    tpi.registerNewPhase();
+                }
             }
         };
 
@@ -62,12 +88,14 @@ namespace PuzzleOracleV0
 
         }
 
+#if false // OBSOLETE
         /// <summary>
         /// This is for test purposes only - it generates test log data to the specified directory.
         /// These data files have NOTHING to do with this instance of puzzle oracle. Current team ID, puzzle-data etc are ignored.
         /// In fact, we create multiple instances of the oracle logger and write random submission logs to them!
         /// </summary>
         /// <param name="testLogDirName"></param>
+
         internal static void generateTestLogDataOld(String testDir)
         {
             Random rand = new Random();
@@ -130,6 +158,7 @@ namespace PuzzleOracleV0
                 Trace.TraceError(MODULE + "Exception attempting to generate test log data. Ex: " + ex);
             }
         }
+#endif
 
         private static string generateRandomSolutionAttempt(Random rand, string puzzleId, bool solve)
         {
@@ -174,7 +203,7 @@ namespace PuzzleOracleV0
             solutionAttempt = PuzzleOracle.normalizeSolution(solutionAttempt);
             if (solutionAttempt.IndexOf(answer) == 0)
             {
-                pr = new PuzzleResponse("^" + answer, PuzzleResponse.ResponseType.Correct, "Correct!");
+                pr = new PuzzleResponse("^" + answer, PuzzleResponse.ResponseCode.Correct, "Correct!");
             }
             else if (Regex.IsMatch(solutionAttempt, hintRegex))
             {
@@ -184,13 +213,13 @@ namespace PuzzleOracleV0
                 if (hintNumber > 0 && hintNumber <= puzzleDigit)
                 {
                     // It's a recognized hint for this puzzle.
-                    pr = new PuzzleResponse("^P" + puzzleDigit + "H" + hintNumber, PuzzleResponse.ResponseType.Incorrect, "Right track!");
+                    pr = new PuzzleResponse("^P" + puzzleDigit + "H" + hintNumber, PuzzleResponse.ResponseCode.Incorrect, "Right track!");
                 }
             }
             if (pr == null)
             {
                 bool notFound = (rand.Next(0, 2) == 0);
-                PuzzleResponse.ResponseType rt = notFound ? PuzzleResponse.ResponseType.NotFound : PuzzleResponse.ResponseType.AskLater;
+                PuzzleResponse.ResponseCode rt = notFound ? PuzzleResponse.ResponseCode.NotFound : PuzzleResponse.ResponseCode.AskLater;
                 pr = new PuzzleResponse(solutionAttempt, rt, notFound ? "Unfortunately not correct." : "Try again after some time.");
             }
 
@@ -220,7 +249,7 @@ namespace PuzzleOracleV0
             }
 
             TestTeamInfo[] testTeamInfo = makeTestTeamInfo();
-            TestPuzzleInfo[] testPuzzleInfo = makeTestPuzzleInfo();
+            TestPuzzleInfo[] testPuzzleInfo = makeTestPuzzleInfo(rand);
 
             // Synthesize team-info.csv
             synthesizeTeamInfo(testPDataDir, testTeamInfo);
@@ -292,13 +321,28 @@ namespace PuzzleOracleV0
         }
 
 
-        private static TestPuzzleInfo[] makeTestPuzzleInfo()
+        private static TestPuzzleInfo[] makeTestPuzzleInfo(Random rand, TestTeamInfo tti = null)
         {
+            const int MIN_INCORRECT_ATTEMPTS_PER_PUZZLE = 0;  // May get exceeded by 1 because of blacklisting.
+            const int MAX_INCORRECT_ATTEMPTS_PER_PUZZLE = 10; // May get exceeded by 1 because of blacklisting..
+            const int MAX_SOLVES_PER_PUZZLE = 3; // Per team
+
             TestPuzzleInfo[] puzzles = new TestPuzzleInfo[NUMBER_OF_PUZZLES];
             for (int i = 0; i < puzzles.Length; i++)
             {
                 int puzzleNumber = i + START_PUZZLE_NUMBER;
-                puzzles[i] = new TestPuzzleInfo(puzzleNumber);
+                int puzzleNumberMod100 = puzzleNumber % 100;
+                TestPuzzleInfo tpi = new TestPuzzleInfo(puzzleNumber);
+                if (tti != null)
+                {
+                    bool solve = puzzleNumberMod100 % tti.teamNumber == 0;
+                    if (solve)
+                    {
+                        tpi.solvesLeft = rand.Next(1, MAX_SOLVES_PER_PUZZLE + 1);
+                    }
+                    tpi.incorrectAttemptsLeft = rand.Next(MIN_INCORRECT_ATTEMPTS_PER_PUZZLE, MAX_INCORRECT_ATTEMPTS_PER_PUZZLE);
+                }
+                puzzles[i] = tpi;
             }
             return puzzles;
         }
@@ -532,31 +576,31 @@ namespace PuzzleOracleV0
                 }
 
                 TestTeamInfo[] testTeams = makeTestTeamInfo();
-                TestPuzzleInfo[] testPuzzles = makeTestPuzzleInfo();
-                int totalSolveCount = 0;
                 foreach (var tti in testTeams)
                 {
-                    List<TestPuzzleInfo> mustSolvePuzzles = new List<TestPuzzleInfo>();
+                    TestPuzzleInfo[] testPuzzles = makeTestPuzzleInfo(rand, tti);
+                    List<TestPuzzleInfo> puzzlesToUnsuccessfullyAttempt = new List<TestPuzzleInfo>();
+                    List<TestPuzzleInfo> puzzlesToSolve = new List<TestPuzzleInfo>();
 
-                    // Add the puzzles the team must solve.
-                    foreach (var tpi in testPuzzles)
+                    foreach (var ttp in testPuzzles)
                     {
-                        int puzzleNumberMod100 = tpi.puzzleNumber % 100;
-                        if (puzzleNumberMod100 % tti.teamNumber == 0)
+                        if (ttp.incorrectAttemptsLeft > 0)
                         {
-                            mustSolvePuzzles.Add(tpi);
+                            puzzlesToUnsuccessfullyAttempt.Add(ttp);
+                        }
+                        if (ttp.solvesLeft > 0)
+                        {
+                            puzzlesToSolve.Add(ttp);
                         }
                     }
-                    Trace.WriteLine(String.Format("Team {0} MUST SOLVE {1} puzzles.", tti.teamNumber, mustSolvePuzzles.Count));
-                    totalSolveCount += mustSolvePuzzles.Count;
 
                     for (int j = 0; j < NUMBER_OF_PHASES; j++)
                     {
-                        generateLogDataForTeam(rand, oracleDataPath, testLogDir, j, tti, testPuzzles, mustSolvePuzzles);
+                        TestPuzzleInfo.registerNewPhase(testPuzzles);
+                        generateLogDataForTeam(rand, oracleDataPath, testLogDir, j, tti, puzzlesToUnsuccessfullyAttempt, puzzlesToSolve);
                     }
-                    Debug.Assert(mustSolvePuzzles.Count == 0);
+                    verifyPostRunStats(testPuzzles);
                 }
-                Trace.WriteLine("TOTAL count of puzzles solved by every team: " + totalSolveCount);
             }
             catch (ApplicationException ex)
             {
@@ -565,9 +609,20 @@ namespace PuzzleOracleV0
             }
         }
 
-        private static void generateLogDataForTeam(Random rand, String oracleDataPath, string testLogDir, int phaseNo, TestTeamInfo tti, TestPuzzleInfo[] allPuzzles, List<TestPuzzleInfo> mustSolvePuzzles)
+
+        private static void verifyPostRunStats(TestPuzzleInfo[] puzzleInfo)
         {
-            String phaseDir = testLogDir + "\\" + TEST_PHASE_DIRNAME + (phaseNo+1); // Phase dir is 1-based, not 0-based.
+            foreach (var tpi in puzzleInfo)
+            {
+                Debug.Assert(tpi.solvesLeft == 0);
+                Debug.Assert(tpi.incorrectAttemptsLeft == 0);
+            }
+        }
+
+        private static void generateLogDataForTeam(Random rand, String oracleDataPath, string testLogDir, int phaseNo,
+            TestTeamInfo tti, List<TestPuzzleInfo> puzzlesToUnsuccessfullyAttempt, List<TestPuzzleInfo> puzzlesToSolve)
+        {
+            String phaseDir = testLogDir + "\\" + TEST_PHASE_DIRNAME + (phaseNo + 1); // Phase dir is 1-based, not 0-based.
 
             // Create the phase dir if needed.
             if (!Directory.Exists(phaseDir))
@@ -579,32 +634,142 @@ namespace PuzzleOracleV0
             // Compute number of puzzles to attempt in this phase. 
             int phasesLeft = NUMBER_OF_PHASES - phaseNo; // including this one.
             Debug.Assert(phasesLeft > 0);
-            int numberToSolve = mustSolvePuzzles.Count;
-            if (phasesLeft > 1)
-            {
-                // Let's pick a number that averages to be mustSolvePuzzles.Count/NUM_PHASES
-                int maxNumberToSolve = 2 * mustSolvePuzzles.Count / phasesLeft;
-                maxNumberToSolve = Math.Min(maxNumberToSolve, mustSolvePuzzles.Count);
-                numberToSolve = rand.Next(0, maxNumberToSolve + 1);
-            }
-            
-            // Create Oracle and submssion logger.
+            int totalUnsuccessfulAttemptsLeft = puzzlesToUnsuccessfullyAttempt.Sum(tpi => tpi.incorrectAttemptsLeft);
+            int totalSolvesLeft = puzzlesToSolve.Sum(tpi => tpi.solvesLeft);
+            int unsuccessfulAttemptsLeft = Utils.pickRandomPortion(rand, totalUnsuccessfulAttemptsLeft, phasesLeft);;
+            int solvesLeft = Utils.pickRandomPortion(rand, totalSolvesLeft, phasesLeft);
+
+     
+
+            // Create Oracle and submssion logger for this phase.
             PuzzleOracle oracle = null;
             using (OracleSubmissionLogger logger = new OracleSubmissionLogger(phaseDir, tti.teamId, tti.teamName))
             {
                 SimpleSpreadsheetReader sr = CsvExcelReader.loadSpreadsheet(oracleDataPath);
                 oracle = new PuzzleOracle(sr);
 
-                for (int i = 0; i < numberToSolve; i++)
+                while (unsuccessfulAttemptsLeft > 0)
                 {
-                    TestPuzzleInfo tpi = Utils.removeRandomElemement<TestPuzzleInfo>(rand, mustSolvePuzzles);
-                    String answer = generateRandomSolutionAttempt(rand, tpi.puzzleId, true); // true == must solve.
-                    PuzzleResponse pr = oracle.checkSolution(tpi.puzzleId, answer);
-                    logger.logSolveAttempt(tpi.puzzleId, answer, pr);
+                    // We decide whether to solve or unsuccessfully attempt this time around, with probability that depends
+                    // on the fractional amount of solves left.
+                    bool solve = rand.NextDouble() < solvesLeft / (double)(solvesLeft + unsuccessfulAttemptsLeft);
+                    Debug.Assert(!solve || puzzlesToSolve.Count > 0); // solve==true implies we have puzzles to solve!
+                    Debug.Assert(solve || puzzlesToUnsuccessfullyAttempt.Count > 0); // solve==false implies we have unsuccessful puzzles to solve!
+
+                    // Pick a random puzzle to work with...
+                    TestPuzzleInfo tpi = Utils.selectRandomElemement<TestPuzzleInfo>(rand, solve ? puzzlesToSolve : puzzlesToUnsuccessfullyAttempt);
+
+                    String solutionAttempt = generateRandomSolutionAttempt(rand, tpi.puzzleId, solve); // true == must solve.
+                    PuzzleResponse pr = oracle.checkSolution(tpi.puzzleId, solutionAttempt);
+                    verifyOracleResponse(tti, tpi, solve, solutionAttempt, pr);
+                    logger.logSolveAttempt(tpi.puzzleId, solutionAttempt, pr);
+                    bool blacklisted = pr.code == PuzzleResponse.ResponseCode.AskLater;
+                    bool permanentlyBlacklisted = pr.code == PuzzleResponse.ResponseCode.AskNever;
+
+                    if (blacklisted)
+                    {
+                        const int MAX_TEMP_BLACKLISTS = 3;
+                        // Team has been blacklisted for this puzzle!
+                        tpi.tempBlacklistsThisPhase++;
+                        int max = rand.Next(1, MAX_TEMP_BLACKLISTS + 1);
+                        if (tpi.tempBlacklistsThisPhase >= max)
+                        {
+                            // Reset the blacklist (we have to simulate this as we aren't waiting the required time.
+                            oracle.clearTemporaryBlacklist(tpi.puzzleId);
+                            logger.logInfo("TLDGEN: CLEARING TEMPORARY BLACKLISTING for puzzle " + tpi.puzzleId);
+                            tpi.tempBlacklistsThisPhase = 0;
+                        }
+                    }
+
+
+                    if (pr.code == PuzzleResponse.ResponseCode.Correct)
+                    {
+                        Debug.Assert(solve);
+                        Debug.Assert(solvesLeft > 0);
+                        solvesLeft--;
+                        Debug.Assert(tpi.solvesLeft > 0);
+                        tpi.solvesLeft--;
+                        if (tpi.solvesLeft == 0)
+                        {
+                            puzzlesToSolve.Remove(tpi); // If it's been solved tpi had better be in the puzzles to solve list!
+                        }
+                    }
+                    else
+                    {
+                        // We didn't solve the puzzle. We could get here even if solve==true because of blacklisting.
+                        if (solve)
+                        {
+                            // Must be blacklist
+                            Debug.Assert(blacklisted || permanentlyBlacklisted);
+                            Trace.WriteLine(String.Format("Team {0} attempt to solve puzzle {1} failed because of blacklisting.", tti.teamNumber, tpi.puzzleNumber));
+
+                            // If we are in the last phase and this is a PERMANENT blacklist, we override that so that we can be sure to
+                            // solve this puzzle next time through!
+                            if (phasesLeft == 1 && permanentlyBlacklisted)
+                            {
+                                oracle.clearPermanentBlacklist(tpi.puzzleId);
+                                logger.logInfo("TLDGEN: CLEARING PERMANENT BLACKLISTING for puzzle " + tpi.puzzleId);
+                                tpi.tempBlacklistsThisPhase = 0;
+                            }
+                        }
+                        else
+                        {
+                            Debug.Assert(unsuccessfulAttemptsLeft > 0);
+                            unsuccessfulAttemptsLeft--;
+                            Debug.Assert(tpi.incorrectAttemptsLeft > 0);
+                            tpi.incorrectAttemptsLeft--;
+                            if (tpi.incorrectAttemptsLeft == 0)
+                            {
+                                puzzlesToUnsuccessfullyAttempt.Remove(tpi);
+                            }
+                        }
+                    }
                 }
             }
 
         }
 
+
+
+        private static void verifyOracleResponse(TestTeamInfo tti, TestPuzzleInfo tpi, bool mustSolve, string solutionAttempt, PuzzleResponse pr)
+        {
+            String hintRegex = "^P" + tpi.puzzleId + "H" + "[0-9]";
+            PuzzleResponse.ResponseCode expectedResponse = PuzzleResponse.ResponseCode.NotFound;
+
+            solutionAttempt = PuzzleOracle.normalizeSolution(solutionAttempt);
+
+            if (solutionAttempt.IndexOf("P" + tpi.puzzleId + "A") == 0)
+            {
+                expectedResponse = PuzzleResponse.ResponseCode.Correct;
+            }
+            else if (Regex.IsMatch(solutionAttempt, hintRegex))
+            {
+                int puzzleDigit = tpi.puzzleNumber % 10;
+                int hintNumber = solutionAttempt[5] - '0'; // The M in PNNNHM
+                if (hintNumber > 0 && hintNumber <= puzzleDigit)
+                {
+                    // We expect to match this hint for this puzzle.
+                    expectedResponse = PuzzleResponse.ResponseCode.Incorrect;
+                }
+            }
+
+            // Now let's check against actual response.
+            if (pr.code == PuzzleResponse.ResponseCode.AskNever)
+            {
+                // permanent blacklisting.
+                Debug.Assert(tpi.incorrectAttemptsMadeThisPhase > Blacklister.MAX_TOTAL_ATTEMPTS);
+            }
+            else if (pr.code == PuzzleResponse.ResponseCode.AskLater)
+            {
+                // temporary blacklisting.
+                Debug.Assert(tpi.incorrectAttemptsMadeThisPhase > Blacklister.MAX_ATTEMPTS_PER_SESSION);
+            }
+            else
+            {
+                Debug.Assert(expectedResponse == pr.code);
+                Debug.Assert((mustSolve && pr.code == PuzzleResponse.ResponseCode.Correct)
+                    || (!mustSolve && pr.code != PuzzleResponse.ResponseCode.Correct));
+            }
+        }
     }
 }

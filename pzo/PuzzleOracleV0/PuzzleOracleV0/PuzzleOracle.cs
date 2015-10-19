@@ -18,6 +18,7 @@ namespace PuzzleOracleV0
 {
     class PuzzleOracle
     {
+        const string MODULE = "PO: "; // for debug tracing.
         const String ORACLE_PASSWORD = "benny"; // data files are encrypted with this password
         const String ORACLE_ENCRYPT_CHARS = ".,:;?!_- 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
         const String SPREADSHEET_LABEL_ID = "ID"; // ID field of spreadsheet
@@ -243,14 +244,14 @@ namespace PuzzleOracleV0
                     }
                     sResponse = String.Format(BLACKLISTED_RESPONSE, sDelay, pi.puzzleId);
                 }
-                pr = new PuzzleResponse(solution, PuzzleResponse.ResponseType.AskLater, sResponse);
+                pr = new PuzzleResponse(solution, PuzzleResponse.ResponseCode.AskLater, sResponse);
                 return pr; // ***************** EARLY RETURN *******************
             }
 
             pr = pi.matchResponse(solution);
             if (pr == null)
             {
-                pr = new PuzzleResponse(solution, PuzzleResponse.ResponseType.NotFound, GENERIC_INCORRECT_RESPONSE);
+                pr = new PuzzleResponse(solution, PuzzleResponse.ResponseCode.NotFound, GENERIC_INCORRECT_RESPONSE);
             }
 
             pi.blacklister.registerSubmission();
@@ -258,13 +259,13 @@ namespace PuzzleOracleV0
             // If already solved, but solution is not correct, we put a special message.
             if (!alreadySolved)
             {
-                pi.puzzleSolved = (pr.type == PuzzleResponse.ResponseType.Correct);
+                pi.puzzleSolved = (pr.code == PuzzleResponse.ResponseCode.Correct);
 
             }
-            else if (pr.type != PuzzleResponse.ResponseType.Correct)
+            else if (pr.code != PuzzleResponse.ResponseCode.Correct)
             {
                 // Puzzle has been solved before but there is a new, incorrect submission. We give a helpful message to the user.
-                pr = new PuzzleResponse(solution, pr.type, INCORRECT_BUT_PUZZLE_ANSWERED_BEFORE);
+                pr = new PuzzleResponse(solution, pr.code, INCORRECT_BUT_PUZZLE_ANSWERED_BEFORE);
             }
 
             return pr;
@@ -373,7 +374,7 @@ namespace PuzzleOracleV0
                     continue;
                 }
 
-                PuzzleResponse pAnswerResponse = buildPuzzleResponse(answer, PuzzleResponse.ResponseType.Correct);
+                PuzzleResponse pAnswerResponse = buildPuzzleResponse(answer, PuzzleResponse.ResponseCode.Correct);
                 if (pAnswerResponse == null)
                 {
                     Trace.WriteLine(String.Format("Skipping row {0}: Invalid Answer", i));
@@ -388,7 +389,7 @@ namespace PuzzleOracleV0
                     String field = Utils.stripEndBlanks(sRow[j]);
                     if (field.Length > 0)
                     {
-                        PuzzleResponse pr = buildPuzzleResponse(field, PuzzleResponse.ResponseType.Incorrect);
+                        PuzzleResponse pr = buildPuzzleResponse(field, PuzzleResponse.ResponseCode.Incorrect);
                         if (pr == null)
                         {
                             Trace.WriteLine(String.Format("Ignoring hint {0} on row {1}: Invalid hint content", j, i));
@@ -573,7 +574,7 @@ namespace PuzzleOracleV0
         /// <param name="s"></param>
         /// <param name="responseType"></param>
         /// <returns></returns>
-        private PuzzleResponse buildPuzzleResponse(string s, PuzzleResponse.ResponseType responseType)
+        private PuzzleResponse buildPuzzleResponse(string s, PuzzleResponse.ResponseCode responseType)
         // Format REGEX[:HINT]
         {
             String pattern = ""; // REGEX pattern that matches the user-supplied solution.
@@ -654,5 +655,19 @@ namespace PuzzleOracleV0
 
         private bool sourceIsEncrypted=false;
         public bool isSourceEncrypted { get { return sourceIsEncrypted; } }
+
+        internal void clearTemporaryBlacklist(string puzzleId)
+        {
+            Trace.WriteLine(MODULE + "Clearing TEMPORARY blacklisting for puzzle " + puzzleId);
+            PuzzleInfo pi = puzzles[puzzleId];
+            pi.blacklister.clearTemporaryBlacklist();
+        }
+
+        internal void clearPermanentBlacklist(string puzzleId)
+        {
+            Trace.WriteLine(MODULE + "Clearing PERMANENT blacklisting for puzzle " + puzzleId);
+            PuzzleInfo pi = puzzles[puzzleId];
+            pi.blacklister.clearPermanentBlacklist();
+        }
     }
 }

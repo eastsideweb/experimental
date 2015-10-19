@@ -63,16 +63,21 @@ namespace PuzzleOracleV0
 
         }
 
+        public void logInfo(String msg)
+        {
+            logMetaStatus("INFO", msg);
+        }
+
+
         private void logMetaStatus(String status, String msg=null)
         {
             //extraText = extraText.Replace(",", ""); // Get rid of commas which can confuse the CSV format...
             //logSolveAttempt(META_PUZZLE_ID, status, new PuzzleResponse("", PuzzleResponse.ResponseType.Correct, extraText));
             String extraText = "On " + Environment.MachineName + " at " + Utils.getUTCTimeCode();
             if (msg != null) {
-            extraText += ". " + msg;
+            extraText += ": " + msg;
             }
-            rawLog(META_PUZZLE_ID, status, extraText);
-            
+            rawLog(META_PUZZLE_ID, status, extraText);       
         }
 
         public void logSolveAttempt(String puzzleId, String attemptedSolution, PuzzleResponse response)
@@ -81,18 +86,18 @@ namespace PuzzleOracleV0
             attemptedSolution = PuzzleOracle.normalizeSolution(attemptedSolution);
 
             String responseCode = "INVALID";
-            switch (response.type)
+            switch (response.code)
             {
-                case PuzzleResponse.ResponseType.AskLater:
+                case PuzzleResponse.ResponseCode.AskLater:
                     responseCode = "BLACKLISTED";
                     break;
-                case PuzzleResponse.ResponseType.Correct:
+                case PuzzleResponse.ResponseCode.Correct:
                     responseCode = "CORRECT";
                     break;
-                case PuzzleResponse.ResponseType.Incorrect:
+                case PuzzleResponse.ResponseCode.Incorrect:
                     responseCode = "INCORRECT"; // INCORRET means it matched a hint.
                     break;
-                case PuzzleResponse.ResponseType.NotFound:
+                case PuzzleResponse.ResponseCode.NotFound:
                     responseCode = "NOTFOUND";
                     break;
                 default:

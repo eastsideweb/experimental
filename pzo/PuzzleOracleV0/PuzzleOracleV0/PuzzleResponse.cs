@@ -12,7 +12,7 @@ namespace PuzzleOracleV0
     /// </summary>
     class PuzzleResponse
     {
-        public enum ResponseType
+        public enum ResponseCode
         {
             Correct,
             Incorrect,
@@ -22,16 +22,16 @@ namespace PuzzleOracleV0
         };
 
 
-        public PuzzleResponse(String pattern, ResponseType type, String response)
+        public PuzzleResponse(String pattern, ResponseCode code, String response)
         {
             this.pattern = pattern;
-            this.type = type;
+            this.code = code;
             this.response = response;
             this.workingPattern = "^" + Regex.Replace(pattern, @"^\^|\$$", "") + "$"; // Make sure we match the whole string.
         }
 
         public readonly String pattern;
-        public readonly ResponseType type;
+        public readonly ResponseCode code;
         public readonly string response;
         public readonly string workingPattern;
 

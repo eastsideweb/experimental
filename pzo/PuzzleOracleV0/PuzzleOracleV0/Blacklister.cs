@@ -108,5 +108,19 @@ namespace PuzzleOracleV0
                 }
             }
         }
+
+        internal void clearTemporaryBlacklist()
+        {
+            attemptsAtSessionStart = 0;
+            blackListStartTime = new DateTime(2015, 1, 1); // some time in the distant past
+            blacklisted = false;
+        }
+
+        internal void clearPermanentBlacklist()
+        {
+            clearTemporaryBlacklist();
+            totalAttempts = 0;
+            permanentlyBlacklisted = false;
+        }
     }
 }
