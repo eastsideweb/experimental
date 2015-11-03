@@ -45,6 +45,8 @@ namespace PuzzleOracleV0
         readonly String[,] responseAliases = {
 {"_C", "Correct!"},
 {"_KG", "Keep going. You're on the right track."},
+{"_NQ", "Not Quite."},
+{"_CNQ", "Close, but not quite."},
 {"_WT", "You're on the wrong track."},
 {"_RTIC", "Read the puzzle instructions carefully."}
                                   };
@@ -445,9 +447,10 @@ namespace PuzzleOracleV0
         // Encrypts/decrypts given text using the oracle password, customized by the puzzle ID.
         private string endecrypt(string id, string text, bool encrypt)
         {
-            if (encrypt) {
-                  // Add random chars to randomize text length.
-                  text = addRandomChars(text);
+            if (encrypt)
+            {
+                // Add random chars to randomize text length.
+                text = addRandomChars(text);
             }
             String eText = CryptoHelper.simpleEncryptDecrypt(ORACLE_PASSWORD, id, ORACLE_ENCRYPT_CHARS, text, encrypt);
             if (!encrypt)
@@ -486,12 +489,13 @@ namespace PuzzleOracleV0
         private string removeRandomChars(string eText)
         {
             int n = eText[0] - '0'; // n could be 0, in which no random chars follow.
-            if (n<0 || n>9) {
+            if (n < 0 || n > 9)
+            {
                 throw new ArgumentException("Expecting first char to be a digit!");
             }
             return eText.Substring(n + 1); // better be enough chars.
         }
-        
+
 
         /*
          * OBSOLETE
@@ -602,7 +606,7 @@ namespace PuzzleOracleV0
             // Expand any aliases in response.
             response = expandAliases(response);
 
-            PuzzleResponse pr =  new PuzzleResponse(pattern, responseType, response);
+            PuzzleResponse pr = new PuzzleResponse(pattern, responseType, response);
 
             // Check that the pattern is well formed...
             try
@@ -653,7 +657,7 @@ namespace PuzzleOracleV0
         }
 
 
-        private bool sourceIsEncrypted=false;
+        private bool sourceIsEncrypted = false;
         public bool isSourceEncrypted { get { return sourceIsEncrypted; } }
 
         internal void clearTemporaryBlacklist(string puzzleId)
