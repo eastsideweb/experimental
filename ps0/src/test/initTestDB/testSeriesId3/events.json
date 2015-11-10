@@ -1,0 +1,31 @@
+[
+    {
+        "name": "Test Event1",
+        "_id": "events1",
+        "description": "description for event 1 from test series 2",
+        "active": true,
+        "status": "started",
+        "puzzleIds": ["860", "288", "683", "199", "138", "343", "456", "565", "381", "613", 
+      "705", "403", "788", "684", "765", "292", "585", "609", "347", "540", 
+      "193", "578", "725", "366", "302", "408", "590", "887", "886", "803", 
+      "118", "852", "240", "319", "350", "203", "394", "217", "664", "101", 
+      "537", "107", "871", "550", "183", "600", "328", "428", "111", "721", 
+      "881", "892", "650", "489", "794", "696", "884", "686", "556", "753", 
+      "110", "771", "429", "521", "680", "819", "207", "536", "166", "248"
+        ],
+        "teamIds": [ "T1", "T2", "T3", "T4", "T5"],
+        "playerIds": [ "P1", "P2", "P3", "P4","P5", "P6", "P7", "P8","P9", "P10" ],
+        "instructorIds": [ "instructors1" ]
+    },
+	{ "name": "Test Event2", 
+      "_id": "events2", 
+      "description": "description for event 2 from test series 1",
+      "active": false,
+      "status":  "notStarted",
+      "puzzleIds":  [], 
+      "teamIds":  [], 
+      "playerIds": [],
+      "instructorIds": ["instructors1"]
+	}
+
+]

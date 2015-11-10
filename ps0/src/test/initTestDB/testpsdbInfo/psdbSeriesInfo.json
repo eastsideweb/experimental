@@ -1,4 +1,6 @@
 [
-{ "name": "Test Series1", "_id": "psdbSeriesInfo1", "description": "description for test series 1", "database": "SeriesDB_testSeriesId1" },
-{ "name": "Test Series2", "_id": "psdbSeriesInfo2", "description": "description for test series 2", "database": "SeriesDB_testSeriesId2" }
+{ "name": "Test Series2", "_id": "psdbSeriesInfo2", "description": "description for test series 2", "database": "SeriesDB_testSeriesId2" },
+{ "name": "ESA Nov 2015 event", "_id": "psdbSeriesInfo3", "description": "ESA Nov 2015 event series", "database": "SeriesDB_testSeriesId3" },
+{ "name": "Test Series1", "_id": "psdbSeriesInfo1", "description": "description for test series 1", "database": "SeriesDB_testSeriesId1" }
+
 ]

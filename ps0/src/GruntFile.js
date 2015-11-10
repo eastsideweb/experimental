@@ -45,6 +45,10 @@ module.exports = function (grunt) {
                 dest: '../Debug/'
             },
             {
+                src: '.bowerrc',
+                dest: '../Debug/'
+            },
+            {
                 expand: true,
                 src: '*.json',
                 dest: '../Debug/',
@@ -116,7 +120,7 @@ module.exports = function (grunt) {
                         src: ['lib/fakedb/*.js', 'lib/fakedb/*.json', 'lib/psdb/*.js', 'lib/*.js', 
                             'public/client/styles/* ', 'public/client/img/*', 'public/client/lib/*.js', 'public/schema/*.json', 'public/client/templates/*.js', 
                             'public/*', 'public/client/*.js', 'public/modules/*/*.js', 
-                            'routes/*.js', '*.js', '*config*.json', 'package.json', 'bower.json'],
+                            'routes/*.js', '*.js', '*config*.json', 'package.json', 'bower.json','.bowerrc'],
                         dest: '../../../psdbRoot/'
                     }
                 ]

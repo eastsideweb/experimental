@@ -1,0 +1,12 @@
+[
+{ "name": "Test player 1", "_id": "P1","description": "player 1 for the series 2", "active": true,"password": "P1"},
+{ "name": "Test player 2", "_id": "P2", "description": "player 2 for the series 2", "active": true,"password": "P2"},
+{"name": "Test player 3",  "_id": "P3", "description": "player 3 for the series 2", "active": true,"password": "P3"},
+{ "name": "Test player 4", "_id": "P4", "description": "player 4 for the series 2", "active": true,"password": "P4"},
+{ "name": "Test player 5", "_id": "P5", "description": "player 5 for the series 2", "active": true,"password": "P5"},
+{ "name": "Test player 6", "_id": "P6", "description": "player 6 for the series 2", "active": true,"password": "P6"},
+{ "name": "Test player 7", "_id": "P7", "description": "player 7 for the series 2", "active": false,"password": "P7"},
+{ "name": "Test player 8", "_id": "P8", "description": "player 8 for the series 2", "active": false,"password": "P8"},
+{ "name": "Test player 9", "_id": "P9", "description": "player 9 for the series 2", "active": false,"password": "P9"},
+{ "name": "Test player 10", "_id": "P10", "description": "player 10 for the series 2", "active": false,"password": "P10"}
+]
