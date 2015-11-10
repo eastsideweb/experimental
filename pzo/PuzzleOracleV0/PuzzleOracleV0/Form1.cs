@@ -587,11 +587,11 @@ namespace PuzzleOracleV0
         private void uxDisplayResponse(PuzzleResponse pr)
         {
             Color c = this.color_IncorrectAnswer;
-            if (pr.type == PuzzleResponse.ResponseType.Correct)
+            if (pr.code == PuzzleResponse.ResponseCode.Correct)
             {
                 c = this.color_CorrectAnswer;
             } 
-            else if (pr.type == PuzzleResponse.ResponseType.AskLater)
+            else if (pr.code == PuzzleResponse.ResponseCode.AskLater)
             {
                 c = this.color_DelayedAnswer;
             }

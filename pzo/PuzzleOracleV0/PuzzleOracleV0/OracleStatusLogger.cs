@@ -63,11 +63,22 @@ namespace PuzzleOracleV0
 
         }
 
-        private void logMetaStatus(String status)
+        public void logInfo(String msg)
+        {
+            logMetaStatus("INFO", msg);
+        }
+
+
+        private void logMetaStatus(String status, String msg = null)
         {
             //extraText = extraText.Replace(",", ""); // Get rid of commas which can confuse the CSV format...
             //logSolveAttempt(META_PUZZLE_ID, status, new PuzzleResponse("", PuzzleResponse.ResponseType.Correct, extraText));
-            rawLog(META_PUZZLE_ID, status, "On " + Environment.MachineName + " at " + Utils.getUTCTimeCode());
+            String extraText = "On " + Environment.MachineName + " at " + Utils.getUTCTimeCode();
+            if (msg != null)
+            {
+                extraText += ": " + msg;
+            }
+            rawLog(META_PUZZLE_ID, status, extraText);
         }
 
         public void logSolveAttempt(String puzzleId, String attemptedSolution, PuzzleResponse response)
@@ -76,18 +87,21 @@ namespace PuzzleOracleV0
             attemptedSolution = PuzzleOracle.normalizeSolution(attemptedSolution);
 
             String responseCode = "INVALID";
-            switch (response.type)
+            switch (response.code)
             {
-                case PuzzleResponse.ResponseType.AskLater:
-                    responseCode = "BLACKLISTED";
+                case PuzzleResponse.ResponseCode.AskLater:
+                    responseCode = "BLACKLISTED_A";
                     break;
-                case PuzzleResponse.ResponseType.Correct:
+                case PuzzleResponse.ResponseCode.AskNever:
+                    responseCode = "BLACKLISTED_B";
+                    break;
+                case PuzzleResponse.ResponseCode.Correct:
                     responseCode = "CORRECT";
                     break;
-                case PuzzleResponse.ResponseType.Incorrect:
+                case PuzzleResponse.ResponseCode.Incorrect:
                     responseCode = "INCORRECT"; // INCORRET means it matched a hint.
                     break;
-                case PuzzleResponse.ResponseType.NotFound:
+                case PuzzleResponse.ResponseCode.NotFound:
                     responseCode = "NOTFOUND";
                     break;
                 default:
@@ -96,9 +110,12 @@ namespace PuzzleOracleV0
             }
 
             // Encrypt...
-            String customizer = teamId + puzzleId; // Important - this is the customizer format used for encryption.
-            responseCode = CryptoHelper.simpleEncryptDecrypt(LOG_PASSWORD, customizer, LOG_ENCRYPT_CHARS, responseCode, true);
-            attemptedSolution = CryptoHelper.simpleEncryptDecrypt(LOG_PASSWORD, customizer, LOG_ENCRYPT_CHARS, attemptedSolution, true);
+            //if (false)
+            {
+                String customizer = teamId + puzzleId; // Important - this is the customizer format used for encryption.
+                responseCode = CryptoHelper.simpleEncryptDecrypt(LOG_PASSWORD, customizer, LOG_ENCRYPT_CHARS, responseCode, true);
+                attemptedSolution = CryptoHelper.simpleEncryptDecrypt(LOG_PASSWORD, customizer, LOG_ENCRYPT_CHARS, attemptedSolution, true);
+            }
 
             rawLog(puzzleId, responseCode, attemptedSolution);
 

@@ -255,7 +255,8 @@ namespace LogProcessorSample
                                         "CORRECT",
                                         "INCORRECT",
                                         "NOTFOUND",
-                                        "BLACKLISTED"
+                                        "BLACKLISTED_A",
+                                        "BLACKLISTED_B"
                                     };
             foreach (var s in validValues)
             {

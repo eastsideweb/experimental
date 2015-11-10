@@ -177,5 +177,38 @@ namespace PuzzleOracleV0
                 tw.Write(",");
             }
         }
+
+        public static T selectRandomElemement<T>(Random rand, List<T> elements)
+        {
+            return elements[rand.Next(0, elements.Count)];
+        }
+
+        public static T removeRandomElemement<T>(Random rand, List<T> elements)
+        {
+            int n = rand.Next(0, elements.Count);
+            T element = elements[n];
+            elements.Remove(element);
+            return element;
+        }
+
+        public static int pickRandomPortion(Random rand, int items, int partitions)
+        {
+            int portion = items;
+            if (partitions > 1)
+            {
+                // We attempt to spread out (on average) the items over the multiple partitions.
+                double d = rand.NextDouble() * items / partitions;
+                portion = (int)d;
+
+                // There may be a fractional part left - we add 1 item with appropriate
+                // probability to approximate this factional part over all partitions.
+                d -= portion; // fraction part left
+                if (portion < items && rand.NextDouble() < d)
+                {
+                    portion++;
+                }
+            }
+            return portion;
+        }
     }
 }
