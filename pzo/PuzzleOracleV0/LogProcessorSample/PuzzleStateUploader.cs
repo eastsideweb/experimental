@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using System.Diagnostics;
 
 namespace LogProcessorSample
 {
@@ -38,6 +39,7 @@ namespace LogProcessorSample
         private PZAuthentication pzAuthorization;
         private String seriesId;
         private String sessionToken;
+        private bool sessionStarted;
 
         public PuzzleStateUploader(String baseUrl)
         {
@@ -85,15 +87,18 @@ namespace LogProcessorSample
                     client.DefaultRequestHeaders.Add("token", sessionToken);
                     Console.WriteLine("Token: " + this.sessionToken);
                 }
+                sessionStarted = true;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Exception: " + ex.Message + " " + ex.HResult);
+                throw;
             }
         }
 
         public async Task releaseSession()
         {
+            Debug.Assert(sessionStarted);
             if (this.sessionToken != null && this.seriesId != null)
             {
                 String deleteUrl = String.Format(releaseSessionUrlFormat, this.seriesId, this.sessionToken);
@@ -112,6 +117,10 @@ namespace LogProcessorSample
 
         public async Task updatePuzzleState(String eventId, String teamId, String puzzleId, LogEntry le)
         {
+            if (!sessionStarted)
+            {
+                return;
+            }
             IEnumerable<String> headerValues = null;
             client.DefaultRequestHeaders.TryGetValues("token", out headerValues);
             String updateUrl = String.Format(updatePuzzleStatusUrlFormat, eventId, teamId, puzzleId);
