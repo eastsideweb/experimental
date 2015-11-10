@@ -179,4 +179,5 @@ module.exports = function (grunt) {
     grunt.registerTask('MEANClient', ['watch:target2']);
     grunt.registerTask('CT', ['dust', 'concat']);
     grunt.registerTask('deploy', ['copy:deployCopy']);
+    grunt.registerTask('buildAll',['typescript','copy:debugCopy','dust','concat'])
 };
