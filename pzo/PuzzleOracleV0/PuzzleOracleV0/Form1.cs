@@ -575,7 +575,7 @@ namespace PuzzleOracleV0
                 try
                 {
                     oracleLogger.logSolveAttempt(id, answer, pr);
-                    String extendedResponse = buildExtendedResponse(id, pr);
+                    String extendedResponse = Administrator.buildExtendedResponse(id, pr);
                     uxDisplayResponse(pr, extendedResponse);
                 }
                 catch (ApplicationException ex)
@@ -585,40 +585,7 @@ namespace PuzzleOracleV0
             }
         }
 
-        // Build puzzle-specific extended response.
-        private string buildExtendedResponse(string id, PuzzleResponse pr)
-        {
-            if (pr.code != PuzzleResponse.ResponseCode.Correct)
-            {
-                return "";
-            }
-            String response = "";
-
-            String[,] challengeInfo = {
-                {"101", "XBQ"}
-            };
-            String[,] questInfo = {
-                {"101", "XBQ"}
-            };
-
-            Char c = id[2];
-            int i2 = c - '0';
-            Debug.Assert(i2 >= 0 && i2 <= 9);
-            if (i2 % 2 == 0)
-            {
-                if (i2 % 4 != 0)
-                {
-                    // Challenge
-                    response = pr.response + " Go on Challenge ABC";
-                }
-                else
-                {
-                    response = pr.response + " Go on Quest XYZ";
-                }
-            }
-
-            return response;
-        }
+        
 
         private void uxDisplayResponse(PuzzleResponse pr, String extendedResponse)
         {
