@@ -82,17 +82,18 @@ namespace PuzzleOracleV0
 
     // Quests ...
     {684, 1, 0, 19}, // Quest 1 -> FMX (Guild 1)
-    {765, 1, 2, 20}, // Quest 3 -> LGO (Guild 2)
-    {540, 1, 4, 21}, // Quest 5 -> KWU (Guild 3)
-    {585, 1, 6, 22}, // Quest 7 -> WCY (Guild 4)
-    {101, 1, 8, 23}, // Quest 9 -> ZKV (Guild 5)
-    {537, 1, 10, 24}, // Quest 11 -> OHN (Guild 6)
-    {203, 1, 1, 25}, // Quest 2 -> WFZ (Guild 1)
-    {394, 1, 3, 26}, // Quest 4 -> AGA (Guild 2)
-    {292, 1, 5, 27}, // Quest 6 -> LVF (Guild 3)
-    {664, 1, 7, 28}, // Quest 8 -> CFE (Guild 4)
-    {578, 1, 9, 29}, // Quest 10 -> LGU (Guild 5)
-    {725, 1, 11, 30}, // Quest 12 -> JKX (Guild 6)
+    {765, 1, 0, 20}, // Quest 3 -> LGO (Guild 2)
+    {540, 1, 0, 21}, // Quest 5 -> KWU (Guild 3)
+    {585, 1, 0, 22}, // Quest 7 -> WCY (Guild 4)
+    {101, 1, 0, 23}, // Quest 9 -> ZKV (Guild 5)
+    {537, 1, 0, 24}, // Quest 11 -> OHN (Guild 6)
+    {203, 1, 0, 25}, // Quest 2 -> WFZ (Guild 1)
+    {394, 1, 0, 26}, // Quest 4 -> AGA (Guild 2)
+    {292, 1, 0, 27}, // Quest 6 -> LVF (Guild 3)
+    {664, 1, 0, 28}, // Quest 8 -> CFE (Guild 4)
+    {578, 1, 0, 29}, // Quest 10 -> LGU (Guild 5)
+    {725, 1, 0, 30}, // Quest 12 -> JKX (Guild 6)
+
                                          {998, 0, 0, 0},
                                          {999, 1, 0, 1}
                                          //{333, 1, 1, 2}
