@@ -43,7 +43,7 @@ namespace PuzzleOracleV0
 
         // If present in the responses (after the ':') they are expanded into their corresponding long-form text.
         readonly String[,] responseAliases = {
-{"_C", "Correct! Record your answer on the progress chart."},
+{"_C", "Correct! Record your answer on your clan's tally chart."},
 {"_KG", "Keep going. You're on the right track."},
 {"_NQ", "Not Quite."},
 {"_CNQ", "Close, but not quite."},

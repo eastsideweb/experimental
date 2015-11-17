@@ -25,16 +25,23 @@ namespace PuzzleOracleV0
                                   };
         static String[] activityTypeFormatStrings = {
                                             // {0} is oracle response, {1} is activity name and {2} is ticket
-                                            "{0}\nCONGRATULATIONS, you have unlocked challenge \"{1}\"!"
-                                            + " Two members of your guild should present secret code \"{2}\" to the \"{1}\" challenge station."
+                                            // DISABLED - direction players to a specific challenge is DISABLED
+                                            //"{0}\nCONGRATULATIONS, you have unlocked challenge \"{1}\"!"
+                                            // + " Two members of your guild should present secret code \"{2}\" to the \"{1}\" challenge station."
+                                            // + " Do not share this code with another clan.",
+                                            //
+                                            "{0}\n\nCONGRATULATIONS, you have unlocked a CHALLENGE!"
+                                            + " Two members of your guild should present secret code \"{2}\" to central command for further instructions."
                                             + " Do not share this code with another clan.",
-                                            "{0}\nCONGRATULATIONS, your guild has won ticket \"{2}\" to a QUEST."
+                                            "{0}\n\nCONGRATULATIONS, your guild has won ticket \"{2}\" to a QUEST!"
                                             + " Two members of your guild should present this ticket to central command for further instructions."
                                             //+ " Please give someone in your guild who has not yet gone on a quest the chance to do so."
                                             + " Do not share this ticket with another clan!"
                                         };
         static string[] challengeNames =
         {
+            // We don't send people to specific challenges...
+            /*
 "Impromptu Skit",
 "Landmarks",
 "Go Botany",
@@ -42,11 +49,12 @@ namespace PuzzleOracleV0
 "Win in a min",
 "Drawing",
 "Builder"
+             */
         };
 
         static string[] questNames = 
         {
-            null // Quests don't have names
+            //  We don't send people to specific quests...
         };
 
         static string[][] activityNames = 
@@ -82,17 +90,17 @@ namespace PuzzleOracleV0
 
     // Quests ...
     {684, 1, 0, 19}, // Quest 1 -> FMX (Guild 1)
-    {765, 1, 0, 20}, // Quest 3 -> LGO (Guild 2)
-    {540, 1, 0, 21}, // Quest 5 -> KWU (Guild 3)
-    {585, 1, 0, 22}, // Quest 7 -> WCY (Guild 4)
-    {101, 1, 0, 23}, // Quest 9 -> ZKV (Guild 5)
-    {537, 1, 0, 24}, // Quest 11 -> OHN (Guild 6)
-    {203, 1, 0, 25}, // Quest 2 -> WFZ (Guild 1)
-    {394, 1, 0, 26}, // Quest 4 -> AGA (Guild 2)
-    {292, 1, 0, 27}, // Quest 6 -> LVF (Guild 3)
-    {664, 1, 0, 28}, // Quest 8 -> CFE (Guild 4)
-    {578, 1, 0, 29}, // Quest 10 -> LGU (Guild 5)
-    {725, 1, 0, 30}, // Quest 12 -> JKX (Guild 6)
+    {765, 1, 2, 20}, // Quest 3 -> LGO (Guild 2)
+    {540, 1, 4, 21}, // Quest 5 -> KWU (Guild 3)
+    {585, 1, 6, 22}, // Quest 7 -> WCY (Guild 4)
+    {101, 1, 8, 23}, // Quest 9 -> ZKV (Guild 5)
+    {537, 1, 10, 24}, // Quest 11 -> OHN (Guild 6)
+    {203, 1, 1, 25}, // Quest 2 -> WFZ (Guild 1)
+    {394, 1, 3, 26}, // Quest 4 -> AGA (Guild 2)
+    {292, 1, 5, 27}, // Quest 6 -> LVF (Guild 3)
+    {664, 1, 7, 28}, // Quest 8 -> CFE (Guild 4)
+    {578, 1, 9, 29}, // Quest 10 -> LGU (Guild 5)
+    {725, 1, 11, 30}, // Quest 12 -> JKX (Guild 6)
 
                                          {998, 0, 0, 0},
                                          {999, 1, 0, 1}
@@ -118,7 +126,9 @@ namespace PuzzleOracleV0
                     int activityType = activityData[i, 1];
                     int activityIndex = activityData[i, 2];
                     int ticketIndex = activityData[i, 3];
-                    String activity = activityNames[activityType][activityIndex];
+                    String[] names = activityNames[activityType];
+                    // Discregard activity index if there are no activity names
+                    String activity = (names.Length==0)? null : names[activityIndex] ;
                     String ticket = tickets[ticketIndex];
                     string format = activityTypeFormatStrings[activityType];
                     response = String.Format(format, pr.response, activity, ticket);
