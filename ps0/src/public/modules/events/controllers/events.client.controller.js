@@ -32,7 +32,7 @@ angular.module('events').controller('EventsController', ['$scope', '$stateParams
                 $scope.instructorIds = [];
                        
 			}, function(errorResponse) {
-				$scope.error = errorResponse.data.message;
+				$scope.error = "ERROR: " + errorResponse.data.message;
 			});
 		};
 
@@ -61,7 +61,7 @@ angular.module('events').controller('EventsController', ['$scope', '$stateParams
 			    // $location.path('events/' + event._id); <-- Doesn't work
 				$location.path('events/' + id);
 			}, function(errorResponse) {
-				$scope.error = errorResponse.title;
+			    $scope.error = "ERROR: " + errorResponse.title;
 			});
 		};
 
@@ -210,21 +210,21 @@ angular.module('events').controller('EventsController', ['$scope', '$stateParams
                             $http.put('events/' + eventId + '/' + $scope.sublist.subtype, listAddedItems).success(function (response) {
                                 $location.path('events/' + eventId);
                             }).error(function (response) {
-                                $scope.error = response.message;
+                                $scope.error = "ERROR: " + response.message;
                             });
                         }
                         else {
                             $location.path('events/' + eventId);
                         }
                     }).error(function (response) {
-                        $scope.error = response.message;
+                        $scope.error = "ERROR: " + response.message;
                     });
             }
             else if (listAddedItems.length !== 0) {
                 $http.put('events/' + eventId + '/' + $scope.sublist.subtype, listAddedItems).success(function (response) {
                     $location.path('events/' + eventId);
                 }).error(function (response) {
-                    $scope.error = response.message;
+                    $scope.error = "ERROR: " + response.message;
                 });
             }
             else {

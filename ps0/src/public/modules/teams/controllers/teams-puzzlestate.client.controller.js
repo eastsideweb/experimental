@@ -25,7 +25,7 @@ angular.module('teams').controller('PuzzleStateController', ['$scope', '$rootSco
                     // TODO: Make sure there is only one active event present
                     $scope.activeEventId = null;
                     if (responseEvent.length !== 1) {
-                        $scope.error = "Zero or more than one active events found";
+                        $scope.error = "ERROR: Zero or more than one active events found";
                     }
                     else {
                         $scope.activeEventId = responseEvent[0]._id;
@@ -40,12 +40,12 @@ angular.module('teams').controller('PuzzleStateController', ['$scope', '$rootSco
                                 }
                             });
                         }).error(function (response) {
-                            $scope.error = response.title;
+                            $scope.error = "ERROR: " + response.title;
                         });
 
                     }
                 }).error(function (responseEvent) {
-                    $scope.error = responseEvent.title;
+                    $scope.error = "ERROR: " + responseEvent.title;
                 });
 
             });
@@ -63,7 +63,7 @@ angular.module('teams').controller('PuzzleStateController', ['$scope', '$rootSco
 			    $location.path('teams/' + $scope.teamId);
 			}).error(function (response) {
 			    $location.path('teams/' + $scope.teamId);
-			    $scope.error = response.message;
+			    $scope.error = "ERROR: " + response.message;
 			});
 		};
 

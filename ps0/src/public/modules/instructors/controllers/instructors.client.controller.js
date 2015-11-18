@@ -21,7 +21,7 @@ angular.module('instructors').controller('InstructorsController', ['$scope', '$s
 				// Clear form fields
 				$scope.name = '';
 			}, function(errorResponse) {
-				$scope.error = errorResponse.data.message;
+			    $scope.error = "ERROR: " + errorResponse.data.message;
 			});
 		};
 
@@ -50,7 +50,7 @@ angular.module('instructors').controller('InstructorsController', ['$scope', '$s
 			    // $location.path('instructors/' + instructor._id); <-- Doesn't work
 				$location.path('instructors/' + id);
 			}, function(errorResponse) {
-				$scope.error = errorResponse.title;
+			    $scope.error = "ERROR: " + errorResponse.title;
 			});
 		};
 

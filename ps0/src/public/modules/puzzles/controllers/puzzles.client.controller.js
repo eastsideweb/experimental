@@ -21,7 +21,7 @@ angular.module('puzzles').controller('PuzzlesController', ['$scope', '$statePara
 				// Clear form fields
 				$scope.name = '';
 			}, function(errorResponse) {
-				$scope.error = errorResponse.data.message;
+			    $scope.error = "ERROR: " + errorResponse.data.message;
 			});
 		};
 
@@ -50,7 +50,7 @@ angular.module('puzzles').controller('PuzzlesController', ['$scope', '$statePara
 			    // $location.path('puzzles/' + puzzle._id); <-- Doesn't work
 				$location.path('puzzles/' + id);
 			}, function(errorResponse) {
-				$scope.error = errorResponse.title;
+			    $scope.error = "ERROR: " + errorResponse.title;
 			});
 		};
 

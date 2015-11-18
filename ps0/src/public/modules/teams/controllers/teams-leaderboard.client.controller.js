@@ -17,12 +17,12 @@ angular.module('teams').controller('LeaderboardController', ['$scope', '$statePa
 		    $scope.teams = Teams.query(function () {
 		        $http.get('/events?active=true').success(function (responseEvent) {
 		            if (responseEvent.length === 0) {
-		                $scope.error = "Zero active events found.";
+		                $scope.error = "ERROR: Zero active events found.";
 		                $scope.teamScores = [];
 		            }
 		            else {
 		                if (responseEvent.length > 1) {
-		                    $scope.error = "Zero or more than one active events found. Using the first event";
+		                    $scope.error = "ERROR: Zero or more than one active events found. Using the first event";
 		                }
 		                $scope.activeEvent = responseEvent[0];
 		                var teamCount = $scope.activeEvent.teamIds.length;
