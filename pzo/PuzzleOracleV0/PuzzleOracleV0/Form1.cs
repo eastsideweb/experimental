@@ -575,7 +575,8 @@ namespace PuzzleOracleV0
                 try
                 {
                     oracleLogger.logSolveAttempt(id, answer, pr);
-                    uxDisplayResponse(pr);
+                    String extendedResponse = Administrator.buildExtendedResponse(id, pr);
+                    uxDisplayResponse(pr, extendedResponse);
                 }
                 catch (ApplicationException ex)
                 {
@@ -584,8 +585,14 @@ namespace PuzzleOracleV0
             }
         }
 
-        private void uxDisplayResponse(PuzzleResponse pr)
+        
+
+        private void uxDisplayResponse(PuzzleResponse pr, String extendedResponse)
         {
+            if (String.IsNullOrEmpty(extendedResponse))
+            {
+                extendedResponse = pr.response;
+            }
             Color c = this.color_IncorrectAnswer;
             if (pr.code == PuzzleResponse.ResponseCode.Correct)
             {
@@ -596,7 +603,7 @@ namespace PuzzleOracleV0
                 c = this.color_DelayedAnswer;
             }
             this.responseRichTextBox.ForeColor = c;
-            this.responseRichTextBox.Text = pr.response;
+            this.responseRichTextBox.Text = extendedResponse;
             this.oracleButton.Hide();
             this.responsePanel.Show();
         }

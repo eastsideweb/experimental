@@ -79,10 +79,10 @@
             // 
             this.responseRichTextBox.BackColor = System.Drawing.Color.LightGray;
             this.responseRichTextBox.Font = new System.Drawing.Font("Cooper Black", 16F);
-            this.responseRichTextBox.Location = new System.Drawing.Point(28, 44);
+            this.responseRichTextBox.Location = new System.Drawing.Point(0, 44);
             this.responseRichTextBox.Name = "responseRichTextBox";
             this.responseRichTextBox.ReadOnly = true;
-            this.responseRichTextBox.Size = new System.Drawing.Size(689, 207);
+            this.responseRichTextBox.Size = new System.Drawing.Size(868, 224);
             this.responseRichTextBox.TabIndex = 6;
             this.responseRichTextBox.TabStop = false;
             this.responseRichTextBox.Text = "Sample oracle text";
@@ -104,7 +104,7 @@
             this.oracleButton.BackColor = System.Drawing.SystemColors.Control;
             this.oracleButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.oracleButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.oracleButton.Location = new System.Drawing.Point(389, 349);
+            this.oracleButton.Location = new System.Drawing.Point(426, 349);
             this.oracleButton.Name = "oracleButton";
             this.oracleButton.Size = new System.Drawing.Size(226, 38);
             this.oracleButton.TabIndex = 8;
@@ -185,7 +185,7 @@
             this.responseLabel.AutoSize = true;
             this.responseLabel.BackColor = System.Drawing.Color.Transparent;
             this.responseLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.responseLabel.Location = new System.Drawing.Point(248, 8);
+            this.responseLabel.Location = new System.Drawing.Point(310, 8);
             this.responseLabel.Name = "responseLabel";
             this.responseLabel.Size = new System.Drawing.Size(254, 29);
             this.responseLabel.TabIndex = 7;
@@ -196,10 +196,10 @@
             this.titleLabel.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.titleLabel.AutoSize = true;
             this.titleLabel.BackColor = System.Drawing.Color.Transparent;
-            this.titleLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.titleLabel.Location = new System.Drawing.Point(355, 31);
+            this.titleLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 20F);
+            this.titleLabel.Location = new System.Drawing.Point(392, 26);
             this.titleLabel.Name = "titleLabel";
-            this.titleLabel.Size = new System.Drawing.Size(287, 32);
+            this.titleLabel.Size = new System.Drawing.Size(350, 39);
             this.titleLabel.TabIndex = 14;
             this.titleLabel.Text = "Team: UNASSIGNED";
             // 
@@ -208,9 +208,9 @@
             this.responsePanel.BackColor = System.Drawing.Color.Transparent;
             this.responsePanel.Controls.Add(this.responseRichTextBox);
             this.responsePanel.Controls.Add(this.responseLabel);
-            this.responsePanel.Location = new System.Drawing.Point(129, 397);
+            this.responsePanel.Location = new System.Drawing.Point(89, 397);
             this.responsePanel.Name = "responsePanel";
-            this.responsePanel.Size = new System.Drawing.Size(746, 254);
+            this.responsePanel.Size = new System.Drawing.Size(871, 268);
             this.responsePanel.TabIndex = 15;
             // 
             // codePanel
@@ -268,7 +268,7 @@
             this.resetButton.BackColor = System.Drawing.SystemColors.Control;
             this.resetButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.resetButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.resetButton.Location = new System.Drawing.Point(348, 657);
+            this.resetButton.Location = new System.Drawing.Point(385, 657);
             this.resetButton.Name = "resetButton";
             this.resetButton.Size = new System.Drawing.Size(283, 38);
             this.resetButton.TabIndex = 16;
@@ -283,7 +283,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImage = global::PuzzleOracleV0.Properties.Resources.c_curve2;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ClientSize = new System.Drawing.Size(998, 704);
+            this.ClientSize = new System.Drawing.Size(1072, 704);
             this.Controls.Add(this.resetButton);
             this.Controls.Add(this.codePanel);
             this.Controls.Add(this.oracleButton);

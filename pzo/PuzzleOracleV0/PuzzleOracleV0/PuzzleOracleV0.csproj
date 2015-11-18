@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Administrator.cs" />
     <Compile Include="Blacklister.cs" />
     <Compile Include="CryptoHelper.cs" />
     <Compile Include="ErrorReport.cs" />

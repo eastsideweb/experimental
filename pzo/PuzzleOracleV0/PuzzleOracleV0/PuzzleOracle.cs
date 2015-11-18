@@ -43,7 +43,7 @@ namespace PuzzleOracleV0
 
         // If present in the responses (after the ':') they are expanded into their corresponding long-form text.
         readonly String[,] responseAliases = {
-{"_C", "Correct!"},
+{"_C", "Correct! Record your answer on your clan's tally chart."},
 {"_KG", "Keep going. You're on the right track."},
 {"_NQ", "Not Quite."},
 {"_CNQ", "Close, but not quite."},
@@ -355,7 +355,9 @@ namespace PuzzleOracleV0
                 String id = Utils.stripBlanks(sRow[0]);
                 if (!Regex.IsMatch(id, REGEX_ID))
                 {
-                    Trace.WriteLine(String.Format("Skipping row {0}: invalid ID", i));
+                    String msg = String.Format("Skipped row {0}: invalid ID", i);
+                    Trace.WriteLine(msg);
+                    ErrorReport.logWarning(msg);
                     continue;
                 }
 
@@ -372,14 +374,18 @@ namespace PuzzleOracleV0
                 // Neither should be blank.
                 if (name.Equals("") || answer.Equals(""))
                 {
-                    Trace.WriteLine(String.Format("Skipping row {0}: blank Name or Answer", i));
+                    String msg = String.Format("Skipped row {0}: blank Name or Answer", i);
+                    ErrorReport.logWarning(msg);
+                    Trace.WriteLine(msg);
                     continue;
                 }
 
                 PuzzleResponse pAnswerResponse = buildPuzzleResponse(answer, PuzzleResponse.ResponseCode.Correct);
                 if (pAnswerResponse == null)
                 {
-                    Trace.WriteLine(String.Format("Skipping row {0}: Invalid Answer", i));
+                    String msg = String.Format("Skipped row {0}: Invalid Answer", i);
+                    ErrorReport.logWarning(msg);
+                    Trace.WriteLine(msg);
                     continue;
                 }
                 PuzzleInfo pi = new PuzzleInfo(id, name);
@@ -394,7 +400,9 @@ namespace PuzzleOracleV0
                         PuzzleResponse pr = buildPuzzleResponse(field, PuzzleResponse.ResponseCode.Incorrect);
                         if (pr == null)
                         {
-                            Trace.WriteLine(String.Format("Ignoring hint {0} on row {1}: Invalid hint content", j, i));
+                            String msg = String.Format("Ignored hint {0} on row {1}: Invalid hint content", j, i);
+                            Trace.WriteLine(msg);
+                            ErrorReport.logWarning(msg);
                             continue;
                         }
                         pi.addResponse(pr);
@@ -411,7 +419,9 @@ namespace PuzzleOracleV0
                 }
                 catch (ArgumentException)
                 {
-                    Trace.WriteLine(String.Format("Ignoring row {0}: Duplicate ID {1}", i, id));
+                    String msg = String.Format("Ignored row {0}: Duplicate ID {1}", i, id);
+                    Trace.WriteLine(msg);
+                    ErrorReport.logWarning(msg);
                 }
 
             }
@@ -615,7 +625,9 @@ namespace PuzzleOracleV0
             }
             catch (ArgumentException)
             {
-                Trace.WriteLine(String.Format("Ignoring pattern: Invalid REGEX '{0}'", pattern));
+                String msg = String.Format("Ignoring pattern: Invalid REGEX '{0}'", pattern);
+                ErrorReport.logWarning(msg);
+                Trace.WriteLine(msg);
                 return null;
             }
 

@@ -10,6 +10,8 @@ namespace PuzzleOracleV0
     {
         const String WARNING = "WARNING: ";
         const String ERROR = "ERROR: ";
+        static int warningCount = 0;
+        static int errorCount = 0;
 
         static List<String> log = new List<string>();
         public static void init()
@@ -20,16 +22,22 @@ namespace PuzzleOracleV0
         public static void logError(String s)
         {
             internalLog(ERROR + s);
+            errorCount++;
         }
         public static void logWarning(String s)
         {
             internalLog(WARNING + s);
+            warningCount++;
         }
         static void internalLog(String s)
         {
             log.Add(s);
         }
 
+        static bool hasWarningsOrErrors()
+        {
+            return errorCount + warningCount > 0;
+        }
         public static String getLogAsText()
         {
             String text = "";

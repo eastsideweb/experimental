@@ -21,7 +21,7 @@ namespace PuzzleOracleV0
         const String TEST_PUZZLE_DATA_DIRNAME = "puzzleData";
         const String TEST_JSON_DATA_DIRNAME = "jsonData";
         const String TEST_PHASE_DIRNAME = "phase";
-        const int NUMBER_OF_TEAMS = 10;
+        const int NUMBER_OF_TEAMS = 5;
         const int NUMBER_OF_PUZZLES = 100;
         const int START_PUZZLE_NUMBER = 100;
         const int START_TEAM_NUMBER = 1;
@@ -58,6 +58,18 @@ namespace PuzzleOracleV0
                 solvedThisPhase = false;
             }
 
+            public TestPuzzleInfo(String id, String puzzleName)
+            {
+                this.puzzleNumber = 0;
+                puzzleId = id;
+                Debug.Assert(puzzleId.Length == 3); // we expecte 3-digit numbers.
+                this.puzzleName = puzzleName;
+                numberOfHints = 0;
+                incorrectAttemptsLeft = solvesLeft = incorrectAttemptsMadeThisPhase = 0;
+                tempBlacklistsThisPhase = 0;
+                solvedThisPhase = false;
+            }
+
             public void registerNewPhase()
             {
                 incorrectAttemptsMadeThisPhase = tempBlacklistsThisPhase = 0;
@@ -86,6 +98,12 @@ namespace PuzzleOracleV0
                 teamName = "Team " + teamId;
             }
 
+            public TestTeamInfo(String id, String name)
+            {
+                teamNumber = 0;
+                teamId = id;
+                teamName = name;
+            }
         }
 
 #if false // OBSOLETE
@@ -250,19 +268,22 @@ namespace PuzzleOracleV0
 
             TestTeamInfo[] testTeamInfo = makeTestTeamInfo();
             TestPuzzleInfo[] testPuzzleInfo = makeTestPuzzleInfo(rand);
+            testTeamInfo = generateEAS2015TestTeamInfo();
+            testPuzzleInfo = generateEAS2015TestPuzzleInfo();
 
             // Synthesize team-info.csv
-            synthesizeTeamInfo(testPDataDir, testTeamInfo);
+            //synthesizeTeamInfo(testPDataDir, testTeamInfo);
 
             // Synthesize JSON files
             synthesizePsdbJsonInfo(testJsonDataDir, testTeamInfo, testPuzzleInfo);
-
+/*
             // Synthesize FREETEXT version of test puzzle-data
             synthesizeFreetextPuzzleData(testPDataDir, testPuzzleInfo);
 
             // Make secondary copiles - encrypted and freetext - of the puzzle-data by 
             // create instances of the puzzle oracle and asking it to save.
             generatePuzzleDataCopies(testPDataDir);
+ */
         }
 
         private static void generatePuzzleDataCopies(string testPDataDir)
@@ -344,8 +365,11 @@ namespace PuzzleOracleV0
                 }
                 puzzles[i] = tpi;
             }
-            int puzzlesToSolve = puzzles.Sum(tpi => (tpi.solvesLeft>0) ? 1: 0);
-            Trace.WriteLine(String.Format("Team {0} must solve {1} puzzles", tti.teamNumber, puzzlesToSolve));
+            int puzzlesToSolve = puzzles.Sum(tpi => (tpi.solvesLeft > 0) ? 1 : 0);
+            if (tti != null)
+            {
+                Trace.WriteLine(String.Format("Team {0} must solve {1} puzzles", tti.teamNumber, puzzlesToSolve));
+            }
             return puzzles;
         }
 
@@ -368,6 +392,109 @@ namespace PuzzleOracleV0
                 tr.Flush();
             }
 
+        }
+
+        private static TestTeamInfo[] generateEAS2015TestTeamInfo()
+        {
+            String[,] teamData = {
+                                   {"T1","Bear"},
+{"T2","The Orca Clan"},
+{"T3","The Osprey Clan"},
+{"T4","The Raven Clan"},
+{"T5","The Wolf Clan"}
+
+                               };
+            TestTeamInfo[] teams = new TestTeamInfo[teamData.GetUpperBound(0)+1];
+            for (int i = 0; i < teams.Length; i++)
+            {
+                int teamNumber = i + START_TEAM_NUMBER;
+                teams[i] = new TestTeamInfo(teamData[i,0], teamData[i,1]);
+            }
+            return teams;
+
+
+            return null;
+        }
+
+        private static TestPuzzleInfo[] generateEAS2015TestPuzzleInfo()
+        {
+            String[,] data = {{"860","Journey Back Home"},
+{"288","Lasers I - Red and Blue"},
+{"683","Lasers II - A Fight for Freedom"},
+{"199","Lasers III - A Many-sided Personality"},
+{"138","Lasers IV - Hidden Equation"},
+{"343","Lasers V - Green machine"},
+{"456","Lasers VI - Rope Trick"},
+{"565","Tile Jumble  I: Something Fishy"},
+{"381","Tile Jumble II: Red and Blue"},
+{"613","Tile Jumble III: Prime Production"},
+{"705","Tile Jumble IV: Lord of the Sky"},
+{"403","Tile Jumble V: Emerald City"},
+{"788","Tile Jumble  VI : Busy Busy Busy"},
+{"684","Clocks I - Weekly Pursuits"},
+{"765","Clocks II - Jewel of the Northwest"},
+{"292","Clocks III - Starts with"},
+{"585","Clocks IV - Natural Talon"},
+{"609","Clocks V - Smart Caw"},
+{"347","Clocks VI - Verdant Hue"},
+{"540","Check Your Spellings"},
+{"193","American Adventurer"},
+{"578","Digital Math"},
+{"725","EAS Involvement"},
+{"366","Miss Tresses"},
+{"302","States"},
+{"408","Know your Guts"},
+{"590","Center Tile"},
+{"887","Capital Punishment"},
+{"886","Alice's Secret Notebook I"},
+{"803","Bricks I - Free to be US"},
+{"118","Bricks II - West End"},
+{"852","Bricks III - Between Cities"},
+{"240","Bricks IV - Animal Analogy"},
+{"319","Bricks V - They Munch a Bunch"},
+{"350","Bricks VI - North of the Lake"},
+{"203","Crisscross I"},
+{"394","Crisscross II"},
+{"217","Crisscross III"},
+{"664","Crisscross IV"},
+{"101","Crisscross V"},
+{"537","Crisscross VI"},
+{"107","Alice's Secret Notebook II"},
+{"871","Outwit-Outplay-Outlast"},
+{"550","Numeric Justice I"},
+{"183","Numeric Justice II"},
+{"600","Numeric Justice III"},
+{"328","Pioneer Letters I"},
+{"428","Pioneer Letters II"},
+{"111","Pioneer Letters III"},
+{"721","TBD04"},
+{"881","TBD05"},
+{"892","TBD06"},
+{"650","TBD07"},
+{"489","TBD08"},
+{"794","TBD09"},
+{"696","TBD10"},
+{"884","TBD11"},
+{"686","TBD12"},
+{"556","TBD13"},
+{"753","TBD14"},
+{"110","TBD15"},
+{"771","TBD16"},
+{"429","TBD17"},
+{"521","TBD18"},
+{"680","TBD19"},
+{"819","TBD20"},
+{"207","TBD21"},
+{"536","TBD22"},
+{"166","TBD23"},
+{"248","TBD24"}
+};
+            TestPuzzleInfo[] tpiArray = new TestPuzzleInfo[data.GetUpperBound(0)+1];
+            for (int i = 0; i < tpiArray.Length; i++)
+            {
+                tpiArray[i] = new TestPuzzleInfo(data[i, 0], data[i, 1]);
+            }
+            return tpiArray;
         }
 
         private static void synthesizePsdbJsonInfo(string testJsonDataDir, TestTeamInfo[] testTeamInfo, TestPuzzleInfo[] testPuzzleInfo)
@@ -640,10 +767,10 @@ namespace PuzzleOracleV0
             Debug.Assert(phasesLeft > 0);
             int totalUnsuccessfulAttemptsLeft = puzzlesToUnsuccessfullyAttempt.Sum(tpi => tpi.incorrectAttemptsLeft);
             int totalSolvesLeft = puzzlesToSolve.Sum(tpi => tpi.solvesLeft);
-            int unsuccessfulAttemptsLeft = Utils.pickRandomPortion(rand, totalUnsuccessfulAttemptsLeft, phasesLeft);;
+            int unsuccessfulAttemptsLeft = Utils.pickRandomPortion(rand, totalUnsuccessfulAttemptsLeft, phasesLeft); ;
             int solvesLeft = Utils.pickRandomPortion(rand, totalSolvesLeft, phasesLeft);
 
-     
+
 
             // Create Oracle and submssion logger for this phase.
             PuzzleOracle oracle = null;
