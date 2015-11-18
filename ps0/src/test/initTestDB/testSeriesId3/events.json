@@ -1,8 +1,8 @@
 [
     {
-        "name": "Test Event1",
+        "name": "ESA PuzzleHunt Event",
         "_id": "events1",
-        "description": "description for event 1 from test series 2",
+        "description": "PuzzleHunt Event run at ESA, Nov 2015",
         "active": true,
         "status": "started",
         "puzzleIds": ["860", "288", "683", "199", "138", "343", "456", "565", "381", "613", 

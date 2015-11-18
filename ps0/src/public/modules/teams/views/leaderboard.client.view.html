@@ -1,36 +1,36 @@
 <section data-ng-controller="LeaderboardController" data-ng-init="initLeaderboard()">
     <div class="page-header">
-        <h1>Leaderboard for Event: {{activeEvent.name}}</h1>
+        <h2>Leaderboard for Event: {{activeEvent.name}}</h2>
+    </div>
+    <div data-ng-show="error" class="text-danger">
+        <strong data-ng-bind="error"></strong>
     </div>
     <div class="list-group">
-        <div class="list-group-item">
+        <div class="list-group-item boardtitle">
             <table style="width:100%">
                 <tr>
                     <td style="width:100px">
-                        Id
+                        <h2> Id</h2>  
                     </td>
-                    <td>Name</td>
-                    <td style="width:100px">Score</td>
+                    <td><h2> Name </h2> </td>
+                    <td style="width:100px"><h2>Score</h2></td>
                 </tr>
             </table>
         </div>
-        <a data-ng-repeat="teamScore in teamScores" data-ng-href="#!/teams/{{teamScore._id}}" class="list-group-item">
-            <table style="width:100%">
+        <a data-ng-repeat="teamScore in teamScores" data-ng-href="#!/teams/{{teamScore._id}}" class="list-group-item boa">
+            <table style="width:100%" class="boardcontent">
                 <tr>
                     <td style="width:100px">
-                        {{teamScore._id}}
+                        <h2>{{teamScore._id}}</h2>
                     </td>
                     <td>
-                        {{teamScore.name}}
+                        <h2>{{teamScore.name}}</h2>
                     </td>
                     <td style="width:100px">
-                        {{teamScore.score}}
+                        <h2>{{teamScore.score}}</h2>
                     </td>
                 </tr>
             </table>
         </a>
-    </div>
-    <div data-ng-show="error" class="text-danger">
-        <strong data-ng-bind="error"></strong>
     </div>
 </section>

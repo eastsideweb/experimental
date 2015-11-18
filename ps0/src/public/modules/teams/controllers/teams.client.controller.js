@@ -44,7 +44,7 @@ angular.module('teams').controller('TeamsController', ['$scope', '$stateParams',
                 $scope.puzzleIds = [];                                              
 
 			}, function(errorResponse) {
-				$scope.error = errorResponse.data.message;
+			    $scope.error = "Error: " + errorResponse.data.message;
 			});
 		};
 
@@ -73,7 +73,7 @@ angular.module('teams').controller('TeamsController', ['$scope', '$stateParams',
 			    // $location.path('teams/' + team._id); <-- Doesn't work
 				$location.path('teams/' + id);
 			}, function(errorResponse) {
-				$scope.error = errorResponse.title;
+			    $scope.error = "Error: " + errorResponse.title;
 			});
 		};
 
@@ -104,6 +104,7 @@ angular.module('teams').controller('TeamsController', ['$scope', '$stateParams',
                         "properties": "name",
                         "_id": playerIds
                     });
+
                 }
                 else 
                 {
@@ -121,6 +122,43 @@ angular.module('teams').controller('TeamsController', ['$scope', '$stateParams',
                     $scope.puzzles = Puzzles.query({
                         "properties": "name",
                         "_id": puzzleIds
+                    }, function () {
+                        // Find the active eventId - 
+                        $http.get('/events?active=true').success(function (responseEvent) {
+                            $scope.activeEvent = null;
+                            if (responseEvent.length !== 1) {
+                                $scope.error = "Error: Zero or more than one active events found";
+                            }
+                            else {
+                                $scope.activeEvent = responseEvent[0];
+                                // Query for the puzzleStates for this puzzle
+                                $http.get('/events/' + $scope.activeEvent._id + '/teams/' + $stateParams.teamId + '/puzzleStates').success(function (pzResponse) {
+                                    $scope.puzzleStates = pzResponse;
+                                    // Set all puzzles to have solved =false
+                                    $scope.puzzles.forEach(function (pzitem) {
+                                        pzitem.solved = false;
+                                    });
+
+                                    // TODO: can we avoid n^2 operations?
+                                    pzResponse.forEach(function (item, index) {
+                                        if (puzzleIds.indexOf(item.puzzleId) !== -1 && item.solved === true) {
+                                            // This puzzle is solved, update the puzzles data
+                                            for (var i = 0; i < $scope.puzzles.length ; i++) {
+                                                if ($scope.puzzles[i]._id === item.puzzleId) {
+                                                    // Found it, set the solved field
+                                                    $scope.puzzles[i].solved = item.solved;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    });
+                                }).error(function (errorResponse) {
+                                    $scope.error = "Error: " + errorResponse.title ? errorResponse.title : errorResponse;
+                                });
+                            }
+                        }).error(function (errorResponse) {
+                            $scope.error = "Error: " + errorResponse.title ? errorResponse.title : errorResponse;
+                        });
                     });
                 }
                 else {
@@ -198,21 +236,21 @@ angular.module('teams').controller('TeamsController', ['$scope', '$stateParams',
 		                $http.put('teams/' + teamId + '/' + $scope.sublist.subtype, listAddedItems).success(function (response) {
 		                    $location.path('teams/' + teamId);
 		                }).error(function (response) {
-		                    $scope.error = response.message;
+		                    $scope.error = "Error: " + response.message;
 		                });
 		            }
 		            else {
 		                $location.path('teams/' + teamId);
 		            }
 		        }).error(function (response) {
-		            $scope.error = response.message;
+		            $scope.error = "Error: " + response.message;
 		        });
 		    }
 		    else if (listAddedItems.length !== 0) {
 		        $http.put('teams/' + teamId + '/' + $scope.sublist.subtype, listAddedItems).success(function (response) {
 		            $location.path('teams/' + teamId);
 		        }).error(function (response) {
-		            $scope.error = response.message;
+		            $scope.error = "Error: " + response.message;
 		        });
 		    }
 		    else {

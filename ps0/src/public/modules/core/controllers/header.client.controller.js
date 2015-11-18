@@ -16,7 +16,11 @@ angular.module('core').controller('HeaderController', ['$scope', '$http', '$loca
 		        delete $scope.authentication.user;
 		        delete $http.defaults.headers.common.token;
 		        $location.path('/');
-		    }).error(function () {
+		    }).error(function (errorResponse) {
+		        $scope.error = "Error: " + errorResponse.statusText + " ( " + errorResponse.status + " )";
+                // We will ignore the error for now
+		        delete $scope.authentication.user;
+		        delete $http.defaults.headers.common.token;
 		        $location.path('/');
 		    })
 		}

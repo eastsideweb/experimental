@@ -43,7 +43,7 @@
             </a>
             <div ng-show="showPuzzleMenu">
                 <ul>
-                    <li ng-repeat="puzzle in puzzles">
+                    <li ng-repeat="puzzle in puzzles" ng-class="{solved: puzzle.solved}">
                         <a href="/#!/teams/{{team._id}}/puzzle/{{puzzle._id}}/edit">{{puzzle.name}}</a>
                     </li>
                 </ul>

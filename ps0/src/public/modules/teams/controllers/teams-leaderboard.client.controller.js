@@ -36,14 +36,16 @@ angular.module('teams').controller('LeaderboardController', ['$scope', '$statePa
 		                            }
 		                        }).error(function (response) {
 		                            $scope.teamStates.push({ "_id": item._id, "name": item.name, "puzzleStates": [] });
-		                            $scope.error = JSON.stringify(response);
+		                            $scope.error = "Error: " + JSON.stringify(response);
 		                        });
 		                    }
 		                });
 		            }
 		        }).error(function (response) {
-		            $scope.error = JSON.stringify(response);
+		            $scope.error = "Error: " + JSON.stringify(response);
 		        });
+		    }, function (errorResponse) {
+		        $scope.error = "Error: " + errorResponse.statusText + " ( " + errorResponse.status + " )";
 		    });
 		}
 		var computeScores = function (pzStates) {

@@ -51,7 +51,7 @@ angular.module('users').controller('AuthenticationController', ['$scope', '$http
 		        }
 		        $scope.credentials.roleType = 'administrator';
 		    }).error(function(response) {
-		        $scope.error = response.title;
+		        $scope.error = "Error: " + response.title ? response.title : JSON.stringify(response);
 		    });
 		}
 	}
