@@ -846,7 +846,7 @@ class PuzzleSeries implements IPuzzleSeries {
                                     }
                                     else {
                                         // Use upsert:true option so it will create a document with this id if it is already not present
-                                        self.crudHandle.updateObj(puzzleStateCollectionName, { "_id": pzStateId }, { "_id": pzStateId, "teamId": teamID, "puzzleId": puzzleID, "solved": puzzleState.solved },
+                                        self.crudHandle.updateObj(puzzleStateCollectionName, { "_id": pzStateId }, { "_id": pzStateId, "teamId": teamID, "puzzleId": puzzleID, "solved": puzzleState.solved, "bonus": puzzleState.bonus },
                                             function (err1: Error, count: number) {
                                                 if (err1) {
                                                     // Something went wrong in the update!!

@@ -123,6 +123,9 @@ angular.module('teams').controller('TeamsController', ['$scope', '$stateParams',
                         "properties": "name",
                         "_id": puzzleIds
                     }, function () {
+                        $scope.puzzles.sort(function (pz1, pz2) {
+                            return  (pz1.name < pz2.name ? -1 : (pz1.name === pz2.name ? 0 : 1));
+                        })
                         // Find the active eventId - 
                         $http.get('/events?active=true').success(function (responseEvent) {
                             $scope.activeEvent = null;

@@ -1,2 +1,12 @@
 [
+    { "_id" : "T1_800", "teamId" : "T1", "puzzleId" : "800", "solved" : true },
+    { "_id" : "T1_801", "teamId" : "T1", "puzzleId" : "801", "solved" : true },
+    { "_id" : "T2_800", "teamId" : "T2", "puzzleId" : "800", "solved" : true },
+    { "_id" : "T2_801", "teamId" : "T2", "puzzleId" : "801", "solved" : true },
+    { "_id" : "T3_800", "teamId" : "T3", "puzzleId" : "800", "solved" : true },
+    { "_id" : "T3_801", "teamId" : "T3", "puzzleId" : "801", "solved" : true },
+    { "_id" : "T4_800", "teamId" : "T4", "puzzleId" : "800", "solved" : true },
+    { "_id" : "T4_801", "teamId" : "T4", "puzzleId" : "801", "solved" : true },
+    { "_id" : "T5_800", "teamId" : "T5", "puzzleId" : "800", "solved" : true },
+    { "_id" : "T5_801", "teamId" : "T5", "puzzleId" : "801", "solved" : true }
 ]

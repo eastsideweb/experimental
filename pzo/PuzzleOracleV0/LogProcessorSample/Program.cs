@@ -56,6 +56,14 @@ namespace LogProcessorSample
                     // Create a log consumer - this processes submission requests pulled from individual puzzle oracle log files.
                     LogConsumer logConsumer = new LogConsumer(baseWorkingDir);
 
+                    // Connect to the server and start a session
+                    if (!connectToServer(logConsumer))
+                    {
+                        // User indicated to exit the program
+                        /////// Early return
+                        return;
+                    }
+
                     // Create the log processor - that processes new log files as they show up in the "new" directory. Hook it up to the log consumer so that the latter
                     // processes the submissions requests.
                     String newLogsDir = fileCopier.newDir;
@@ -76,6 +84,66 @@ namespace LogProcessorSample
             }
         }
 
+        private static bool connectToServer(LogConsumer logConsumer)
+        {
+            Trace.TraceInformation(MODULE + "Connecting to the server");
+            MyConsole.WriteLine(MODULE + "Connecting to the server...");
+            bool retry = true;
+            bool retVal = false;
+            string ans = "r";
+            while (retry)
+            {                
+                if (!logConsumer.startSession())
+                {
+                    Trace.TraceError(MODULE + "Could not start a server session.");
+                    MyConsole.WriteError(MODULE + "Could not start a server session.");
+                    MyConsole.WriteError("Press 'r' to retry, 'c' to cancel and proceed without server updates or 'q' to quit.");
+                    //Trace.Flush();
+                    ans = Console.ReadLine();
+                    if (String.IsNullOrEmpty(ans) || String.IsNullOrWhiteSpace(ans))
+                    {
+                        // Treat as retry
+                        ans = "retry";
+                    }
+                    switch (ans[0])
+                    {
+                        case 'c':
+                        case 'C':
+                            // User chose to cancel the server connection attempt and proceed without server updates
+                            Trace.TraceError("Ignoring server connection failure");
+                            MyConsole.WriteLine("Continuing without server connection ..");
+                            retry = false;
+                            retVal = true;
+                            break;
+                        case 'q':
+                        case 'Q':
+                            // User chose to quit the program
+                            Trace.TraceError("Exiting because of server connection failure");
+                            MyConsole.WriteError("Exiting ..");
+                            Trace.Flush();
+                            retry = false;
+                            retVal = false;
+                            break;
+                        default:
+                            // We retry in all other cases
+                            Trace.TraceError("Retrying to connect to the server");
+                            MyConsole.WriteLine("Retrying ..");
+                            retry = true;
+                            break;
+                    }
+                }
+                else
+                {
+                    retry = false;
+                    retVal = true;
+                    Trace.WriteLine(MODULE + "Connected to the server successfully");
+                    MyConsole.WriteLine(MODULE + "Connected to the server successfully");
+                }
+            }
+            return retVal;
+        }
+
+
         private static void myCtrlCHandler(ConsoleCancelEventArgs ea, BlockingWorkQueue workQueue)
         {
             Trace.WriteLine(MODULE + "In CTRL-C handler."); 
@@ -83,7 +151,7 @@ namespace LogProcessorSample
             workQueue.enque(null, null, (ox, ex) => {
                 MyConsole.WriteImportant("CTRL-C received. Ok to quit (y/n)?");
                 String s = Console.ReadLine();
-                if (s.ToUpperInvariant().IndexOf('Y') == 0)
+                if (s == null || s.ToUpperInvariant().IndexOf('Y') == 0)
                 {
                     workQueue.stopWaiting();
                 }

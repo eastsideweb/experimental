@@ -56,6 +56,9 @@ angular.module('teams').controller('LeaderboardController', ['$scope', '$statePa
 		            item.puzzleStates.forEach(function (pz) {
 		                if (pz.solved === true) {
 		                    score++;
+		                    if (pz.bonus) {// !== null) {
+		                        score += pz.bonus;
+		                    }
 		                }
 		            });
 		        }

@@ -23,7 +23,7 @@ namespace LogProcessorSample
         const String RESULTS_SUBDIR = "results";
 
         const String baseURL = "http://localhost:1566/";
-        const String seriesId = "psdbSeriesInfo2";
+        const String seriesId = "psdbSeriesInfo3";
         const String eventId = "events1";
         const String pzUsername = "Admin1";
         const string pzpassword = "testAdminPassword";
@@ -35,7 +35,7 @@ namespace LogProcessorSample
         readonly String processedWithErrorsDir;
 
         private PuzzleStateUploader psUploader;
-
+        private bool sessionStarted = false;
         public LogConsumer(String baseWorkingDir)
         {
             this.baseWorkingDir = baseWorkingDir;
@@ -49,10 +49,13 @@ namespace LogProcessorSample
             Utils.createDirIfNeeded(processedWithErrorsDir, true);
 
             this.psUploader = new PuzzleStateUploader(baseURL);
-            PuzzleStateUploader.PZAuthentication pzAuthentication = new PuzzleStateUploader.PZAuthentication(pzUsername, pzpassword, pzroleType);
-            this.psUploader.startSession(seriesId, pzAuthentication).Wait();
         }
 
+        public bool startSession() {
+            PuzzleStateUploader.PZAuthentication pzAuthentication = new PuzzleStateUploader.PZAuthentication(pzUsername, pzpassword, pzroleType);
+            this.sessionStarted = this.psUploader.startSession(seriesId, pzAuthentication);
+            return this.sessionStarted;
+        }
         public void logEventHandler(object sender, EventArgs ea)
         {
             LogEventArgs lea = (LogEventArgs)ea;
@@ -104,7 +107,11 @@ namespace LogProcessorSample
                 }
                 else
                 {
-                    this.processEntry(le);
+                    if (!this.processEntry(le))
+                    {
+                        suffix = String.Format("(ERROR uploading entry");
+                        hadErrors = true;
+                    }
                 }
                 MyConsole.WriteLine("\t" + le.rowIndex + ":" + s + suffix);
             }
@@ -181,19 +188,23 @@ namespace LogProcessorSample
         /// Process a single valid submission log entry.
         /// </summary>
         /// <param name="le"></param>
-        private void processEntry(LogEntry le)
+        private bool processEntry(LogEntry le)
         {
             Debug.Assert(le.valid);
 
             // Send an update to the server
             // TODO: hadError should be set to true
 
-            this.psUploader.updatePuzzleState(eventId, le.teamId, le.puzzleId, le).Wait();
+            if (this.sessionStarted && !this.psUploader.updatePuzzleState(eventId, le.teamId, le.puzzleId, le))
+            {
+                return false;
+            }
 
             if (le.status.Equals("CORRECT"))
             {
                 recordSolve(le);
             }
+            return true;
         }
 
         private void recordSolve(LogEntry le)

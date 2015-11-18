@@ -31,6 +31,7 @@ namespace LogProcessorSample
             }
         }
 
+        const String MODULE = "UPLOADER: "; // for debug log.
         const String sessionUrlFormat = "series/{0}/session";
         const String releaseSessionUrlFormat = "/series/{0}/session/{1}";
         const String updatePuzzleStatusUrlFormat = "events/{0}/teams/{1}/puzzleStates/{2}";
@@ -59,46 +60,64 @@ namespace LogProcessorSample
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
         }
-        public async Task startSession(String seriesId, PZAuthentication auth)
+        public bool startSession(String seriesId, PZAuthentication auth)
         {
             try
             {
-                // Make sure no other session is underway -if so, we will continue to use it
-                if (this.sessionToken != null && this.seriesId == seriesId && auth == this.pzAuthorization)
-                {
-                    return;
-                }
-                else
-                {
-                    this.releaseSession().Wait();
+                this.startSessionAsync(seriesId, auth).Wait();
+                return this.sessionToken != null;
+            }
+            catch (AggregateException ex)
+            {
+                Trace.TraceError(MODULE + "startSession failed for series " + seriesId + "with " + ex.Message);
+                this.sessionToken = null;
+                this.seriesId = null;
+                Trace.Flush();
+                return false;
+            }
+        }
+        private async Task startSessionAsync(String seriesId, PZAuthentication auth)
+        {
+            // Make sure no other session is underway -if so, we will continue to use it
+            if (this.sessionToken != null && this.seriesId == seriesId && auth == this.pzAuthorization)
+            {
+                return;
+            }
+            else
+            {
+                this.releaseSession().Wait();
 
-                }
-                this.seriesId = seriesId;
-                String sessionUrl = String.Format(sessionUrlFormat, seriesId);
-                this.pzAuthorization = auth;
-                Console.WriteLine("REached start session");
+            }
+            Debug.Assert(this.sessionToken == null);
+            this.sessionToken = null;
+            this.seriesId = seriesId;
+            String sessionUrl = String.Format(sessionUrlFormat, seriesId);
+            this.pzAuthorization = auth;
 
-                HttpResponseMessage tokenResponse = await client.PostAsJsonAsync(sessionUrl, this.pzAuthorization);
-                if (tokenResponse.IsSuccessStatusCode)
-                {
-                    Console.WriteLine("Reached success");
-                    Token token = await tokenResponse.Content.ReadAsAsync<Token>();
-                    this.sessionToken = token.token;
-                    client.DefaultRequestHeaders.Add("token", sessionToken);
-                    Console.WriteLine("Token: " + this.sessionToken);
-                }
+            HttpResponseMessage tokenResponse = await client.PostAsJsonAsync(sessionUrl, this.pzAuthorization);
+            if (tokenResponse.IsSuccessStatusCode)
+            {
+                Token token = await tokenResponse.Content.ReadAsAsync<Token>();
+                this.sessionToken = token.token;
+                client.DefaultRequestHeaders.Add("token", sessionToken);
+                Console.WriteLine("Token: " + this.sessionToken);
                 sessionStarted = true;
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine("Exception: " + ex.Message + " " + ex.HResult);
-                throw;
+                this.sessionToken = null;
+                this.seriesId = null;
+                Trace.TraceError(MODULE + " startSession failed for series " + seriesId + "with " + tokenResponse.ReasonPhrase + "(" + tokenResponse.StatusCode + ")");
+                MyConsole.WriteError(MODULE + "startSession failed for series " + seriesId + ".\nPress ENTER to quit.");
+                Trace.Flush();
+                //Console.ReadLine();
+                return;
             }
+
         }
 
         public async Task releaseSession()
         {
-            Debug.Assert(sessionStarted);
             if (this.sessionToken != null && this.seriesId != null)
             {
                 String deleteUrl = String.Format(releaseSessionUrlFormat, this.seriesId, this.sessionToken);
@@ -110,35 +129,48 @@ namespace LogProcessorSample
                 }
                 else
                 {
-                    throw new HttpRequestException("Error during releaseSession");
+                    Trace.TraceError(MODULE + "releaseSession failed for series " + this.seriesId + " and token: " + this.sessionToken + "with " + releaseResponse.ReasonPhrase);
+                    MyConsole.WriteWarning(MODULE + "releaseSession failed for series " + this.seriesId);
+                    Trace.Flush();
+                    this.sessionToken = null;
+                    this.seriesId = null;
                 }
             }
         }
 
-        public async Task updatePuzzleState(String eventId, String teamId, String puzzleId, LogEntry le)
+        public bool updatePuzzleState (String eventId, String teamId, String puzzleId, LogEntry le)
         {
             if (!sessionStarted)
             {
-                return;
+                return false;
             }
+
+            try
+            {
+                this.updatePuzzleStateAsync(eventId, teamId, puzzleId, le).Wait();
+                return true;
+            }
+            catch (AggregateException ex)
+            {
+                MyConsole.WriteError(MODULE + "update failed");
+                Trace.TraceError(MODULE + "update failed for team: " + teamId + "and puzzle: " + puzzleId + " with " + ex.Message);
+                return false;
+            }
+        }
+        private async Task updatePuzzleStateAsync(String eventId, String teamId, String puzzleId, LogEntry le)
+        {
+            Debug.Assert(sessionStarted);
             IEnumerable<String> headerValues = null;
             client.DefaultRequestHeaders.TryGetValues("token", out headerValues);
             String updateUrl = String.Format(updatePuzzleStatusUrlFormat, eventId, teamId, puzzleId);
-            try
+            HttpResponseMessage updateResponse = await client.PutAsJsonAsync(updateUrl, le);
+            if (!updateResponse.IsSuccessStatusCode)
             {
-                HttpResponseMessage updateResponse = await client.PutAsJsonAsync(updateUrl, le);
-                if (!updateResponse.IsSuccessStatusCode)
+                if (updateResponse.StatusCode == System.Net.HttpStatusCode.InternalServerError)
                 {
-                    throw new Exception("Error in updatePuzzleState:" + updateResponse.StatusCode);
+                    throw new AggregateException("InternalServerError");
                 }
             }
-            catch (Exception ex)
-            {
-                //TODO: report error back to the caller - 
-                MyConsole.WriteError(String.Format("Exception in UpdatePuzzleState for (team {0}, puzzle {1}): {2}" , le.teamId, le.puzzleId, ex.Message));
-            }
-
-
         }
     }
 }
