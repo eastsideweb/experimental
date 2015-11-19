@@ -7,5 +7,7 @@ angular.module('events').run(['Menus',
 		Menus.addMenuItem('topbar', 'Events', 'events', 'dropdown', '/events(/create)?');
 		Menus.addSubMenuItem('topbar', 'events', 'List Events', 'events');
 		Menus.addSubMenuItem('topbar', 'events', 'New Event', 'events/create');
+
+		Menus.addMenuItem('topbar', 'Analytics', 'events/analytics', 'item', 'analytics');
 	}
 ]);

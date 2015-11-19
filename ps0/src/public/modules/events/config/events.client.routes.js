@@ -13,6 +13,17 @@ angular.module('events').config(['$stateProvider',
 			url: '/events/create',
 			templateUrl: 'modules/events/views/create-event.client.view.html'
 		}).
+	    state('analytics', {
+	        url: '/events/analytics',
+	        templateUrl: 'modules/events/views/analytics.client.view.html',
+	        controller: 'AnalyticsController',
+	        onExit: function () {
+	            if (window.analyticsTimeout) {
+	                clearInterval(window.analyticsTimeout);
+	                window.analyticsTimeout = null;
+	            }
+	        }
+	    }).
 		state('viewEvent', {
 			url: '/events/:eventId',
 			templateUrl: 'modules/events/views/view-event.client.view.html'

@@ -1,0 +1,30 @@
+<section data-ng-controller="LeaderboardController" data-ng-init="initAnalytics()">
+    <div class="page-header">
+        <h2>Analytics for Event: {{activeEvent.name}}</h2>
+    </div>
+    <div data-ng-show="error" class="text-danger">
+        <strong data-ng-bind="error"></strong>
+    </div>
+    <div class="list-group">
+            <table style="width:100%;border: 2px solid #ddd" class="boardcontent">
+                <tr class="boardtitle">
+                    <td style="width:250px"></td>
+                    <td ng-repeat="team in teams"> {{team.name}} </td>
+                    <td>Score</td>
+                </tr>
+                <tr>
+                    <td width="250px"></td>
+                    <td ng-repeat="team in teams">{{analytics.totalSolvedForTeams[team._id]}}</td>
+                </tr>
+                <tr ng-repeat="puzzle in puzzles">
+                    <td style="width:250px">
+                        {{puzzle.name}}
+                    </td>
+                    <td ng-repeat="rowItem in analytics.analyticsInfo[puzzle._id]" ng-class="{solved: rowItem.solved}">
+                        {{rowItem.solved ? "solved" : "-"}}
+                    </td>
+                    <td>{{analytics.totalSolvedForPuzzles[puzzle._id]}}</td>
+                </tr>
+            </table>
+    </div>
+</section>
