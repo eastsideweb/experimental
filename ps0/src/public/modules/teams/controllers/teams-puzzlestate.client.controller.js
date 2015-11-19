@@ -58,7 +58,6 @@ angular.module('teams').controller('PuzzleStateController', ['$scope', '$rootSco
             //    "solved" :$scope.puzzleState.solved,
             //    "attemptedSolution" + $scope.puzzleState.attemptedSolution + " " + time);
 			$scope.puzzleState.clientTimeStamp = time;
-			$scope.puzzleState.bonus = parseInt($scope.puzzleState.bonus);
 			$http.put('events/' + $scope.activeEventId + '/teams/' + $scope.team._id + '/puzzleStates/' + $scope.puzzleId, $scope.puzzleState).success(function (response) {
 			    $location.path('teams/' + $scope.teamId);
 			}).error(function (response) {

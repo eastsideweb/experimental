@@ -150,6 +150,7 @@ angular.module('teams').controller('TeamsController', ['$scope', '$stateParams',
                                                 if ($scope.puzzles[i]._id === item.puzzleId) {
                                                     // Found it, set the solved field
                                                     $scope.puzzles[i].solved = item.solved;
+                                                    $scope.puzzles[i].bonus = item.bonus;
                                                     break;
                                                 }
                                             }
