@@ -397,7 +397,7 @@ namespace PuzzleOracleV0
         private static TestTeamInfo[] generateEAS2015TestTeamInfo()
         {
             String[,] teamData = {
-                                   {"T1","Bear"},
+{"T1","The Bear Clan"},
 {"T2","The Orca Clan"},
 {"T3","The Osprey Clan"},
 {"T4","The Raven Clan"},
@@ -418,22 +418,23 @@ namespace PuzzleOracleV0
 
         private static TestPuzzleInfo[] generateEAS2015TestPuzzleInfo()
         {
-            String[,] data = {{"860","Journey Back Home"},
+            String[,] data = {
+{"860","Journey Back Home"},
 {"288","Lasers I - Red and Blue"},
 {"683","Lasers II - A Fight for Freedom"},
 {"199","Lasers III - A Many-sided Personality"},
 {"138","Lasers IV - Hidden Equation"},
 {"343","Lasers V - Green machine"},
 {"456","Lasers VI - Rope Trick"},
-{"565","Tile Jumble  I: Something Fishy"},
-{"381","Tile Jumble II: Red and Blue"},
-{"613","Tile Jumble III: Prime Production"},
-{"705","Tile Jumble IV: Lord of the Sky"},
-{"403","Tile Jumble V: Emerald City"},
-{"788","Tile Jumble  VI : Busy Busy Busy"},
+{"565","Tile Jumble I - Something Fishy"},
+{"381","Tile Jumble II - Red and Blue"},
+{"613","Tile Jumble III - Prime Production"},
+{"705","Tile Jumble IV - Lord of the Sky"},
+{"403","Tile Jumble V - Emerald City"},
+{"788","Tile Jumble VI - Busy Busy Busy"},
 {"684","Clocks I - Weekly Pursuits"},
 {"765","Clocks II - Jewel of the Northwest"},
-{"292","Clocks III - Starts with"},
+{"292","Clocks III - Starts with.."},
 {"585","Clocks IV - Natural Talon"},
 {"609","Clocks V - Smart Caw"},
 {"347","Clocks VI - Verdant Hue"},
@@ -444,7 +445,7 @@ namespace PuzzleOracleV0
 {"366","Miss Tresses"},
 {"302","States"},
 {"408","Know your Guts"},
-{"590","Center Tile"},
+{"590","Center Tile II"},
 {"887","Capital Punishment"},
 {"886","Alice's Secret Notebook I"},
 {"803","Bricks I - Free to be US"},
@@ -460,34 +461,26 @@ namespace PuzzleOracleV0
 {"101","Crisscross V"},
 {"537","Crisscross VI"},
 {"107","Alice's Secret Notebook II"},
-{"871","Outwit-Outplay-Outlast"},
+{"871","Outwit Outplay Outlast"},
 {"550","Numeric Justice I"},
 {"183","Numeric Justice II"},
 {"600","Numeric Justice III"},
 {"328","Pioneer Letters I"},
 {"428","Pioneer Letters II"},
 {"111","Pioneer Letters III"},
-{"721","TBD04"},
-{"881","TBD05"},
-{"892","TBD06"},
-{"650","TBD07"},
-{"489","TBD08"},
-{"794","TBD09"},
-{"696","TBD10"},
-{"884","TBD11"},
-{"686","TBD12"},
-{"556","TBD13"},
-{"753","TBD14"},
-{"110","TBD15"},
-{"771","TBD16"},
-{"429","TBD17"},
-{"521","TBD18"},
-{"680","TBD19"},
-{"819","TBD20"},
-{"207","TBD21"},
-{"536","TBD22"},
-{"166","TBD23"},
-{"248","TBD24"}
+{"721","Pioneer Letters IV"},
+{"881","Center Tile "},
+{"892","Center Tile III"},
+{"650","Center Tile IV"},
+{"489","American Adventurer II"},
+{"794","Pioneer Letters V"},
+{"696","Pioneer Letters VI"},
+{"884","Center Tile V"},
+{"686","Center Tile VI"},
+{"556","Me Gustan Los Puzzles!"},
+{"753","American Adventurer III"},
+{"800","AAA Challenge Aggregate"},
+{"801","AAA Quest Aggregate"}
 };
             TestPuzzleInfo[] tpiArray = new TestPuzzleInfo[data.GetUpperBound(0)+1];
             for (int i = 0; i < tpiArray.Length; i++)
@@ -520,12 +513,14 @@ namespace PuzzleOracleV0
                 ret = toJson<TestTeamInfo>(testTeamInfo, "", true, (indent, tti) =>
                 {
                     String i2 = indent + "  ";
+                    String fakePlayer = tti.teamId + "P1";
                     return "{\n"
-                        + String.Format("{0}: {1},\n{2}: {3},\n{4}: {5},\n{6}: {7},\n{8}: {9},\n{10}: {11}\n",
+                        + String.Format("{0}: {1},\n{2}: {3},\n{4}: {5},\n{6}: {7},\n{8}: {9},\n{10}: {11},\n{12}: {13}\n",
                         i2 + qt("name"), qt(tti.teamName),
                         i2 + qt("_id"), qt(tti.teamId),
-                        i2 + qt("description"), qt("Synthetic team " + tti.teamNumber + " generated on " + DateTime.Now.ToShortDateString()),
-                        i2 + qt("playerIds"), "[]",
+                        i2 + qt("description"), qt("Synthetic team " + tti.teamId + " generated on " + DateTime.Now.ToShortDateString()),
+                        i2 + qt("playerIds"), "["+qt(fakePlayer)+"]",
+                        i2 + qt("teamLeadId"), qt(fakePlayer),
                         i2 + qt("puzzleIds"), puzzleIdsInJson,
                         // NOT TEAM LEAD qt("teamLeadId"), ""
                         i2 + qt("active"), qt("true")
