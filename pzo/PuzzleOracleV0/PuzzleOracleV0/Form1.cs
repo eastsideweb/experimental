@@ -20,7 +20,7 @@ namespace PuzzleOracleV0
 
     public partial class Form1 : Form
     {
-        const string INSTRUCTOR_CODE = "pixie";
+        const string INSTRUCTOR_CODE = "biffy";
         const int MIN_PUZZLE_ID_LENGTH = 3;
         const int MIN_CODE_LENGTH = 5; // Instructor code
         const int IDLE_TIMER_MS = 30000; // 30 seconds
@@ -575,7 +575,7 @@ namespace PuzzleOracleV0
                 try
                 {
                     oracleLogger.logSolveAttempt(id, answer, pr);
-                    String extendedResponse = Administrator.buildExtendedResponse(id, pr);
+                    String extendedResponse = pr.response; //  Administrator.buildExtendedResponse(id, pr);
                     uxDisplayResponse(pr, extendedResponse);
                 }
                 catch (ApplicationException ex)
