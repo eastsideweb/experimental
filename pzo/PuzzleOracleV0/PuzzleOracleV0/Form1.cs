@@ -341,7 +341,7 @@ namespace PuzzleOracleV0
             String teamId = Utils.getCurrentTeamId(teamIdPathName);
 
             // If in test mode, override the teamID with the one from the cmdline...
-            if (this.selfTestMode)
+             if (this.selfTestMode)
             {
                 teamId = this.selfTestTeamId;
             }
