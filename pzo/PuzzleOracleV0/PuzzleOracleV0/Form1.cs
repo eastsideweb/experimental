@@ -141,17 +141,7 @@ namespace PuzzleOracleV0
             foreach (String a in args)
             {
                 String s = a.ToUpperInvariant();
-                if (a.IndexOf("-T") == 0) // TEAM ID
-                {
-                    s = a.Substring(1).ToUpperInvariant();
-                    if (Utils.isValidTeamId(s))
-                    {
-                        Trace.WriteLine("IN TEST MODE. TEST TEAM ID is " + s);
-                        this.selfTestMode = true;
-                        this.selfTestTeamId = s;
-                    }
-                }
-                else if (s.Equals("-TLDGEN"))
+                if (s.Equals("-TLDGEN"))
                 {
                     Trace.WriteLine("Option - TLDGEN specifed. Going to generate test log data and bail.");
                     this.generateTestLogDataAndExit = true;
@@ -160,6 +150,16 @@ namespace PuzzleOracleV0
                 {
                     Trace.WriteLine("Option - TLPGEN specifed. Going to generate test puzzle data and bail.");
                     this.generateTestPuzzleDataAndExit = true;
+                }
+                else if (a.IndexOf("-T") == 0) // TEAM ID
+                {
+                    s = a.Substring(1).ToUpperInvariant();
+                    if (Utils.isValidTeamId(s))
+                    {
+                        Trace.WriteLine("IN TEST MODE. TEST TEAM ID is " + s);
+                        this.selfTestMode = true;
+                        this.selfTestTeamId = s;
+                    }
                 }
             }
 

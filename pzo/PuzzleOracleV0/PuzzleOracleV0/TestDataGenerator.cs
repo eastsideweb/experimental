@@ -27,7 +27,7 @@ namespace PuzzleOracleV0
         const int START_TEAM_NUMBER = 1;
         const int MAX_TEAM_NAME_LENGTH = 50;
         const int NUMBER_OF_PHASES = 5; // Number of times the oracle is stopped/started, (roughly) simulating thumb-drive swap-outs.
-
+        const bool GENERATE_EAS_DB_UPLOAD_FILES = false; // true: generates JSON files for update, instead of test data.
         public delegate String ToJson<T>(String indent, T item); // converts the item to JSon
 
         class TestPuzzleInfo
@@ -268,22 +268,26 @@ namespace PuzzleOracleV0
 
             TestTeamInfo[] testTeamInfo = makeTestTeamInfo();
             TestPuzzleInfo[] testPuzzleInfo = makeTestPuzzleInfo(rand);
-            testTeamInfo = generateEAS2015TestTeamInfo();
-            testPuzzleInfo = generateEAS2015TestPuzzleInfo();
 
-            // Synthesize team-info.csv
-            //synthesizeTeamInfo(testPDataDir, testTeamInfo);
+            if (GENERATE_EAS_DB_UPLOAD_FILES)
+            {
+                testTeamInfo = generateEAS2015TestTeamInfo();
+                testPuzzleInfo = generateEAS2015TestPuzzleInfo();
+                // Synthesize JSON files
+                synthesizePsdbJsonInfo(testJsonDataDir, testTeamInfo, testPuzzleInfo);
+            }
+            else
+            {
+                // Synthesize team-info.csv
+                synthesizeTeamInfo(testPDataDir, testTeamInfo);
 
-            // Synthesize JSON files
-            synthesizePsdbJsonInfo(testJsonDataDir, testTeamInfo, testPuzzleInfo);
-/*
-            // Synthesize FREETEXT version of test puzzle-data
-            synthesizeFreetextPuzzleData(testPDataDir, testPuzzleInfo);
+                // Synthesize FREETEXT version of test puzzle-data
+                synthesizeFreetextPuzzleData(testPDataDir, testPuzzleInfo);
 
-            // Make secondary copiles - encrypted and freetext - of the puzzle-data by 
-            // create instances of the puzzle oracle and asking it to save.
-            generatePuzzleDataCopies(testPDataDir);
- */
+                // Make secondary copiles - encrypted and freetext - of the puzzle-data by 
+                // create instances of the puzzle oracle and asking it to save.
+                generatePuzzleDataCopies(testPDataDir);
+            }
         }
 
         private static void generatePuzzleDataCopies(string testPDataDir)
@@ -404,11 +408,11 @@ namespace PuzzleOracleV0
 {"T5","The Wolf Clan"}
 
                                };
-            TestTeamInfo[] teams = new TestTeamInfo[teamData.GetUpperBound(0)+1];
+            TestTeamInfo[] teams = new TestTeamInfo[teamData.GetUpperBound(0) + 1];
             for (int i = 0; i < teams.Length; i++)
             {
                 int teamNumber = i + START_TEAM_NUMBER;
-                teams[i] = new TestTeamInfo(teamData[i,0], teamData[i,1]);
+                teams[i] = new TestTeamInfo(teamData[i, 0], teamData[i, 1]);
             }
             return teams;
 
@@ -482,7 +486,7 @@ namespace PuzzleOracleV0
 {"800","AAA Challenge Aggregate"},
 {"801","AAA Quest Aggregate"}
 };
-            TestPuzzleInfo[] tpiArray = new TestPuzzleInfo[data.GetUpperBound(0)+1];
+            TestPuzzleInfo[] tpiArray = new TestPuzzleInfo[data.GetUpperBound(0) + 1];
             for (int i = 0; i < tpiArray.Length; i++)
             {
                 tpiArray[i] = new TestPuzzleInfo(data[i, 0], data[i, 1]);
@@ -519,7 +523,7 @@ namespace PuzzleOracleV0
                         i2 + qt("name"), qt(tti.teamName),
                         i2 + qt("_id"), qt(tti.teamId),
                         i2 + qt("description"), qt("Synthetic team " + tti.teamId + " generated on " + DateTime.Now.ToShortDateString()),
-                        i2 + qt("playerIds"), "["+qt(fakePlayer)+"]",
+                        i2 + qt("playerIds"), "[" + qt(fakePlayer) + "]",
                         i2 + qt("teamLeadId"), qt(fakePlayer),
                         i2 + qt("puzzleIds"), puzzleIdsInJson,
                         // NOT TEAM LEAD qt("teamLeadId"), ""
