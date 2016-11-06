@@ -106,78 +106,6 @@ namespace PuzzleOracleV0
             }
         }
 
-#if false // OBSOLETE
-        /// <summary>
-        /// This is for test purposes only - it generates test log data to the specified directory.
-        /// These data files have NOTHING to do with this instance of puzzle oracle. Current team ID, puzzle-data etc are ignored.
-        /// In fact, we create multiple instances of the oracle logger and write random submission logs to them!
-        /// </summary>
-        /// <param name="testLogDirName"></param>
-
-        internal static void generateTestLogDataOld(String testDir)
-        {
-            Random rand = new Random();
-            String testLogDir = testDir + "\\" + TEST_LOG_DATA_DIRNAME;
-
-            try
-            {
-                // Create the test log dir if needed.
-                if (!Directory.Exists(testLogDir))
-                {
-                    Trace.WriteLine(String.Format("Creating TEST LOG directory [{0}]", testLogDir));
-                    Directory.CreateDirectory(testLogDir);
-                }
-                // We only generate test data if the directory is empty.
-                var files = Directory.EnumerateFiles(testLogDir, "*.csv").ToArray();
-                if (files.Length > 0)
-                {
-                    ErrorReport.logError(String.Format("Test log directory [{0}] is NOT empty. NOT generating any test logs. Please clean the directory and try again.", testLogDir));
-                    return; //       ********** EARLY RETURN **************
-                }
-
-                for (int i = 0; i < NUMBER_OF_TEAMS; i++)
-                {
-                    int teamNumber = (i + START_TEAM_NUMBER);
-                    TestTeamInfo tti = new TestTeamInfo(teamNumber);
-                    OracleSubmissionLogger logger = new OracleSubmissionLogger(testLogDir, tti.teamId, tti.teamName);
-                    for (int j = 0; j < NUMBER_OF_PUZZLES; j++)
-                    {
-                        int puzzleNumber = j + START_PUZZLE_NUMBER;
-                        String puzzleId = "" + puzzleNumber;
-                        Debug.Assert(puzzleId.Length == 3); // Puzzle IDs are expecte to be a 3-digit number.
-                        bool shouldSolve = ((puzzleNumber % 100) % teamNumber) == 0; // Last 2 digits of puzzle number must be a multiple of team number.
-                        int numAttempts = rand.Next(MIN_ATTEMPTS_PER_PUZZLE, MAX_ATTEMPTS_PER_PUZZLE + 1);
-                        if (numAttempts == 0 && shouldSolve)
-                        {
-                            numAttempts = 1;
-                        }
-                        bool solved = false;
-                        for (int k = 0; k < numAttempts; k++)
-                        {
-                            bool solve = shouldSolve && (rand.NextDouble() < 1.0 / numAttempts);
-                            solved = solved || solve;
-                            // If we've we've got one more attempt and we haven't solved but we need to solve it, we solve it!
-                            if ((k == (numAttempts - 1)) && shouldSolve && !solved)
-                            {
-                                solved = solve = true;
-                            }
-                            String solutionAttempt = generateRandomSolutionAttempt(rand, puzzleId, solve);
-                            PuzzleResponse pr = generateRandomResponse(rand, puzzleId, solutionAttempt);
-                            logger.logSolveAttempt(puzzleId, solutionAttempt, pr);
-                        }
-                        Debug.Assert((!shouldSolve && !solved) || (shouldSolve && solved));
-                    }
-                    logger.Dispose();
-                }
-            }
-            catch (ApplicationException ex)
-            {
-                ErrorReport.logError("Internal error attempting to write test log data. Can't guarantee the data are correct.");
-                Trace.TraceError(MODULE + "Exception attempting to generate test log data. Ex: " + ex);
-            }
-        }
-#endif
-
         private static string generateRandomSolutionAttempt(Random rand, string puzzleId, bool solve)
         {
             // Correct: PNA where N is puzzle number.
@@ -415,77 +343,64 @@ namespace PuzzleOracleV0
                 teams[i] = new TestTeamInfo(teamData[i, 0], teamData[i, 1]);
             }
             return teams;
-
-
-            return null;
         }
 
         private static TestPuzzleInfo[] generateEAS2015TestPuzzleInfo()
         {
             String[,] data = {
-{"860","Journey Back Home"},
-{"288","Lasers I - Red and Blue"},
-{"683","Lasers II - A Fight for Freedom"},
-{"199","Lasers III - A Many-sided Personality"},
-{"138","Lasers IV - Hidden Equation"},
-{"343","Lasers V - Green machine"},
-{"456","Lasers VI - Rope Trick"},
-{"565","Tile Jumble I - Something Fishy"},
-{"381","Tile Jumble II - Red and Blue"},
-{"613","Tile Jumble III - Prime Production"},
-{"705","Tile Jumble IV - Lord of the Sky"},
-{"403","Tile Jumble V - Emerald City"},
-{"788","Tile Jumble VI - Busy Busy Busy"},
-{"684","Clocks I - Weekly Pursuits"},
-{"765","Clocks II - Jewel of the Northwest"},
-{"292","Clocks III - Starts with.."},
-{"585","Clocks IV - Natural Talon"},
-{"609","Clocks V - Smart Caw"},
-{"347","Clocks VI - Verdant Hue"},
-{"540","Check Your Spellings"},
-{"193","American Adventurer"},
-{"578","Digital Math"},
-{"725","EAS Involvement"},
-{"366","Miss Tresses"},
-{"302","States"},
-{"408","Know your Guts"},
-{"590","Center Tile II"},
-{"887","Capital Punishment"},
-{"886","Alice's Secret Notebook I"},
-{"803","Bricks I - Free to be US"},
-{"118","Bricks II - West End"},
-{"852","Bricks III - Between Cities"},
-{"240","Bricks IV - Animal Analogy"},
-{"319","Bricks V - They Munch a Bunch"},
-{"350","Bricks VI - North of the Lake"},
-{"203","Crisscross I"},
-{"394","Crisscross II"},
-{"217","Crisscross III"},
-{"664","Crisscross IV"},
-{"101","Crisscross V"},
-{"537","Crisscross VI"},
-{"107","Alice's Secret Notebook II"},
-{"871","Outwit Outplay Outlast"},
-{"550","Numeric Justice I"},
-{"183","Numeric Justice II"},
-{"600","Numeric Justice III"},
-{"328","Pioneer Letters I"},
-{"428","Pioneer Letters II"},
-{"111","Pioneer Letters III"},
-{"721","Pioneer Letters IV"},
-{"881","Center Tile "},
-{"892","Center Tile III"},
-{"650","Center Tile IV"},
-{"489","American Adventurer II"},
-{"794","Pioneer Letters V"},
-{"696","Pioneer Letters VI"},
-{"884","Center Tile V"},
-{"686","Center Tile VI"},
-{"556","Me Gustan Los Puzzles!"},
-{"753","American Adventurer III"},
-{"800","AAA Challenge Aggregate"},
-{"801","AAA Quest Aggregate"}
-};
+                {"860", "Tile World I"},
+                {"288", "Tile World II"},
+                {"683", "Tile World III"},
+                {"199", "Tile World IV"},
+                {"138", "Tile World V"},
+                {"343", "Count Cells I"},
+                {"456", "Count Cells II"},
+                {"565", "Count Cells III"},
+                {"381", "Count Cells IV"},
+                {"613", "Count Cells V"},
+                {"705", "Gears I"},
+                {"403", "Gears II"},
+                {"788", "Gears III"},
+                {"684", "Gears IV"},
+                {"765", "Gears V"},
+                {"292", "Nation Stats I"},
+                {"585", "Nation Stats II"},
+                {"609", "Nation Stats III"},
+                {"347", "Nation Stats IV"},
+                {"540", "Nation Stats V"},
+                {"193", "Expeditions I"},
+                {"578", "Expeditions II"},
+                {"725", "Expeditions III"},
+                {"366", "Expeditions IV"},
+                {"302", "Expeditions V"},
+                {"408", "Characteristics Matter I"},
+                {"590", "Characteristics Matter II"},
+                {"887", "Characteristics Matter III"},
+                {"886", "Characteristics Matter IV"},
+                {"803", "Characteristics Matter V"},
+                {"118", "Constitutional Logic I"},
+                {"852", "Constitutional Logic II"},
+                {"240", "Constitutional Logic III"},
+                {"319", "Constitutional Logic IV"},
+                {"350", "Constitutional Logic V"},
+                {"203", "Numeric Justice I"},
+                {"394", "Numeric Justice II"},
+                {"217", "Numeric Justice III"},
+                {"664", "Numeric Justice IV"},
+                {"101", "Numeric Justice V"},
+                {"537", "EAS Involvement I"},
+                {"107", "EAS Involvement II"},
+                {"871", "EAS Involvement III"},
+                {"550", "EAS Involvement IV"},
+                {"183", "EAS Involvement V"},
+                {"600", "TBD46"},
+                {"328", "TBD47"},
+                {"428", "TBD48"},
+                {"111", "TBD49"},
+                {"721", "TBD50"},
+                {"800","AAA Challenge Aggregate"},
+                {"801","AAA Quest Aggregate"}
+            };
             TestPuzzleInfo[] tpiArray = new TestPuzzleInfo[data.GetUpperBound(0) + 1];
             for (int i = 0; i < tpiArray.Length; i++)
             {
