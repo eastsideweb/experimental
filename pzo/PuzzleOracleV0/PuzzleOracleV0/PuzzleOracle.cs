@@ -99,7 +99,7 @@ namespace PuzzleOracleV0
             using (TextWriter tw = new StreamWriter(pathName))
             {
                 // Write header properties
-                tw.Write("POD,version:1.0");
+                tw.Write("POD,version:1.1");
                 foreach (KeyValuePair<String, String> kvp in properties)
                 {
                     String k = kvp.Key;
@@ -122,7 +122,7 @@ namespace PuzzleOracleV0
                 }
 
                 int maxHints = computeMaxHints();
-                int maxCols = maxHints + 3; // 3 for ID, Answer and Name
+                int maxCols = maxHints + 3 + 3; // 3 for ID, Answer and Name, PLUS 3 for three ignored columns (Guild, etc.)
                 if (maxCols < nProps)
                 {
                     maxCols = nProps;
@@ -135,12 +135,12 @@ namespace PuzzleOracleV0
 
 
                 // Write Table headers
-                tw.Write("Id,Name,Answer");
+                tw.Write("Id,Name,Guild,Type,Weight,Answer");
                 for (int i = 0; i < maxHints; i++)
                 {
                     tw.Write(",Hint" + (i + 1));
                 }
-                int colsWritten = maxHints + 3; // 3 for ID, Name and Answer
+                int colsWritten = maxHints + 3 + 3; // 3 for ID, Name and Answer PLUS Guilld, Type, Weight
                 if (colsWritten < maxCols)
                 {
                     Utils.writeCsvCommas(tw, maxCols - colsWritten);
@@ -155,6 +155,9 @@ namespace PuzzleOracleV0
                     // Write ID and Name
                     tw.Write(id);
                     Utils.appendCsvCell(tw, pi.puzzleName);
+
+                    // Write three empty columns for Guild, Type, Weight
+                    Utils.writeCsvCommas(tw, 3);
 
                     // Write responses... (Answer comes first
                     foreach (var pr in pi.responses)
@@ -306,7 +309,7 @@ namespace PuzzleOracleV0
             // We expect that the first row contains the signature ("POD") followed by "version:1.0" followed by 
             // additional properties (which we ignore for now)
             const int HEADER_ROWS = 2;
-            const int MIN_COLS = 3;
+            const int MIN_COLS = 6;
             const String FILE_SIGNATURE = "POD";
             const String PROP_ENCRYPTED = "encrypted";
             int sheet = 0;
@@ -370,7 +373,8 @@ namespace PuzzleOracleV0
                 //  Now let's get the remaining columns. First,  get the first two: Name and Answer.
 
                 String name = Utils.stripEndBlanks(sRow[1]);
-                String answer = Utils.stripEndBlanks(sRow[2]);
+                // sRow[2-4] contain extraneous fields (Guild, etc.)
+                String answer = Utils.stripEndBlanks(sRow[5]);
                 // Neither should be blank.
                 if (name.Equals("") || answer.Equals(""))
                 {
@@ -392,7 +396,7 @@ namespace PuzzleOracleV0
                 pi.addResponse(pAnswerResponse);
 
                 // Add hints, if any...
-                for (int j = 3; j < sRow.Length; j++)
+                for (int j = 6; j < sRow.Length; j++)
                 {
                     String field = Utils.stripEndBlanks(sRow[j]);
                     if (field.Length > 0)
