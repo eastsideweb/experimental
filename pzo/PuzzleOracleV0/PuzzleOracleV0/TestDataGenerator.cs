@@ -497,20 +497,20 @@ namespace PuzzleOracleV0
             using (TextWriter tw = new StreamWriter(puzzleInfoPath, false)) // false == overwrite
             {
                 // Write header properties
-                tw.Write("POD,version:1.0,puzzlecount:" + testPuzzleInfo.Length);
+                tw.Write("POD,version:1.1,puzzlecount:" + testPuzzleInfo.Length);
                 int maxHints = 9;
-                int maxCols = maxHints + 3; // 3 for ID, Answer and Name
+                int maxCols = maxHints + 3 + 3; // 3 for ID, Answer and Name, 3 for Guid, Type, Weight
                 int nProps = 3; // number of properties above.
                 Utils.writeCsvCommas(tw, maxCols - nProps);
                 tw.WriteLine("");
 
                 // Write Table headers
-                tw.Write("Id,Name,Answer");
+                tw.Write("Id,Name,Guid,Type,Weight,Answer");
                 for (int i = 0; i < maxHints; i++)
                 {
                     tw.Write(",Hint" + (i + 1));
                 }
-                int colsWritten = maxHints + 3; // 3 for ID, Name and Answer
+                int colsWritten = maxHints + 3 + 3 ; // 3 for ID, Name and Answer + 3 for Guild, Type, Weight
                 if (colsWritten < maxCols)
                 {
                     Utils.writeCsvCommas(tw, maxCols - colsWritten);
@@ -523,6 +523,10 @@ namespace PuzzleOracleV0
                     // Write ID and Name 
                     tw.Write(tpi.puzzleId);
                     Utils.appendCsvCell(tw, tpi.puzzleName);
+
+                    // Write three empty columns for Guild, Type, Weight
+                    Utils.writeCsvCommas(tw, 3);
+
 
                     // Write answer. Note the ".*" so that anything can follow the intiial PnA
                     String answer = String.Format("P{0}A.*:_C You have solved puzzle {0}.", tpi.puzzleId);
