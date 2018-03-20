@@ -14,8 +14,20 @@ namespace LogProcessorSample
         const String VERSION = "1.0";
         const String MODULE = "MAIN: "; // for debug log.
         const String THUMBDRIVE_VOLUME_REGEX = "^PZO-"; // Volume labels of thrumb drives must match this regex to be considered.
+
+        // Output mode: test, CSV file (EAS 2018) or connect to PSDB server (pre 2018).
+        public enum OperationMode { MODE_INVALID, MODE_TEST, MODE_FILE, MODE_DB };
+        static OperationMode mode = OperationMode.MODE_INVALID;
+
         static void Main(string[] args)
         {
+            if (!parseCmdline(args))
+            {
+                return; // ****** EARLY EXIT ****
+            }
+
+            Debug.Assert(mode != OperationMode.MODE_INVALID);
+
             string baseWorkingDir = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + LOG_PROCESSOR_SUBDIR;
 
             MyConsole.Initialize();
@@ -54,14 +66,24 @@ namespace LogProcessorSample
                 {
 
                     // Create a log consumer - this processes submission requests pulled from individual puzzle oracle log files.
-                    LogConsumer logConsumer = new LogConsumer(baseWorkingDir);
+                    LogConsumer logConsumer = new LogConsumer(baseWorkingDir, Program.mode);
 
                     // Connect to the server and start a session
-                    if (!connectToServer(logConsumer))
+                    if (Program.mode == OperationMode.MODE_DB)                       
                     {
-                        // User indicated to exit the program
-                        /////// Early return
-                        return;
+                        if (!connectToServer(logConsumer))
+                        {
+                            // User indicated to exit the program
+                            /////// Early return
+                            return;
+                        }
+                    } else
+                    {
+                       if (!logConsumer.startSession())
+                        {
+                            MyConsole.WriteError("Unable to initializing upload/writing of results.");
+                            return; // EARLY RETURN
+                        }
                     }
 
                     // Create the log processor - that processes new log files as they show up in the "new" directory. Hook it up to the log consumer so that the latter
@@ -73,6 +95,8 @@ namespace LogProcessorSample
                         driveNotifier.startListening(); // start listening for new thumb drives
                         workQueue.process();
                     }
+
+                    logConsumer.stopSession();
                 }
             }
             catch (ApplicationException e)
@@ -82,6 +106,45 @@ namespace LogProcessorSample
                 Trace.Flush();
                 Console.ReadLine();
             }
+        }
+
+        private static Boolean parseCmdline(string[] args)
+        {
+            Program.mode = OperationMode.MODE_FILE;
+            Boolean ret = true;
+
+            if (args.Length == 1)
+            {
+                if (args[0].ToUpper().Equals("-TEST"))
+                {
+                    Program.mode = OperationMode.MODE_TEST;
+                    MyConsole.WriteLine("***** TEST MODE *****");
+                } else if (args[0].ToUpper().Equals("-DB"))
+                {
+                    Program.mode = OperationMode.MODE_DB;
+                    MyConsole.WriteLine("***** PSDB MODE *****");
+                }
+                else if (args[0].ToUpper().Equals("-FILE"))
+                {
+                    Program.mode = OperationMode.MODE_FILE;
+                    MyConsole.WriteLine("***** CSV FILE MODE *****");
+                } else
+                {
+                    MyConsole.WriteError("Invalid comommandline argument " + args[0] + ". Exiting.");
+                    ret = false;
+                }
+            } else if (args.Length != 0) 
+            {
+                MyConsole.WriteError("Invalid number of commandline arguments " + args.Length + ". Exiting.");
+                ret = false;
+            } else 
+            {
+                // Default is CSV FILE Mode.
+                Program.mode = OperationMode.MODE_FILE;
+                MyConsole.WriteLine("***** CSV FILE MODE *****");
+            }
+
+            return ret;
         }
 
         private static bool connectToServer(LogConsumer logConsumer)

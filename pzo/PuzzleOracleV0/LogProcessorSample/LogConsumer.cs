@@ -21,6 +21,7 @@ namespace LogProcessorSample
         const String PROCESSED_SUBDIR = "processed";
         const String PROCESSED_WITH_ERRORS_SUBDIR = "processed-with-errors";
         const String RESULTS_SUBDIR = "results";
+        const String CSV_RESULTS_FILENAME = "allresults.csv";
 
         const String baseURL = "http://localhost:1566/";
         const String seriesId = "psdbSeriesInfo3";
@@ -34,10 +35,14 @@ namespace LogProcessorSample
         readonly String processedDir;
         readonly String processedWithErrorsDir;
 
-        private PuzzleStateUploader psUploader;
+        private PuzzleStateUploader psUploader; // For DB mode recording of solves
+        private TextWriter csvOutput; // for FILE mode recording of solves.
         private bool sessionStarted = false;
-        public LogConsumer(String baseWorkingDir)
+        private readonly Program.OperationMode mode;
+
+        public LogConsumer(String baseWorkingDir, Program.OperationMode mode)
         {
+            this.mode = mode;
             this.baseWorkingDir = baseWorkingDir;
             this.resultsDir = baseWorkingDir + "\\" + RESULTS_SUBDIR;
             this.processedDir = baseWorkingDir + "\\" + PROCESSED_SUBDIR;
@@ -52,9 +57,39 @@ namespace LogProcessorSample
         }
 
         public bool startSession() {
-            PuzzleStateUploader.PZAuthentication pzAuthentication = new PuzzleStateUploader.PZAuthentication(pzUsername, pzpassword, pzroleType);
-            this.sessionStarted = this.psUploader.startSession(seriesId, pzAuthentication);
-            return this.sessionStarted;
+            if (this.mode == Program.OperationMode.MODE_DB)
+            {
+                PuzzleStateUploader.PZAuthentication pzAuthentication = new PuzzleStateUploader.PZAuthentication(pzUsername, pzpassword, pzroleType);
+                this.sessionStarted = this.psUploader.startSession(seriesId, pzAuthentication);
+                return this.sessionStarted;
+            }
+            else if (this.mode == Program.OperationMode.MODE_FILE)
+            {
+                String csvResultsPath = this.resultsDir + "\\" + CSV_RESULTS_FILENAME;
+
+                try
+                {
+                    MyConsole.WriteLine("Opening CSV file for output: " + csvResultsPath);
+                    this.csvOutput = new StreamWriter(csvResultsPath, true);
+                }
+                catch (IOException ex)
+                {
+                    MyConsole.WriteError("Error attempting to open CSV output file " + csvResultsPath + ". Exiting.");
+                }
+            }
+            return true;
+        }
+
+        public void stopSession()
+        {
+            if(this.mode == Program.OperationMode.MODE_FILE)
+            {
+                if (this.csvOutput != null)
+                {
+                    this.csvOutput.Close();
+                    this.csvOutput = null;
+                }
+            }
         }
         public void logEventHandler(object sender, EventArgs ea)
         {
@@ -194,21 +229,35 @@ namespace LogProcessorSample
 
             // Send an update to the server
             // TODO: hadError should be set to true
+            switch (this.mode) {
+                case Program.OperationMode.MODE_DB:
+                    return recordDbSolve(le);
 
-            if (this.sessionStarted && !this.psUploader.updatePuzzleState(eventId, le.teamId, le.puzzleId, le))
-            {
-                return false;
+                case Program.OperationMode.MODE_FILE:
+                    return recordFileSolve(le);
+
+                case Program.OperationMode.MODE_TEST:
+                    return recordTestSolve(le);
+
+                default:
+                    Debug.Fail("Unrecognized mode: " + this.mode);
+                    break;
             }
 
-            if (le.status.Equals("CORRECT"))
-            {
-                recordSolve(le);
-            }
-            return true;
+            return false;
         }
 
-        private void recordSolve(LogEntry le)
+        private Boolean recordDbSolve(LogEntry le)
         {
+            return this.sessionStarted && !this.psUploader.updatePuzzleState(eventId, le.teamId, le.puzzleId, le);
+        }
+
+        private Boolean recordTestSolve(LogEntry le)
+        {
+            if (!le.status.Equals("CORRECT"))
+            {
+                return true; // ******** EARLY RETURN ****
+            }
             // Record the fact that a particular team has solved a particular puzzle.
             // The way we do this currently is writing out a file <teamID>-<puzzleID>.txt (if it doesn't already exist)
             String content = String.Format("{0},{1}", le.transactionId, le.timestamp);
@@ -224,6 +273,31 @@ namespace LogProcessorSample
             {
                 MyConsole.WriteError(String.Format("WARNING Could not write file [{0}]", solveFile));
             }
+            return true;
+        }
+
+        private Boolean recordFileSolve(LogEntry le)
+        {
+            if (!le.status.Equals("CORRECT"))
+            {
+                return true; // ******** EARLY RETURN ****
+            }
+
+            // Record the fact that a particular team has solved a particular puzzle.
+            // The way we do this currently is writing out a file <teamID>-<puzzleID>.txt (if it doesn't already exist)
+            try
+            {
+                // 0wlFkUV1.3,20:37:30,T5,Team T5,122
+                this.csvOutput.WriteLine("{0},{1},{2},{3},{4}", le.transactionId, le.timestamp, le.teamId, le.teamId, le.puzzleId);
+                this.csvOutput.Flush();
+            }
+            catch (IOException ex)
+            {
+                MyConsole.WriteError(String.Format("WARNING Exception writing transaction {0} to file [{0}]", le.transactionId, CSV_RESULTS_FILENAME));
+                // We keep ploughing on, though it's not a good thing to have got this execption, as we are not processing this result.
+                return false;
+            }
+            return true;
         }
     }
 }
