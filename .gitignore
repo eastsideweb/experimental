@@ -32,3 +32,8 @@ ps0/src/public/client/*.js
 ps0/src/public/lib/*
 ps0/src/npm-debug.log
 ps0/src/.ntvs_analysis.dat
+
+# Object files
+obj/
+bin/
+.vs/
