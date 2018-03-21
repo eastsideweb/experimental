@@ -288,7 +288,7 @@ namespace LogProcessorSample
             try
             {
                 // 0wlFkUV1.3,20:37:30,T5,Team T5,122
-                this.csvOutput.WriteLine("{0},{1},{2},{3},{4}", le.transactionId, le.timestamp, le.teamId, le.teamId, le.puzzleId);
+                this.csvOutput.WriteLine("{0},{1},{2},{3},{4}", le.transactionId, le.timestamp, le.teamId, le.teamName, le.puzzleId);
                 this.csvOutput.Flush();
             }
             catch (IOException ex)
